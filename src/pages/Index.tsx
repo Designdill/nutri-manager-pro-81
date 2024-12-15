@@ -2,14 +2,29 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Card } from "@/components/ui/card";
 import { Users, Calendar, ChartBar } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/login");
+  };
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-gray-50">
         <AppSidebar />
         <main className="flex-1 p-8">
-          <SidebarTrigger />
+          <div className="flex justify-between items-center mb-8">
+            <SidebarTrigger />
+            <Button variant="outline" onClick={handleSignOut}>
+              Sign Out
+            </Button>
+          </div>
           <div className="max-w-7xl mx-auto">
             <h1 className="text-3xl font-bold text-gray-900 mb-8">Welcome, Dr. Smith</h1>
             
@@ -88,8 +103,8 @@ const Index = () => {
                 </div>
               </Card>
             </div>
-          </main>
-        </div>
+          </div>
+        </main>
       </div>
     </SidebarProvider>
   );
