@@ -84,7 +84,7 @@ export default function NewPatient() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      full_name: "",
+      full_name: "", // Initialize full_name as empty string
       cpf: "", // Initialize cpf as empty string
       email: "",
       phone: "",
@@ -97,9 +97,10 @@ export default function NewPatient() {
         throw new Error("User not authenticated");
       }
 
-      // Ensure cpf is included and handle numeric conversions
+      // Ensure required fields are included and handle numeric conversions
       const patientData: PatientInsert = {
         ...values,
+        full_name: values.full_name, // Explicitly include full_name
         cpf: values.cpf, // Explicitly include cpf
         nutritionist_id: session.user.id,
         current_weight: values.current_weight ? parseFloat(values.current_weight) : null,
