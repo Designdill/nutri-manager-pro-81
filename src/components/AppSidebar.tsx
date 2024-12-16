@@ -1,4 +1,16 @@
-import { Calendar, Users, Home, ChartBar, BookOpen } from "lucide-react";
+import { 
+  Calendar, 
+  Users, 
+  Home, 
+  ChartBar, 
+  BookOpen, 
+  MessageSquare, 
+  Bell, 
+  CreditCard,
+  Settings,
+  Apple,
+  ClipboardList
+} from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -9,41 +21,102 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { useAuth } from "@/App";
 
-const menuItems = [
+const nutritionistMenuItems = [
   {
     title: "Dashboard",
     url: "/",
     icon: Home,
   },
   {
-    title: "Patients",
+    title: "Pacientes",
     url: "/patients",
     icon: Users,
   },
   {
-    title: "Appointments",
+    title: "Consultas",
     url: "/appointments",
     icon: Calendar,
   },
   {
-    title: "Progress",
+    title: "Progresso",
     url: "/progress",
     icon: ChartBar,
   },
   {
-    title: "Meal Plans",
+    title: "Planos Alimentares",
     url: "/meal-plans",
     icon: BookOpen,
+  },
+  {
+    title: "Banco de Alimentos",
+    url: "/food-database",
+    icon: Apple,
+  },
+  {
+    title: "Mensagens",
+    url: "/messages",
+    icon: MessageSquare,
+  },
+  {
+    title: "Notificações",
+    url: "/notifications",
+    icon: Bell,
+  },
+  {
+    title: "Pagamentos",
+    url: "/payments",
+    icon: CreditCard,
+  },
+];
+
+const patientMenuItems = [
+  {
+    title: "Meu Dashboard",
+    url: "/",
+    icon: Home,
+  },
+  {
+    title: "Plano Alimentar",
+    url: "/my-plan",
+    icon: BookOpen,
+  },
+  {
+    title: "Diário Alimentar",
+    url: "/food-diary",
+    icon: ClipboardList,
+  },
+  {
+    title: "Meu Progresso",
+    url: "/my-progress",
+    icon: ChartBar,
+  },
+  {
+    title: "Mensagens",
+    url: "/messages",
+    icon: MessageSquare,
+  },
+  {
+    title: "Configurações",
+    url: "/settings",
+    icon: Settings,
   },
 ];
 
 export function AppSidebar() {
+  const { session } = useAuth();
+  const userRole = "nutritionist"; // TODO: Get this from user profile
+
+  const menuItems = userRole === "nutritionist" ? nutritionistMenuItems : patientMenuItems;
+
   return (
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Nutrition Management</SidebarGroupLabel>
+          <SidebarGroupLabel>
+            {userRole === "nutritionist" ? "Gestão Nutricional" : "Minha Nutrição"}
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
