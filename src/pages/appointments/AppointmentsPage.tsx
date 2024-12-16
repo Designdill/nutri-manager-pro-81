@@ -30,7 +30,7 @@ type Appointment = {
   scheduled_at: string;
   status: "confirmed" | "pending" | "cancelled";
   notes: string | null;
-  patient: {
+  patients: {
     full_name: string;
   };
 };
@@ -259,7 +259,7 @@ export default function AppointmentsPage() {
                       <User className="h-5 w-5 text-muted-foreground" />
                       <div>
                         <p className="font-medium">
-                          {appointment.patient.full_name}
+                          {appointment.patients.full_name}
                         </p>
                         <div className="flex items-center text-sm text-muted-foreground">
                           <Clock className="mr-2 h-4 w-4" />
