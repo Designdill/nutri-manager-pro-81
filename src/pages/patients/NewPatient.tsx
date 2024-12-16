@@ -84,8 +84,8 @@ export default function NewPatient() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      full_name: "", // Initialize full_name as empty string
-      cpf: "", // Initialize cpf as empty string
+      full_name: "",
+      cpf: "",
       email: "",
       phone: "",
     },
@@ -97,11 +97,33 @@ export default function NewPatient() {
         throw new Error("User not authenticated");
       }
 
-      // Ensure required fields are included and handle numeric conversions
+      // First, check if the nutritionist profile exists
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", session.user.id)
+        .single();
+
+      if (profileError || !profile) {
+        // Create profile if it doesn't exist
+        const { error: createProfileError } = await supabase
+          .from("profiles")
+          .insert({
+            id: session.user.id,
+            role: "nutritionist",
+          });
+
+        if (createProfileError) {
+          console.error("Error creating profile:", createProfileError);
+          throw createProfileError;
+        }
+      }
+
+      // Now proceed with patient creation
       const patientData: PatientInsert = {
         ...values,
-        full_name: values.full_name, // Explicitly include full_name
-        cpf: values.cpf, // Explicitly include cpf
+        full_name: values.full_name,
+        cpf: values.cpf,
         nutritionist_id: session.user.id,
         current_weight: values.current_weight ? parseFloat(values.current_weight) : null,
         target_weight: values.target_weight ? parseFloat(values.target_weight) : null,
