@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { User, Camera } from "lucide-react";
+import { User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -24,6 +24,9 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/App";
+import type { TablesInsert } from "@/integrations/supabase/types";
+
+type PatientInsert = TablesInsert<"patients">;
 
 const formSchema = z.object({
   // Personal Information
@@ -90,10 +93,14 @@ export default function NewPatient() {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      // Make sure cpf is included and handle numeric conversions
-      const patientData = {
+      if (!session?.user.id) {
+        throw new Error("User not authenticated");
+      }
+
+      // Prepare the patient data with proper type conversion
+      const patientData: PatientInsert = {
         ...values,
-        nutritionist_id: session?.user.id,
+        nutritionist_id: session.user.id,
         current_weight: values.current_weight ? parseFloat(values.current_weight) : null,
         target_weight: values.target_weight ? parseFloat(values.target_weight) : null,
         height: values.height ? parseFloat(values.height) : null,
@@ -103,10 +110,7 @@ export default function NewPatient() {
 
       const { error } = await supabase
         .from("patients")
-        .insert({
-          ...patientData,
-          nutritionist_id: session?.user.id,
-        });
+        .insert(patientData);
 
       if (error) throw error;
 
@@ -697,4 +701,4 @@ export default function NewPatient() {
       </div>
     </div>
   );
-}
+};
