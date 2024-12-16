@@ -85,7 +85,7 @@ export default function NewPatient() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       full_name: "",
-      cpf: "",
+      cpf: "", // Initialize cpf as empty string
       email: "",
       phone: "",
     },
@@ -97,9 +97,10 @@ export default function NewPatient() {
         throw new Error("User not authenticated");
       }
 
-      // Prepare the patient data with proper type conversion
+      // Ensure cpf is included and handle numeric conversions
       const patientData: PatientInsert = {
         ...values,
+        cpf: values.cpf, // Explicitly include cpf
         nutritionist_id: session.user.id,
         current_weight: values.current_weight ? parseFloat(values.current_weight) : null,
         target_weight: values.target_weight ? parseFloat(values.target_weight) : null,
