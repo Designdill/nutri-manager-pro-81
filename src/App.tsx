@@ -10,6 +10,14 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import NewPatient from "./pages/patients/NewPatient";
+import PatientsPage from "./pages/patients/PatientsPage";
+import AppointmentsPage from "./pages/appointments/AppointmentsPage";
+import ProgressPage from "./pages/progress/ProgressPage";
+import MealPlansPage from "./pages/meal-plans/MealPlansPage";
+import FoodDatabasePage from "./pages/food-database/FoodDatabasePage";
+import MessagesPage from "./pages/messages/MessagesPage";
+import NotificationsPage from "./pages/notifications/NotificationsPage";
+import PaymentsPage from "./pages/payments/PaymentsPage";
 
 const queryClient = new QueryClient();
 
@@ -79,10 +87,74 @@ const App = () => {
                     }
                   />
                   <Route
+                    path="/patients"
+                    element={
+                      <ProtectedRoute>
+                        <PatientsPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
                     path="/patients/new"
                     element={
                       <ProtectedRoute>
                         <NewPatient />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/appointments"
+                    element={
+                      <ProtectedRoute>
+                        <AppointmentsPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/progress"
+                    element={
+                      <ProtectedRoute>
+                        <ProgressPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/meal-plans"
+                    element={
+                      <ProtectedRoute>
+                        <MealPlansPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/food-database"
+                    element={
+                      <ProtectedRoute>
+                        <FoodDatabasePage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/messages"
+                    element={
+                      <ProtectedRoute>
+                        <MessagesPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/notifications"
+                    element={
+                      <ProtectedRoute>
+                        <NotificationsPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/payments"
+                    element={
+                      <ProtectedRoute>
+                        <PaymentsPage />
                       </ProtectedRoute>
                     }
                   />
