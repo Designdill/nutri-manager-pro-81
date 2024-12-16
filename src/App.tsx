@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { createContext, useContext, useEffect, useState } from "react";
 import { Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import NewPatient from "./pages/patients/NewPatient";
@@ -62,29 +63,33 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <AuthContext.Provider value={{ session, loading }}>
         <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route
-                path="/"
-                element={
-                  <ProtectedRoute>
-                    <Index />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/patients/new"
-                element={
-                  <ProtectedRoute>
-                    <NewPatient />
-                  </ProtectedRoute>
-                }
-              />
-            </Routes>
-          </BrowserRouter>
+          <SidebarProvider>
+            <div className="min-h-screen flex w-full">
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/login" element={<Login />} />
+                  <Route
+                    path="/"
+                    element={
+                      <ProtectedRoute>
+                        <Index />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/patients/new"
+                    element={
+                      <ProtectedRoute>
+                        <NewPatient />
+                      </ProtectedRoute>
+                    }
+                  />
+                </Routes>
+              </BrowserRouter>
+            </div>
+          </SidebarProvider>
         </TooltipProvider>
       </AuthContext.Provider>
     </QueryClientProvider>

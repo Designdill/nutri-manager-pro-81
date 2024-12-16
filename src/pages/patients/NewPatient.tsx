@@ -90,7 +90,8 @@ export default function NewPatient() {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const { error } = await supabase.from("patients").insert({
+      // Make sure cpf is included and handle numeric conversions
+      const patientData = {
         ...values,
         nutritionist_id: session?.user.id,
         current_weight: values.current_weight ? parseFloat(values.current_weight) : null,
@@ -98,7 +99,14 @@ export default function NewPatient() {
         height: values.height ? parseFloat(values.height) : null,
         meals_per_day: values.meals_per_day ? parseInt(values.meals_per_day) : null,
         sleep_hours: values.sleep_hours ? parseInt(values.sleep_hours) : null,
-      });
+      };
+
+      const { error } = await supabase
+        .from("patients")
+        .insert({
+          ...patientData,
+          nutritionist_id: session?.user.id,
+        });
 
       if (error) throw error;
 
