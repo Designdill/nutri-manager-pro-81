@@ -1,17 +1,22 @@
 import { AppSidebar } from "@/components/AppSidebar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ConsultationForm } from "@/components/patients/ConsultationForm";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from "recharts";
+import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from "recharts";
+import { useParams } from "react-router-dom";
+import { useState } from "react";
 
 export default function PatientDetailsPage() {
   const { patientId } = useParams();
+  const [isConsultationDialogOpen, setIsConsultationDialogOpen] = useState(false);
 
-  const { data: patient, isLoading } = useQuery({
+  const { data: patient, isLoading: isLoadingPatient } = useQuery({
     queryKey: ["patient", patientId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -25,15 +30,21 @@ export default function PatientDetailsPage() {
     },
   });
 
-  // Dados de exemplo para o gráfico
-  const progressData = [
-    { date: "2024-01-01", weight: 85 },
-    { date: "2024-02-01", weight: 83 },
-    { date: "2024-03-01", weight: 81 },
-    { date: "2024-04-01", weight: 80 },
-  ];
+  const { data: consultations, isLoading: isLoadingConsultations } = useQuery({
+    queryKey: ["consultations", patientId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("consultations")
+        .select("*")
+        .eq("patient_id", patientId)
+        .order("consultation_date", { ascending: true });
 
-  if (isLoading) {
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  if (isLoadingPatient || isLoadingConsultations) {
     return <div>Carregando...</div>;
   }
 
@@ -88,13 +99,58 @@ export default function PatientDetailsPage() {
 
           <TabsContent value="history">
             <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Histórico de Atendimentos</CardTitle>
+                <Dialog open={isConsultationDialogOpen} onOpenChange={setIsConsultationDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button>Novo Atendimento</Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Novo Atendimento</DialogTitle>
+                    </DialogHeader>
+                    <ConsultationForm
+                      patientId={patientId!}
+                      patientHeight={patient?.height}
+                      onSuccess={() => setIsConsultationDialogOpen(false)}
+                      onCancel={() => setIsConsultationDialogOpen(false)}
+                    />
+                  </DialogContent>
+                </Dialog>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">
-                  Histórico de atendimentos será implementado em breve...
-                </p>
+                <div className="space-y-4">
+                  {consultations?.length === 0 ? (
+                    <p className="text-muted-foreground text-center py-4">
+                      Nenhum atendimento registrado
+                    </p>
+                  ) : (
+                    <div className="rounded-md border">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="border-b bg-muted/50">
+                            <th className="p-2 text-left">Data</th>
+                            <th className="p-2 text-left">Peso</th>
+                            <th className="p-2 text-left">IMC</th>
+                            <th className="p-2 text-left">Observações</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {consultations?.map((consultation) => (
+                            <tr key={consultation.id} className="border-b">
+                              <td className="p-2">
+                                {format(new Date(consultation.consultation_date), "dd/MM/yyyy")}
+                              </td>
+                              <td className="p-2">{consultation.weight} kg</td>
+                              <td className="p-2">{consultation.bmi}</td>
+                              <td className="p-2">{consultation.observations || "-"}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -107,10 +163,10 @@ export default function PatientDetailsPage() {
               <CardContent>
                 <div className="h-[400px]">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={progressData}>
+                    <LineChart data={consultations}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis
-                        dataKey="date"
+                        dataKey="consultation_date"
                         tickFormatter={(value) =>
                           format(new Date(value), "MMM dd", { locale: ptBR })
                         }
