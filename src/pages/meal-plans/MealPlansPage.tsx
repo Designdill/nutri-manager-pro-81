@@ -8,6 +8,11 @@ import { useState } from "react";
 import { CreateMealPlanForm } from "@/components/meal-plans/CreateMealPlanForm";
 import { MealPlansList } from "@/components/meal-plans/MealPlansList";
 
+interface PatientBasicInfo {
+  id: string;
+  full_name: string;
+}
+
 export default function MealPlansPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -23,7 +28,7 @@ export default function MealPlansPage() {
         throw error;
       }
 
-      return data;
+      return data as PatientBasicInfo[];
     },
   });
 

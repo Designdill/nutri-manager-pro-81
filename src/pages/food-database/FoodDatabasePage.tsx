@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { PlusIcon, SearchIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Food, OpenFoodFactsProduct } from "./types";
+import { Food, OpenFoodFactsProduct, NewFood } from "./types";
 import { FoodForm } from "./components/FoodForm";
 import { FoodTable } from "./components/FoodTable";
 
@@ -14,7 +14,7 @@ export default function FoodDatabasePage() {
   const { toast } = useToast();
   const [isAdding, setIsAdding] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [newFood, setNewFood] = useState<Partial<Food>>({});
+  const [newFood, setNewFood] = useState<Partial<NewFood>>({});
 
   const { data: foods, refetch } = useQuery({
     queryKey: ["foods"],
@@ -43,7 +43,17 @@ export default function FoodDatabasePage() {
       return;
     }
 
-    const { error } = await supabase.from("foods").insert([newFood]);
+    const { error } = await supabase.from("foods").insert([{
+      name: newFood.name,
+      category: newFood.category,
+      calories: newFood.calories || null,
+      proteins: newFood.proteins || null,
+      carbohydrates: newFood.carbohydrates || null,
+      fats: newFood.fats || null,
+      fiber: newFood.fiber || null,
+      serving_size: newFood.serving_size || null,
+      serving_unit: newFood.serving_unit || null,
+    }]);
 
     if (error) {
       console.error("Error adding food:", error);

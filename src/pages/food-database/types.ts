@@ -9,6 +9,8 @@ export interface Food {
   fiber: number | null;
   serving_size: number | null;
   serving_unit: string | null;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface OpenFoodFactsProduct {
@@ -23,3 +25,5 @@ export interface OpenFoodFactsProduct {
   };
   serving_size: string;
 }
+
+export type NewFood = Omit<Food, 'id' | 'created_at' | 'updated_at'>;
