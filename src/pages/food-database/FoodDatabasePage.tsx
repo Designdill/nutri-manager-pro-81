@@ -3,39 +3,18 @@ import { useQuery } from "@tanstack/react-query";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { PlusIcon, SearchIcon } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { PlusIcon } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
-
-type Food = {
-  id: string;
-  name: string;
-  category: string;
-  calories: number | null;
-  proteins: number | null;
-  carbohydrates: number | null;
-  fats: number | null;
-  fiber: number | null;
-  serving_size: number | null;
-  serving_unit: string | null;
-};
+import { Food, OpenFoodFactsProduct } from "./types";
+import { FoodForm } from "./components/FoodForm";
+import { FoodTable } from "./components/FoodTable";
 
 export default function FoodDatabasePage() {
   const { toast } = useToast();
   const [isAdding, setIsAdding] = useState(false);
-  const [newFood, setNewFood] = useState<Partial<Food>>({
-    name: "",
-    category: "",
-    calories: null,
-    proteins: null,
-    carbohydrates: null,
-    fats: null,
-    fiber: null,
-    serving_size: null,
-    serving_unit: null,
-  });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [newFood, setNewFood] = useState<Partial<Food>>({});
 
   const { data: foods, refetch } = useQuery({
     queryKey: ["foods"],
@@ -81,19 +60,57 @@ export default function FoodDatabasePage() {
       description: "Alimento adicionado com sucesso",
     });
 
-    setNewFood({
-      name: "",
-      category: "",
-      calories: null,
-      proteins: null,
-      carbohydrates: null,
-      fats: null,
-      fiber: null,
-      serving_size: null,
-      serving_unit: null,
-    });
+    setNewFood({});
     setIsAdding(false);
     refetch();
+  };
+
+  const searchOpenFoodFacts = async () => {
+    if (!searchTerm) {
+      toast({
+        title: "Erro",
+        description: "Digite um termo para buscar",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `https://br.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(
+          searchTerm
+        )}&json=1&page=1&page_size=20`
+      );
+      const data = await response.json();
+
+      if (data.products && data.products.length > 0) {
+        const product = data.products[0] as OpenFoodFactsProduct;
+        setNewFood({
+          name: product.product_name,
+          category: product.categories?.split(",")[0] || "Outros",
+          calories: product.nutriments["energy-kcal_100g"] || null,
+          proteins: product.nutriments.proteins_100g || null,
+          carbohydrates: product.nutriments.carbohydrates_100g || null,
+          fats: product.nutriments.fat_100g || null,
+          fiber: product.nutriments.fiber_100g || null,
+          serving_size: 100,
+          serving_unit: "g",
+        });
+        setIsAdding(true);
+      } else {
+        toast({
+          title: "Aviso",
+          description: "Nenhum alimento encontrado",
+        });
+      }
+    } catch (error) {
+      console.error("Error searching OpenFoodFacts:", error);
+      toast({
+        title: "Erro",
+        description: "Erro ao buscar alimento",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -102,144 +119,36 @@ export default function FoodDatabasePage() {
       <div className="flex-1 p-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Banco de Alimentos</h1>
-          <Button onClick={() => setIsAdding(!isAdding)}>
-            <PlusIcon className="mr-2" />
-            Adicionar Alimento
-          </Button>
+          <div className="flex gap-4">
+            <div className="flex gap-2">
+              <Input
+                placeholder="Buscar no Open Food Facts..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-64"
+              />
+              <Button onClick={searchOpenFoodFacts}>
+                <SearchIcon className="mr-2" />
+                Buscar
+              </Button>
+            </div>
+            <Button onClick={() => setIsAdding(!isAdding)}>
+              <PlusIcon className="mr-2" />
+              Adicionar Alimento
+            </Button>
+          </div>
         </div>
 
         {isAdding && (
-          <div className="bg-card p-6 rounded-lg shadow-sm mb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Nome *</Label>
-              <Input
-                id="name"
-                value={newFood.name}
-                onChange={(e) => setNewFood({ ...newFood, name: e.target.value })}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="category">Categoria *</Label>
-              <Input
-                id="category"
-                value={newFood.category}
-                onChange={(e) => setNewFood({ ...newFood, category: e.target.value })}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="calories">Calorias (kcal)</Label>
-              <Input
-                id="calories"
-                type="number"
-                value={newFood.calories || ""}
-                onChange={(e) => setNewFood({ ...newFood, calories: parseFloat(e.target.value) || null })}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="proteins">Proteínas (g)</Label>
-              <Input
-                id="proteins"
-                type="number"
-                value={newFood.proteins || ""}
-                onChange={(e) => setNewFood({ ...newFood, proteins: parseFloat(e.target.value) || null })}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="carbohydrates">Carboidratos (g)</Label>
-              <Input
-                id="carbohydrates"
-                type="number"
-                value={newFood.carbohydrates || ""}
-                onChange={(e) => setNewFood({ ...newFood, carbohydrates: parseFloat(e.target.value) || null })}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="fats">Gorduras (g)</Label>
-              <Input
-                id="fats"
-                type="number"
-                value={newFood.fats || ""}
-                onChange={(e) => setNewFood({ ...newFood, fats: parseFloat(e.target.value) || null })}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="fiber">Fibras (g)</Label>
-              <Input
-                id="fiber"
-                type="number"
-                value={newFood.fiber || ""}
-                onChange={(e) => setNewFood({ ...newFood, fiber: parseFloat(e.target.value) || null })}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="serving_size">Porção</Label>
-              <Input
-                id="serving_size"
-                type="number"
-                value={newFood.serving_size || ""}
-                onChange={(e) => setNewFood({ ...newFood, serving_size: parseFloat(e.target.value) || null })}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="serving_unit">Unidade da Porção</Label>
-              <Input
-                id="serving_unit"
-                value={newFood.serving_unit || ""}
-                onChange={(e) => setNewFood({ ...newFood, serving_unit: e.target.value })}
-              />
-            </div>
-
-            <div className="col-span-full flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsAdding(false)}>
-                Cancelar
-              </Button>
-              <Button onClick={handleAddFood}>
-                Salvar
-              </Button>
-            </div>
-          </div>
+          <FoodForm
+            newFood={newFood}
+            setNewFood={setNewFood}
+            onSubmit={handleAddFood}
+            onCancel={() => setIsAdding(false)}
+          />
         )}
 
-        <div className="bg-card rounded-lg shadow-sm overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>Categoria</TableHead>
-                <TableHead>Calorias</TableHead>
-                <TableHead>Proteínas</TableHead>
-                <TableHead>Carboidratos</TableHead>
-                <TableHead>Gorduras</TableHead>
-                <TableHead>Fibras</TableHead>
-                <TableHead>Porção</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {foods?.map((food) => (
-                <TableRow key={food.id}>
-                  <TableCell>{food.name}</TableCell>
-                  <TableCell>{food.category}</TableCell>
-                  <TableCell>{food.calories}</TableCell>
-                  <TableCell>{food.proteins}</TableCell>
-                  <TableCell>{food.carbohydrates}</TableCell>
-                  <TableCell>{food.fats}</TableCell>
-                  <TableCell>{food.fiber}</TableCell>
-                  <TableCell>
-                    {food.serving_size} {food.serving_unit}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+        <FoodTable foods={foods || []} />
       </div>
     </div>
   );
