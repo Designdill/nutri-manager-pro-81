@@ -1,3 +1,4 @@
+import { Database } from './database';
 export * from './database';
 export * from './tables';
 
