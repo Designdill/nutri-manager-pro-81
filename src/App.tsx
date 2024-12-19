@@ -18,6 +18,7 @@ import FoodDatabasePage from "./pages/food-database/FoodDatabasePage";
 import MessagesPage from "./pages/messages/MessagesPage";
 import NotificationsPage from "./pages/notifications/NotificationsPage";
 import PaymentsPage from "./pages/payments/PaymentsPage";
+import SettingsPage from "./pages/settings/SettingsPage";
 
 const queryClient = new QueryClient();
 
@@ -155,6 +156,14 @@ const App = () => {
                     element={
                       <ProtectedRoute>
                         <PaymentsPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/settings"
+                    element={
+                      <ProtectedRoute>
+                        <SettingsPage />
                       </ProtectedRoute>
                     }
                   />

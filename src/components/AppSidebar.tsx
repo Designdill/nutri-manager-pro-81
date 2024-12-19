@@ -8,7 +8,8 @@ import {
   Bell, 
   CreditCard,
   Apple,
-  ClipboardList
+  ClipboardList,
+  Settings
 } from "lucide-react";
 import {
   Sidebar,
@@ -68,6 +69,11 @@ const nutritionistMenuItems = [
     title: "Pagamentos",
     url: "/payments",
     icon: CreditCard,
+  },
+  {
+    title: "Configurações",
+    url: "/settings",
+    icon: Settings,
   },
 ];
 
