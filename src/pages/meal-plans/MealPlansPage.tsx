@@ -7,11 +7,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { CreateMealPlanForm } from "@/components/meal-plans/CreateMealPlanForm";
 import { MealPlansList } from "@/components/meal-plans/MealPlansList";
+import { Tables } from "@/integrations/supabase/types";
 
-interface PatientBasicInfo {
-  id: string;
-  full_name: string;
-}
+type Patient = Tables<"patients">;
 
 export default function MealPlansPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -21,14 +19,14 @@ export default function MealPlansPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("patients")
-        .select("id, full_name");
+        .select("*");
       
       if (error) {
         console.error("Error fetching patients:", error);
         throw error;
       }
 
-      return data as PatientBasicInfo[];
+      return data as Patient[];
     },
   });
 

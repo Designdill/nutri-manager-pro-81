@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
+import { Tables } from "@/integrations/supabase/types";
 
 interface ChatWindowProps {
   selectedUser: {
@@ -14,10 +15,12 @@ interface ChatWindowProps {
   } | null;
 }
 
+type Message = Tables<"messages">;
+
 export default function ChatWindow({ selectedUser }: ChatWindowProps) {
   const { session } = useAuth();
   const { toast } = useToast();
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -53,7 +56,7 @@ export default function ChatWindow({ selectedUser }: ChatWindowProps) {
           filter: `sender_id=eq.${session.user.id},recipient_id=eq.${selectedUser.id}`,
         },
         (payload) => {
-          setMessages((current) => [...current, payload.new]);
+          setMessages((current) => [...current, payload.new as Message]);
         }
       )
       .subscribe();
