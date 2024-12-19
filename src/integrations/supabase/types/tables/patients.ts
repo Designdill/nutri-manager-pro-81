@@ -1,0 +1,42 @@
+export interface PatientsTable {
+  Row: {
+    id: string;
+    nutritionist_id: string | null;
+    full_name: string;
+    cpf: string;
+    email: string | null;
+    phone: string | null;
+    birth_date: string | null;
+    gender: string | null;
+    occupation: string | null;
+    postal_code: string | null;
+    street: string | null;
+    number: string | null;
+    complement: string | null;
+    neighborhood: string | null;
+    city: string | null;
+    state: string | null;
+    current_weight: number | null;
+    target_weight: number | null;
+    height: number | null;
+    blood_type: string | null;
+    family_history: string | null;
+    medical_conditions: string | null;
+    allergies: string | null;
+    medications: string | null;
+    meals_per_day: number | null;
+    dietary_restrictions: string | null;
+    exercise_frequency: string | null;
+    exercise_type: string | null;
+    exercise_duration: string | null;
+    sleep_hours: number | null;
+    sleep_quality: string | null;
+    nutritional_goals: string | null;
+    treatment_expectations: string | null;
+    additional_notes: string | null;
+    created_at: string;
+    updated_at: string;
+  };
+  Insert: Omit<PatientsTable['Row'], 'id' | 'created_at' | 'updated_at'>;
+  Update: Partial<PatientsTable['Insert']>;
+}
