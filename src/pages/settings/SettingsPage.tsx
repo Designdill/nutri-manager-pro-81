@@ -17,8 +17,8 @@ import { z } from "zod";
 const settingsFormSchema = z.object({
   full_name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
   phone: z.string().optional(),
-  theme: z.enum(["light", "dark", "system"]),
-  language: z.enum(["pt-BR", "en-US"]),
+  theme: z.enum(["light", "dark", "system"] as const),
+  language: z.enum(["pt-BR", "en-US"] as const),
   email_notifications: z.boolean(),
   open_food_facts_api_key: z.string().optional(),
   google_calendar_connected: z.boolean(),
@@ -39,10 +39,10 @@ export default function SettingsPage() {
         .from("user_settings")
         .select("*")
         .eq("user_id", session?.user?.id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
-      return data as Tables<"user_settings">;
+      return data as Tables<"user_settings"> | null;
     },
   });
 
@@ -53,10 +53,10 @@ export default function SettingsPage() {
         .from("profiles")
         .select("*")
         .eq("id", session?.user?.id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
-      return data as Tables<"profiles">;
+      return data as Tables<"profiles"> | null;
     },
   });
 
@@ -64,8 +64,8 @@ export default function SettingsPage() {
     defaultValues: {
       full_name: profile?.full_name || "",
       phone: profile?.phone || "",
-      theme: userSettings?.theme || "system",
-      language: userSettings?.language || "pt-BR",
+      theme: (userSettings?.theme as "light" | "dark" | "system") || "system",
+      language: (userSettings?.language as "pt-BR" | "en-US") || "pt-BR",
       email_notifications: userSettings?.email_notifications || false,
       open_food_facts_api_key: userSettings?.open_food_facts_api_key || "",
       google_calendar_connected: userSettings?.google_calendar_connected || false,
@@ -344,4 +344,4 @@ export default function SettingsPage() {
       </div>
     </div>
   );
-}
+};
