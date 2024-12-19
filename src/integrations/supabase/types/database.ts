@@ -1,3 +1,15 @@
+import { 
+  AppointmentsTable,
+  ConsultationsTable,
+  FoodsTable,
+  MealPlansTable,
+  MessagesTable,
+  PatientPhotosTable,
+  PatientsTable,
+  ProfilesTable,
+  UserSettingsTable 
+} from './tables';
+
 export type Json =
   | string
   | number
