@@ -78,6 +78,25 @@ export default function NewPatient() {
 
       if (error) throw error;
 
+      // Send welcome email with temporary password
+      const response = await fetch("/functions/v1/send-welcome-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({
+          patientData: {
+            full_name: values.full_name,
+            email: values.email,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to send welcome email");
+      }
+
       toast.success("Paciente cadastrado com sucesso!");
       navigate("/patients");
     } catch (error) {
