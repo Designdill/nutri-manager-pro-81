@@ -1,3 +1,15 @@
+import { 
+  AppointmentsTable,
+  ConsultationsTable,
+  FoodsTable,
+  MealPlansTable,
+  MessagesTable,
+  PatientPhotosTable,
+  PatientsTable,
+  ProfilesTable,
+  UserSettingsTable 
+} from './';
+
 export type Json =
   | string
   | number
@@ -6,7 +18,7 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export type Database = {
+export interface Database {
   public: {
     Tables: {
       appointments: AppointmentsTable;
@@ -32,4 +44,4 @@ export type Database = {
       [_ in never]: never;
     };
   };
-};
+}

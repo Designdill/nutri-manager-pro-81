@@ -1,48 +1,24 @@
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { useState } from "react";
 import { useAuth } from "@/App";
-import { supabase } from "@/integrations/supabase/client";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+import { Tables } from "@/integrations/supabase/types";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 const settingsFormSchema = z.object({
-  full_name: z.string().min(1, "Nome é obrigatório"),
-  email: z.string().email("E-mail inválido"),
+  full_name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
   phone: z.string().optional(),
-  theme: z.string(),
-  language: z.string(),
+  theme: z.enum(["light", "dark", "system"]),
+  language: z.enum(["pt-BR", "en-US"]),
   email_notifications: z.boolean(),
   open_food_facts_api_key: z.string().optional(),
   google_calendar_connected: z.boolean(),
@@ -54,83 +30,59 @@ type SettingsFormValues = z.infer<typeof settingsFormSchema>;
 export default function SettingsPage() {
   const { session } = useAuth();
   const { toast } = useToast();
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<SettingsFormValues>({
-    resolver: zodResolver(settingsFormSchema),
-    defaultValues: {
-      full_name: "",
-      email: "",
-      phone: "",
-      theme: "light",
-      language: "pt-BR",
-      email_notifications: true,
-      open_food_facts_api_key: "",
-      google_calendar_connected: false,
-      account_active: true,
+  const { data: userSettings } = useQuery({
+    queryKey: ["user-settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("user_settings")
+        .select("*")
+        .eq("user_id", session?.user?.id)
+        .single();
+
+      if (error) throw error;
+      return data as Tables<"user_settings">;
     },
   });
 
-  useEffect(() => {
-    const loadSettings = async () => {
-      if (!session?.user?.id) return;
+  const { data: profile } = useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", session?.user?.id)
+        .single();
 
-      try {
-        const { data: profile, error: profileError } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", session.user.id)
-          .single();
+      if (error) throw error;
+      return data as Tables<"profiles">;
+    },
+  });
 
-        if (profileError) throw profileError;
-
-        const { data: settings, error: settingsError } = await supabase
-          .from("user_settings")
-          .select("*")
-          .eq("user_id", session.user.id)
-          .single();
-
-        if (settingsError) throw settingsError;
-
-        form.reset({
-          full_name: profile.full_name || "",
-          email: session.user.email || "",
-          phone: profile.phone || "",
-          theme: settings.theme || "light",
-          language: settings.language || "pt-BR",
-          email_notifications: settings.email_notifications,
-          open_food_facts_api_key: settings.open_food_facts_api_key || "",
-          google_calendar_connected: settings.google_calendar_connected,
-          account_active: settings.account_active,
-        });
-      } catch (error) {
-        console.error("Error loading settings:", error);
-        toast({
-          title: "Erro ao carregar configurações",
-          description: "Tente novamente mais tarde",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadSettings();
-  }, [session?.user?.id, form, toast]);
+  const form = useForm<SettingsFormValues>({
+    defaultValues: {
+      full_name: profile?.full_name || "",
+      phone: profile?.phone || "",
+      theme: userSettings?.theme || "system",
+      language: userSettings?.language || "pt-BR",
+      email_notifications: userSettings?.email_notifications || false,
+      open_food_facts_api_key: userSettings?.open_food_facts_api_key || "",
+      google_calendar_connected: userSettings?.google_calendar_connected || false,
+      account_active: userSettings?.account_active || true,
+    },
+  });
 
   const onSubmit = async (data: SettingsFormValues) => {
-    if (!session?.user?.id) return;
-
+    setIsLoading(true);
     try {
-      setLoading(true);
-
       const { error: profileError } = await supabase
         .from("profiles")
         .update({
           full_name: data.full_name,
           phone: data.phone,
         })
-        .eq("id", session.user.id);
+        .eq("id", session?.user?.id);
 
       if (profileError) throw profileError;
 
@@ -144,65 +96,59 @@ export default function SettingsPage() {
           google_calendar_connected: data.google_calendar_connected,
           account_active: data.account_active,
         })
-        .eq("user_id", session.user.id);
+        .eq("user_id", session?.user?.id);
 
       if (settingsError) throw settingsError;
 
       toast({
-        title: "Configurações salvas",
-        description: "Suas configurações foram atualizadas com sucesso",
+        title: "Configurações atualizadas",
+        description: "Suas configurações foram atualizadas com sucesso.",
       });
     } catch (error) {
-      console.error("Error saving settings:", error);
+      console.error("Error updating settings:", error);
       toast({
-        title: "Erro ao salvar configurações",
-        description: "Tente novamente mais tarde",
+        title: "Erro",
+        description: "Ocorreu um erro ao atualizar as configurações.",
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="flex min-h-screen">
       <AppSidebar />
-      <div className="flex-1 p-8">
-        <div className="max-w-2xl mx-auto">
-          <h1 className="text-3xl font-bold mb-8">Configurações</h1>
+      <div className="flex-1 space-y-8 p-8">
+        <div>
+          <h1 className="text-2xl font-bold">Configurações</h1>
+          <p className="text-muted-foreground">
+            Gerencie suas preferências e configurações da conta
+          </p>
+        </div>
 
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <div className="space-y-6">
-                <h2 className="text-xl font-semibold">Informações do Nutricionista</h2>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <Card>
+              <CardHeader>
+                <CardTitle>Perfil</CardTitle>
+                <CardDescription>
+                  Gerencie suas informações pessoais
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <FormField
                   control={form.control}
                   name="full_name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Nome completo</FormLabel>
+                      <FormLabel>Nome Completo</FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
-
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>E-mail</FormLabel>
-                      <FormControl>
-                        <Input {...field} disabled />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
                 <FormField
                   control={form.control}
                   name="phone"
@@ -212,21 +158,30 @@ export default function SettingsPage() {
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
-              </div>
+              </CardContent>
+            </Card>
 
-              <div className="space-y-6">
-                <h2 className="text-xl font-semibold">Preferências do Sistema</h2>
+            <Card>
+              <CardHeader>
+                <CardTitle>Aparência</CardTitle>
+                <CardDescription>
+                  Personalize a aparência do sistema
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <FormField
                   control={form.control}
                   name="theme"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Tema</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Selecione um tema" />
@@ -235,9 +190,9 @@ export default function SettingsPage() {
                         <SelectContent>
                           <SelectItem value="light">Claro</SelectItem>
                           <SelectItem value="dark">Escuro</SelectItem>
+                          <SelectItem value="system">Sistema</SelectItem>
                         </SelectContent>
                       </Select>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -248,33 +203,45 @@ export default function SettingsPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Idioma</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Selecione um idioma" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="pt-BR">Português</SelectItem>
-                          <SelectItem value="en">English</SelectItem>
+                          <SelectItem value="pt-BR">Português (BR)</SelectItem>
+                          <SelectItem value="en-US">English (US)</SelectItem>
                         </SelectContent>
                       </Select>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
+              </CardContent>
+            </Card>
 
+            <Card>
+              <CardHeader>
+                <CardTitle>Notificações</CardTitle>
+                <CardDescription>
+                  Configure suas preferências de notificação
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
                 <FormField
                   control={form.control}
                   name="email_notifications"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <FormItem className="flex items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
                         <FormLabel className="text-base">
-                          Notificações por e-mail
+                          Notificações por Email
                         </FormLabel>
                         <FormDescription>
-                          Receba notificações sobre novos agendamentos e mensagens
+                          Receba notificações sobre consultas e mensagens por email
                         </FormDescription>
                       </div>
                       <FormControl>
@@ -286,23 +253,29 @@ export default function SettingsPage() {
                     </FormItem>
                   )}
                 />
-              </div>
+              </CardContent>
+            </Card>
 
-              <div className="space-y-6">
-                <h2 className="text-xl font-semibold">Integrações</h2>
+            <Card>
+              <CardHeader>
+                <CardTitle>Integrações</CardTitle>
+                <CardDescription>
+                  Gerencie suas integrações com serviços externos
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <FormField
                   control={form.control}
                   name="open_food_facts_api_key"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Chave da API Open Food Facts</FormLabel>
+                      <FormLabel>Chave API Open Food Facts</FormLabel>
                       <FormControl>
                         <Input {...field} type="password" />
                       </FormControl>
                       <FormDescription>
-                        Necessária para buscar informações nutricionais automaticamente
+                        Necessária para buscar informações nutricionais detalhadas
                       </FormDescription>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -311,11 +284,11 @@ export default function SettingsPage() {
                   control={form.control}
                   name="google_calendar_connected"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <FormItem className="flex items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
-                        <FormLabel className="text-base">Google Agenda</FormLabel>
+                        <FormLabel className="text-base">Google Calendar</FormLabel>
                         <FormDescription>
-                          Sincronize seus agendamentos com o Google Agenda
+                          Sincronize suas consultas com o Google Calendar
                         </FormDescription>
                       </div>
                       <FormControl>
@@ -327,17 +300,24 @@ export default function SettingsPage() {
                     </FormItem>
                   )}
                 />
-              </div>
+              </CardContent>
+            </Card>
 
-              <div className="space-y-6">
-                <h2 className="text-xl font-semibold">Gerenciamento de Conta</h2>
+            <Card>
+              <CardHeader>
+                <CardTitle>Conta</CardTitle>
+                <CardDescription>
+                  Gerencie as configurações da sua conta
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
                 <FormField
                   control={form.control}
                   name="account_active"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <FormItem className="flex items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
-                        <FormLabel className="text-base">Conta ativa</FormLabel>
+                        <FormLabel className="text-base">Conta Ativa</FormLabel>
                         <FormDescription>
                           Desative sua conta temporariamente
                         </FormDescription>
@@ -351,43 +331,16 @@ export default function SettingsPage() {
                     </FormItem>
                   )}
                 />
+              </CardContent>
+            </Card>
 
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="destructive">Excluir conta</Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Esta ação não pode ser desfeita. Isso excluirá permanentemente sua
-                        conta e removerá seus dados de nossos servidores.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                      <AlertDialogAction>Continuar</AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
-
-              <div className="flex justify-end space-x-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => form.reset()}
-                  disabled={loading}
-                >
-                  Cancelar
-                </Button>
-                <Button type="submit" disabled={loading}>
-                  Salvar alterações
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </div>
+            <div className="flex justify-end">
+              <Button type="submit" disabled={isLoading}>
+                Salvar Alterações
+              </Button>
+            </div>
+          </form>
+        </Form>
       </div>
     </div>
   );

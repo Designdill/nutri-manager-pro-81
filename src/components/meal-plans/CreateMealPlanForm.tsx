@@ -7,28 +7,44 @@ import { useForm } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
+import * as z from "zod";
+
+const mealPlanSchema = z.object({
+  patientId: z.string().min(1, "Selecione um paciente"),
+  title: z.string().min(1, "Digite um título"),
+  description: z.string().optional(),
+  breakfast: z.string().optional(),
+  morningSnack: z.string().optional(),
+  lunch: z.string().optional(),
+  afternoonSnack: z.string().optional(),
+  dinner: z.string().optional(),
+  eveningSnack: z.string().optional(),
+});
+
+type MealPlanFormData = z.infer<typeof mealPlanSchema>;
 
 interface CreateMealPlanFormProps {
-  patients: Tables<"patients">[] | undefined;
+  patients: Tables<"patients">[];
   patientsLoading: boolean;
   onSuccess: () => void;
   onCancel: () => void;
 }
 
-export interface MealPlanFormData {
-  patientId: string;
-  title: string;
-  description: string;
-  breakfast: string;
-  morningSnack: string;
-  lunch: string;
-  afternoonSnack: string;
-  dinner: string;
-  eveningSnack: string;
-}
-
 export function CreateMealPlanForm({ patients, patientsLoading, onSuccess, onCancel }: CreateMealPlanFormProps) {
-  const form = useForm<MealPlanFormData>();
+  const form = useForm<MealPlanFormData>({
+    defaultValues: {
+      patientId: "",
+      title: "",
+      description: "",
+      breakfast: "",
+      morningSnack: "",
+      lunch: "",
+      afternoonSnack: "",
+      dinner: "",
+      eveningSnack: "",
+    },
+  });
+  
   const { toast } = useToast();
 
   const handleCreatePlan = async (data: MealPlanFormData) => {

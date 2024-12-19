@@ -3,7 +3,7 @@ import { UtensilsCrossed } from "lucide-react";
 import { Tables } from "@/integrations/supabase/types";
 
 interface MealPlansListProps {
-  mealPlans: Tables<"meal_plans">[] | undefined;
+  mealPlans: Tables<"meal_plans">[];
   isLoading: boolean;
 }
 
