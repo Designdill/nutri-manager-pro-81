@@ -44,6 +44,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Tables } from "@/integrations/supabase/types";
 
 const settingsFormSchema = z.object({
   fullName: z.string().min(1, "Nome é obrigatório"),
@@ -67,30 +68,31 @@ export default function SettingsPage() {
   const { toast } = useToast();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  const { data: settings, isLoading } = useQuery({
+  const { data: settings } = useQuery({
     queryKey: ["settings"],
     queryFn: async () => {
-      const { data: userSettings, error } = await supabase
+      const { data, error } = await supabase
         .from("user_settings")
         .select("*")
+        .eq("user_id", session?.user.id)
         .single();
 
       if (error) throw error;
-      return userSettings;
+      return data as Tables<"user_settings">;
     },
   });
 
   const { data: profile } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
-      const { data: userProfile, error } = await supabase
+      const { data, error } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", session?.user.id)
         .single();
 
       if (error) throw error;
-      return userProfile;
+      return data as Tables<"profiles">;
     },
   });
 
@@ -99,9 +101,9 @@ export default function SettingsPage() {
     defaultValues: {
       fullName: profile?.full_name || "",
       email: session?.user.email || "",
-      phone: profile?.phone || "",
-      theme: settings?.theme || "light",
-      language: settings?.language || "pt-BR",
+      phone: "",
+      theme: (settings?.theme as "light" | "dark") || "light",
+      language: (settings?.language as "pt-BR" | "en") || "pt-BR",
       emailNotifications: settings?.email_notifications || true,
       openFoodFactsApiKey: settings?.open_food_facts_api_key || "",
       googleCalendarConnected: settings?.google_calendar_connected || false,

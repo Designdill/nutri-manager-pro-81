@@ -1,39 +1,33 @@
-import { useEffect, useRef, useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/App";
 import { supabase } from "@/integrations/supabase/client";
+import { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
-interface Message {
-  id: string;
-  content: string;
-  sender_id: string;
-  created_at: string;
+type Message = Tables<"messages">;
+
+interface ChatWindowProps {
+  recipientId: string;
 }
 
-interface ChatUser {
-  id: string;
-  full_name: string | null;
-  avatar_url: string | null;
-}
-
-export function ChatWindow({ selectedUser }: { selectedUser: ChatUser | null }) {
+export default function ChatWindow({ recipientId }: ChatWindowProps) {
   const { session } = useAuth();
+  const { toast } = useToast();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (!selectedUser) return;
+    if (!session?.user.id || !recipientId) return;
 
-    // Fetch existing messages
     const fetchMessages = async () => {
       const { data, error } = await supabase
         .from("messages")
         .select("*")
-        .or(`sender_id.eq.${session?.user?.id},receiver_id.eq.${session?.user?.id}`)
+        .or(`sender_id.eq.${session.user.id},recipient_id.eq.${session.user.id}`)
         .order("created_at", { ascending: true });
 
       if (error) {
@@ -55,7 +49,7 @@ export function ChatWindow({ selectedUser }: { selectedUser: ChatUser | null }) 
           event: "INSERT",
           schema: "public",
           table: "messages",
-          filter: `sender_id=eq.${session?.user?.id},receiver_id=eq.${selectedUser.id}`,
+          filter: `sender_id=eq.${session.user.id},recipient_id=eq.${recipientId}`,
         },
         (payload) => {
           setMessages((current) => [...current, payload.new as Message]);
@@ -66,81 +60,79 @@ export function ChatWindow({ selectedUser }: { selectedUser: ChatUser | null }) 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [selectedUser, session?.user?.id]);
+  }, [session?.user.id, recipientId]);
 
-  useEffect(() => {
-    // Scroll to bottom when messages change
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
-    }
-  }, [messages]);
+  const sendMessage = async () => {
+    if (!session?.user.id || !recipientId || !newMessage.trim()) return;
 
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newMessage.trim() || !selectedUser) return;
+    setIsLoading(true);
 
     const { error } = await supabase.from("messages").insert({
-      content: newMessage,
-      sender_id: session?.user?.id,
-      receiver_id: selectedUser.id,
+      content: newMessage.trim(),
+      sender_id: session.user.id,
+      recipient_id: recipientId,
+      read: false,
     });
 
     if (error) {
       console.error("Error sending message:", error);
-      return;
+      toast({
+        title: "Erro ao enviar mensagem",
+        description: "Tente novamente mais tarde",
+        variant: "destructive",
+      });
     }
 
     setNewMessage("");
+    setIsLoading(false);
   };
 
-  if (!selectedUser) {
-    return (
-      <div className="h-full flex items-center justify-center text-gray-500">
-        Selecione um usuário para iniciar uma conversa
-      </div>
-    );
-  }
-
   return (
-    <div className="h-full flex flex-col">
-      <div className="p-4 border-b">
-        <h2 className="text-lg font-semibold">{selectedUser.full_name}</h2>
-      </div>
-
-      <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
+    <div className="flex h-full flex-col">
+      <ScrollArea className="flex-1 p-4">
         <div className="space-y-4">
           {messages.map((message) => (
             <div
               key={message.id}
               className={`flex ${
-                message.sender_id === session?.user?.id ? "justify-end" : "justify-start"
+                message.sender_id === session?.user.id
+                  ? "justify-end"
+                  : "justify-start"
               }`}
             >
               <div
-                className={`max-w-[70%] rounded-lg p-3 ${
-                  message.sender_id === session?.user?.id
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-100"
+                className={`rounded-lg px-4 py-2 max-w-[80%] ${
+                  message.sender_id === session?.user.id
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted"
                 }`}
               >
-                {message.content}
+                <p className="text-sm">{message.content}</p>
               </div>
             </div>
           ))}
         </div>
       </ScrollArea>
 
-      <form onSubmit={handleSendMessage} className="p-4 border-t flex gap-2">
-        <Input
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          placeholder="Digite sua mensagem..."
-          className="flex-1"
-        />
-        <Button type="submit" size="icon">
-          <Send className="h-4 w-4" />
-        </Button>
-      </form>
+      <div className="border-t p-4">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            sendMessage();
+          }}
+          className="flex gap-2"
+        >
+          <Input
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            placeholder="Digite sua mensagem..."
+            disabled={isLoading}
+          />
+          <Button type="submit" disabled={isLoading}>
+            Enviar
+          </Button>
+        </form>
+      </div>
     </div>
   );
 }
