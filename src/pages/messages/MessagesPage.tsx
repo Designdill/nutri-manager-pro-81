@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { AppSidebar } from "@/components/AppSidebar";
 import { ChatList } from "./components/ChatList";
-import { ChatWindow } from "./components/ChatWindow";
+import ChatWindow from "./components/ChatWindow";
 
 interface ChatUser {
   id: string;

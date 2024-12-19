@@ -1,27 +1,28 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/App";
 import { supabase } from "@/integrations/supabase/client";
-import { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 
-type Message = Tables<"messages">;
-
 interface ChatWindowProps {
-  recipientId: string;
+  selectedUser: {
+    id: string;
+    full_name: string | null;
+    avatar_url: string | null;
+  } | null;
 }
 
-export default function ChatWindow({ recipientId }: ChatWindowProps) {
+export default function ChatWindow({ selectedUser }: ChatWindowProps) {
   const { session } = useAuth();
   const { toast } = useToast();
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (!session?.user.id || !recipientId) return;
+    if (!session?.user.id || !selectedUser?.id) return;
 
     const fetchMessages = async () => {
       const { data, error } = await supabase
@@ -49,10 +50,10 @@ export default function ChatWindow({ recipientId }: ChatWindowProps) {
           event: "INSERT",
           schema: "public",
           table: "messages",
-          filter: `sender_id=eq.${session.user.id},recipient_id=eq.${recipientId}`,
+          filter: `sender_id=eq.${session.user.id},recipient_id=eq.${selectedUser.id}`,
         },
         (payload) => {
-          setMessages((current) => [...current, payload.new as Message]);
+          setMessages((current) => [...current, payload.new]);
         }
       )
       .subscribe();
@@ -60,17 +61,17 @@ export default function ChatWindow({ recipientId }: ChatWindowProps) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [session?.user.id, recipientId]);
+  }, [session?.user.id, selectedUser?.id]);
 
   const sendMessage = async () => {
-    if (!session?.user.id || !recipientId || !newMessage.trim()) return;
+    if (!session?.user.id || !selectedUser?.id || !newMessage.trim()) return;
 
     setIsLoading(true);
 
     const { error } = await supabase.from("messages").insert({
       content: newMessage.trim(),
       sender_id: session.user.id,
-      recipient_id: recipientId,
+      recipient_id: selectedUser.id,
       read: false,
     });
 
