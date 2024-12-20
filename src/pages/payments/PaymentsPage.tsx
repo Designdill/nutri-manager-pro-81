@@ -17,13 +17,13 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { AppSidebar } from '@/components/AppSidebar';
 
-type Patient = Tables<'patients'> & {
-  profiles: Tables<'profiles'>;
+type PatientWithProfile = Tables<'patients'> & {
+  profiles: Pick<Tables<'profiles'>, 'id' | 'full_name' | 'avatar_url'>;
 };
 
 export default function PaymentsPage() {
   const { toast } = useToast();
-  const [patients, setPatients] = useState<Patient[]>([]);
+  const [patients, setPatients] = useState<PatientWithProfile[]>([]);
 
   const { data: patientsData, error } = useQuery({
     queryKey: ['patients'],
@@ -45,7 +45,7 @@ export default function PaymentsPage() {
         throw error;
       }
       console.log('Patients data fetched:', data);
-      return data;
+      return data as PatientWithProfile[];
     },
   });
 
