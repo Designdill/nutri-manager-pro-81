@@ -16,6 +16,16 @@ import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { AppSidebar } from '@/components/AppSidebar';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 type PatientWithProfile = Tables<'patients'> & {
   profiles: Pick<Tables<'profiles'>, 'id' | 'full_name' | 'avatar_url'>;
@@ -24,6 +34,12 @@ type PatientWithProfile = Tables<'patients'> & {
 export default function PaymentsPage() {
   const { toast } = useToast();
   const [patients, setPatients] = useState<PatientWithProfile[]>([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [newPayment, setNewPayment] = useState({
+    patientName: '',
+    amount: '',
+    date: new Date().toISOString().split('T')[0],
+  });
 
   const { data: patientsData, error } = useQuery({
     queryKey: ['patients'],
@@ -63,6 +79,21 @@ export default function PaymentsPage() {
     }
   }, [error, patientsData, toast]);
 
+  const handleNewPayment = () => {
+    // Aqui você implementará a lógica para salvar o novo pagamento
+    console.log('Novo pagamento:', newPayment);
+    toast({
+      title: 'Sucesso',
+      description: 'Pagamento registrado com sucesso!',
+    });
+    setIsDialogOpen(false);
+    setNewPayment({
+      patientName: '',
+      amount: '',
+      date: new Date().toISOString().split('T')[0],
+    });
+  };
+
   const mockPayments = [
     {
       id: 1,
@@ -93,7 +124,48 @@ export default function PaymentsPage() {
           <Card className="p-6">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-semibold">Histórico de Pagamentos</h2>
-              <Button>Novo Pagamento</Button>
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button>Novo Pagamento</Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Novo Pagamento</DialogTitle>
+                    <DialogDescription>
+                      Registre um novo pagamento de consulta
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="patientName">Nome do Paciente</Label>
+                      <Input
+                        id="patientName"
+                        value={newPayment.patientName}
+                        onChange={(e) => setNewPayment({ ...newPayment, patientName: e.target.value })}
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="amount">Valor</Label>
+                      <Input
+                        id="amount"
+                        type="number"
+                        value={newPayment.amount}
+                        onChange={(e) => setNewPayment({ ...newPayment, amount: e.target.value })}
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="date">Data</Label>
+                      <Input
+                        id="date"
+                        type="date"
+                        value={newPayment.date}
+                        onChange={(e) => setNewPayment({ ...newPayment, date: e.target.value })}
+                      />
+                    </div>
+                    <Button onClick={handleNewPayment}>Salvar Pagamento</Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
 
             <div className="overflow-x-auto">
