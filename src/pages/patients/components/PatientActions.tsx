@@ -25,15 +25,18 @@ export function PatientActions({ patientId, onDelete }: PatientActionsProps) {
   const { toast } = useToast();
 
   const handleViewPatient = () => {
-    navigate(`/patients/${patientId}`);
+    console.log("Navigating to patient details:", patientId);
+    navigate(`/patients/${patientId}/details`);
   };
 
   const handleEditPatient = () => {
+    console.log("Navigating to edit patient:", patientId);
     navigate(`/patients/${patientId}/edit`);
   };
 
   const handleDeletePatient = async () => {
     try {
+      console.log("Deleting patient:", patientId);
       const { error } = await supabase
         .from("patients")
         .delete()
