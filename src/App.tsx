@@ -1,180 +1,64 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { createContext, useContext, useEffect, useState } from "react";
-import { Session } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { createClient } from "@supabase/supabase-js";
+import { createContext, useContext } from "react";
+import { Toaster } from "@/components/ui/toaster";
+
 import Index from "./pages/Index";
 import Login from "./pages/Login";
-import NewPatient from "./pages/patients/NewPatient";
 import PatientsPage from "./pages/patients/PatientsPage";
+import NewPatient from "./pages/patients/NewPatient";
+import EditPatient from "./pages/patients/EditPatient";
+import PatientDetailsPage from "./pages/patients/PatientDetailsPage";
 import AppointmentsPage from "./pages/appointments/AppointmentsPage";
-import ProgressPage from "./pages/progress/ProgressPage";
-import MealPlansPage from "./pages/meal-plans/MealPlansPage";
-import FoodDatabasePage from "./pages/food-database/FoodDatabasePage";
 import MessagesPage from "./pages/messages/MessagesPage";
-import NotificationsPage from "./pages/notifications/NotificationsPage";
+import FoodDatabasePage from "./pages/food-database/FoodDatabasePage";
+import MealPlansPage from "./pages/meal-plans/MealPlansPage";
+import ProgressPage from "./pages/progress/ProgressPage";
 import PaymentsPage from "./pages/payments/PaymentsPage";
 import SettingsPage from "./pages/settings/SettingsPage";
+import NotificationsPage from "./pages/notifications/NotificationsPage";
+
+import "./App.css";
 
 const queryClient = new QueryClient();
 
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+);
+
 const AuthContext = createContext<{
-  session: Session | null;
-  loading: boolean;
-}>({
-  session: null,
-  loading: true,
-});
+  session: any;
+  signOut: () => void;
+}>({ session: null, signOut: () => {} });
 
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
+export const useAuth = () => useContext(AuthContext);
 
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { session, loading } = useAuth();
-
-  if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-  }
-
-  if (!session) {
-    return <Navigate to="/login" />;
-  }
-
-  return <>{children}</>;
-};
-
-const App = () => {
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setLoading(false);
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
+function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthContext.Provider value={{ session, loading }}>
-        <TooltipProvider>
-          <SidebarProvider>
-            <div className="min-h-screen flex w-full">
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/login" element={<Login />} />
-                  <Route
-                    path="/"
-                    element={
-                      <ProtectedRoute>
-                        <Index />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/patients"
-                    element={
-                      <ProtectedRoute>
-                        <PatientsPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/patients/new"
-                    element={
-                      <ProtectedRoute>
-                        <NewPatient />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/appointments"
-                    element={
-                      <ProtectedRoute>
-                        <AppointmentsPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/progress"
-                    element={
-                      <ProtectedRoute>
-                        <ProgressPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/meal-plans"
-                    element={
-                      <ProtectedRoute>
-                        <MealPlansPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/food-database"
-                    element={
-                      <ProtectedRoute>
-                        <FoodDatabasePage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/messages"
-                    element={
-                      <ProtectedRoute>
-                        <MessagesPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/notifications"
-                    element={
-                      <ProtectedRoute>
-                        <NotificationsPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/payments"
-                    element={
-                      <ProtectedRoute>
-                        <PaymentsPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/settings"
-                    element={
-                      <ProtectedRoute>
-                        <SettingsPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                </Routes>
-              </BrowserRouter>
-            </div>
-          </SidebarProvider>
-        </TooltipProvider>
-      </AuthContext.Provider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/patients" element={<PatientsPage />} />
+          <Route path="/patients/new" element={<NewPatient />} />
+          <Route path="/patients/:patientId/edit" element={<EditPatient />} />
+          <Route path="/patients/:patientId/details" element={<PatientDetailsPage />} />
+          <Route path="/appointments" element={<AppointmentsPage />} />
+          <Route path="/messages" element={<MessagesPage />} />
+          <Route path="/food-database" element={<FoodDatabasePage />} />
+          <Route path="/meal-plans" element={<MealPlansPage />} />
+          <Route path="/progress" element={<ProgressPage />} />
+          <Route path="/payments" element={<PaymentsPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/notifications" element={<NotificationsPage />} />
+        </Routes>
+        <Toaster />
+      </BrowserRouter>
     </QueryClientProvider>
   );
-};
+}
 
 export default App;
