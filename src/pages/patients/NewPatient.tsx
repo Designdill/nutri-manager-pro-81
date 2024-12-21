@@ -70,6 +70,7 @@ export default function NewPatient() {
         height: values.height ? parseFloat(values.height) : null,
         meals_per_day: values.meals_per_day ? parseInt(values.meals_per_day) : null,
         sleep_hours: values.sleep_hours ? parseInt(values.sleep_hours) : null,
+        water_intake: values.water_intake ? parseFloat(values.water_intake) : null, // Convert water_intake to number
       };
 
       const { error } = await supabase
