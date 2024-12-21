@@ -2,35 +2,27 @@ import { useState } from "react";
 import { useAuth } from "@/App";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
+import { Form } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { Tables } from "@/integrations/supabase/types";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
-const settingsFormSchema = z.object({
-  full_name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
-  phone: z.string().optional(),
-  theme: z.enum(["light", "dark", "system"] as const),
-  language: z.enum(["pt-BR", "en-US"] as const),
-  email_notifications: z.boolean(),
-  open_food_facts_api_key: z.string().optional(),
-  google_calendar_connected: z.boolean(),
-  account_active: z.boolean(),
-});
-
-type SettingsFormValues = z.infer<typeof settingsFormSchema>;
+import { SearchBar } from "./components/SearchBar";
+import { ProfileSettings } from "./components/ProfileSettings";
+import { AppearanceSettings } from "./components/AppearanceSettings";
+import { NotificationSettings } from "./components/NotificationSettings";
+import { IntegrationSettings } from "./components/IntegrationSettings";
+import { AccountSettings } from "./components/AccountSettings";
+import { settingsFormSchema, SettingsFormValues } from "./types";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { RotateCcw } from "lucide-react";
 
 export default function SettingsPage() {
   const { session } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const { data: userSettings } = useQuery({
     queryKey: ["user-settings"],
@@ -42,7 +34,7 @@ export default function SettingsPage() {
         .maybeSingle();
 
       if (error) throw error;
-      return data as Tables<"user_settings"> | null;
+      return data;
     },
   });
 
@@ -56,7 +48,7 @@ export default function SettingsPage() {
         .maybeSingle();
 
       if (error) throw error;
-      return data as Tables<"profiles"> | null;
+      return data;
     },
   });
 
@@ -76,6 +68,15 @@ export default function SettingsPage() {
   const onSubmit = async (data: SettingsFormValues) => {
     setIsLoading(true);
     try {
+      const oldSettings = {
+        theme: userSettings?.theme,
+        language: userSettings?.language,
+        email_notifications: userSettings?.email_notifications,
+        google_calendar_connected: userSettings?.google_calendar_connected,
+        account_active: userSettings?.account_active,
+      };
+
+      // Update profile
       const { error: profileError } = await supabase
         .from("profiles")
         .update({
@@ -86,6 +87,7 @@ export default function SettingsPage() {
 
       if (profileError) throw profileError;
 
+      // Update settings
       const { error: settingsError } = await supabase
         .from("user_settings")
         .update({
@@ -99,6 +101,26 @@ export default function SettingsPage() {
         .eq("user_id", session?.user?.id);
 
       if (settingsError) throw settingsError;
+
+      // Log settings changes
+      const changes = Object.entries(data).filter(
+        ([key, value]) => oldSettings[key as keyof typeof oldSettings] !== value
+      );
+
+      if (changes.length > 0) {
+        const { error: historyError } = await supabase
+          .from("settings_history")
+          .insert(
+            changes.map(([setting_name, new_value]) => ({
+              user_id: session?.user?.id,
+              setting_name,
+              old_value: String(oldSettings[setting_name as keyof typeof oldSettings]),
+              new_value: String(new_value),
+            }))
+          );
+
+        if (historyError) throw historyError;
+      }
 
       toast({
         title: "Configurações atualizadas",
@@ -116,223 +138,98 @@ export default function SettingsPage() {
     }
   };
 
+  const resetSettings = async () => {
+    const defaultSettings = {
+      theme: "system",
+      language: "pt-BR",
+      email_notifications: true,
+      google_calendar_connected: false,
+      account_active: true,
+    };
+
+    try {
+      const { error } = await supabase
+        .from("user_settings")
+        .update(defaultSettings)
+        .eq("user_id", session?.user?.id);
+
+      if (error) throw error;
+
+      form.reset(defaultSettings);
+
+      toast({
+        title: "Configurações redefinidas",
+        description: "Suas configurações foram redefinidas para os valores padrão.",
+      });
+    } catch (error) {
+      console.error("Error resetting settings:", error);
+      toast({
+        title: "Erro",
+        description: "Ocorreu um erro ao redefinir as configurações.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const filterComponents = (query: string) => {
+    setSearchQuery(query.toLowerCase());
+  };
+
+  const components = [
+    { id: "profile", component: <ProfileSettings form={form} />, keywords: ["perfil", "nome", "telefone"] },
+    { id: "appearance", component: <AppearanceSettings form={form} />, keywords: ["aparência", "tema", "idioma"] },
+    { id: "notifications", component: <NotificationSettings form={form} />, keywords: ["notificações", "email"] },
+    { id: "integrations", component: <IntegrationSettings form={form} />, keywords: ["integrações", "api", "calendar"] },
+    { id: "account", component: <AccountSettings form={form} />, keywords: ["conta", "ativo"] },
+  ];
+
+  const filteredComponents = components.filter(({ keywords }) =>
+    keywords.some(keyword => keyword.includes(searchQuery))
+  );
+
   return (
     <div className="flex min-h-screen">
       <AppSidebar />
       <div className="flex-1 space-y-8 p-8">
-        <div>
-          <h1 className="text-2xl font-bold">Configurações</h1>
-          <p className="text-muted-foreground">
-            Gerencie suas preferências e configurações da conta
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">Configurações</h1>
+            <p className="text-muted-foreground">
+              Gerencie suas preferências e configurações da conta
+            </p>
+          </div>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="outline" className="gap-2">
+                <RotateCcw className="h-4 w-4" />
+                Redefinir
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Redefinir configurações?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Todas as suas configurações serão redefinidas para os valores padrão.
+                  Esta ação não pode ser desfeita.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={resetSettings}>
+                  Redefinir
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
+
+        <SearchBar onSearch={filterComponents} />
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <Card>
-              <CardHeader>
-                <CardTitle>Perfil</CardTitle>
-                <CardDescription>
-                  Gerencie suas informações pessoais
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="full_name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nome Completo</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Telefone</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Aparência</CardTitle>
-                <CardDescription>
-                  Personalize a aparência do sistema
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="theme"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tema</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione um tema" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="light">Claro</SelectItem>
-                          <SelectItem value="dark">Escuro</SelectItem>
-                          <SelectItem value="system">Sistema</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="language"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Idioma</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione um idioma" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="pt-BR">Português (BR)</SelectItem>
-                          <SelectItem value="en-US">English (US)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Notificações</CardTitle>
-                <CardDescription>
-                  Configure suas preferências de notificação
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <FormField
-                  control={form.control}
-                  name="email_notifications"
-                  render={({ field }) => (
-                    <FormItem className="flex items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-base">
-                          Notificações por Email
-                        </FormLabel>
-                        <FormDescription>
-                          Receba notificações sobre consultas e mensagens por email
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Integrações</CardTitle>
-                <CardDescription>
-                  Gerencie suas integrações com serviços externos
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="open_food_facts_api_key"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Chave API Open Food Facts</FormLabel>
-                      <FormControl>
-                        <Input {...field} type="password" />
-                      </FormControl>
-                      <FormDescription>
-                        Necessária para buscar informações nutricionais detalhadas
-                      </FormDescription>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="google_calendar_connected"
-                  render={({ field }) => (
-                    <FormItem className="flex items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-base">Google Calendar</FormLabel>
-                        <FormDescription>
-                          Sincronize suas consultas com o Google Calendar
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Conta</CardTitle>
-                <CardDescription>
-                  Gerencie as configurações da sua conta
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <FormField
-                  control={form.control}
-                  name="account_active"
-                  render={({ field }) => (
-                    <FormItem className="flex items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-base">Conta Ativa</FormLabel>
-                        <FormDescription>
-                          Desative sua conta temporariamente
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-            </Card>
+            {filteredComponents.map(({ id, component }) => (
+              <div key={id}>{component}</div>
+            ))}
 
             <div className="flex justify-end">
               <Button type="submit" disabled={isLoading}>
@@ -344,4 +241,4 @@ export default function SettingsPage() {
       </div>
     </div>
   );
-};
+}

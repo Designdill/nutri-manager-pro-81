@@ -229,6 +229,39 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          read: boolean
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          read?: boolean
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          read?: boolean
+          title?: string
+          type?: Database["public"]["Enums"]["notification_type"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       patient_photos: {
         Row: {
           id: string
@@ -431,36 +464,72 @@ export type Database = {
         }
         Relationships: []
       }
+      settings_history: {
+        Row: {
+          changed_at: string
+          id: string
+          new_value: string | null
+          old_value: string | null
+          setting_name: string
+          user_id: string
+        }
+        Insert: {
+          changed_at?: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          setting_name: string
+          user_id: string
+        }
+        Update: {
+          changed_at?: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          setting_name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_settings: {
         Row: {
+          accessibility_settings: Json | null
           account_active: boolean | null
           created_at: string
           email_notifications: boolean | null
           google_calendar_connected: boolean | null
           language: string | null
+          notification_preferences: Json | null
           open_food_facts_api_key: string | null
+          security_settings: Json | null
           theme: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          accessibility_settings?: Json | null
           account_active?: boolean | null
           created_at?: string
           email_notifications?: boolean | null
           google_calendar_connected?: boolean | null
           language?: string | null
+          notification_preferences?: Json | null
           open_food_facts_api_key?: string | null
+          security_settings?: Json | null
           theme?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          accessibility_settings?: Json | null
           account_active?: boolean | null
           created_at?: string
           email_notifications?: boolean | null
           google_calendar_connected?: boolean | null
           language?: string | null
+          notification_preferences?: Json | null
           open_food_facts_api_key?: string | null
+          security_settings?: Json | null
           theme?: string | null
           updated_at?: string
           user_id?: string
@@ -477,6 +546,15 @@ export type Database = {
     Enums: {
       appointment_status: "confirmed" | "pending" | "cancelled"
       dietary_type: "omnivoro" | "vegetariano" | "vegano" | "outro"
+      notification_type:
+        | "welcome"
+        | "registration"
+        | "appointment_reminder"
+        | "profile_update"
+        | "exam_results"
+        | "follow_up_reminder"
+        | "account_deactivation"
+        | "integration_update"
     }
     CompositeTypes: {
       [_ in never]: never
