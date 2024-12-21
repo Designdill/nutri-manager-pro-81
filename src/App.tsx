@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { createClient } from "@supabase/supabase-js";
 import { createContext, useContext } from "react";
 import { Toaster } from "@/components/ui/toaster";
 
@@ -22,11 +21,6 @@ import NotificationsPage from "./pages/notifications/NotificationsPage";
 import "./App.css";
 
 const queryClient = new QueryClient();
-
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-);
 
 const AuthContext = createContext<{
   session: any;
