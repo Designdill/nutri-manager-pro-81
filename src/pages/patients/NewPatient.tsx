@@ -34,8 +34,11 @@ export default function NewPatient() {
   const onSubmit = async (values: PatientFormValues) => {
     try {
       if (!session?.user.id) {
-        throw new Error("User not authenticated");
+        toast.error("Você precisa estar logado para cadastrar um paciente");
+        return;
       }
+
+      console.log("Creating patient with nutritionist_id:", session.user.id);
 
       // First, check if the nutritionist profile exists
       const { data: profile, error: profileError } = await supabase
@@ -44,7 +47,12 @@ export default function NewPatient() {
         .eq("id", session.user.id)
         .single();
 
-      if (profileError || !profile) {
+      if (profileError) {
+        console.error("Error fetching profile:", profileError);
+        throw new Error("Erro ao verificar perfil do nutricionista");
+      }
+
+      if (!profile) {
         // Create profile if it doesn't exist
         const { error: createProfileError } = await supabase
           .from("profiles")
@@ -70,32 +78,18 @@ export default function NewPatient() {
         height: values.height ? parseFloat(values.height) : null,
         meals_per_day: values.meals_per_day ? parseInt(values.meals_per_day) : null,
         sleep_hours: values.sleep_hours ? parseInt(values.sleep_hours) : null,
-        water_intake: values.water_intake ? parseFloat(values.water_intake) : null, // Convert water_intake to number
+        water_intake: values.water_intake ? parseFloat(values.water_intake) : null,
       };
+
+      console.log("Inserting patient data:", patientData);
 
       const { error } = await supabase
         .from("patients")
         .insert(patientData);
 
-      if (error) throw error;
-
-      // Send welcome email with temporary password
-      const response = await fetch("/functions/v1/send-welcome-email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.SUPABASE_ANON_KEY}`,
-        },
-        body: JSON.stringify({
-          patientData: {
-            full_name: values.full_name,
-            email: values.email,
-          },
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to send welcome email");
+      if (error) {
+        console.error("Error inserting patient:", error);
+        throw error;
       }
 
       toast.success("Paciente cadastrado com sucesso!");
@@ -105,6 +99,20 @@ export default function NewPatient() {
       toast.error("Erro ao cadastrar paciente");
     }
   };
+
+  // If there's no session, show an error message
+  if (!session) {
+    return (
+      <div className="container mx-auto py-6">
+        <div className="text-center">
+          <p className="text-red-500">Você precisa estar logado para cadastrar um paciente</p>
+          <Button onClick={() => navigate("/login")} className="mt-4">
+            Ir para login
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto py-6">
@@ -127,7 +135,6 @@ export default function NewPatient() {
             <LifestyleForm form={form} />
             <GoalsForm form={form} />
 
-            {/* Photo Upload Section - To be implemented */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Fotos</h3>
               <p className="text-sm text-muted-foreground">
