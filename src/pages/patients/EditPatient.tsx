@@ -15,7 +15,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MeasurementsForm } from "@/components/patients/MeasurementsForm";
 import { Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { SidebarProvider } from "@/components/ui/sidebar";
 
 export default function EditPatient() {
   const { patientId } = useParams();
@@ -26,7 +25,7 @@ export default function EditPatient() {
     resolver: zodResolver(patientFormSchema),
   });
 
-  const { data: patient, isLoading } = useQuery({
+  const { data: patient, isLoading, error } = useQuery({
     queryKey: ["patient", patientId],
     queryFn: async () => {
       console.log("Fetching patient data for ID:", patientId);
@@ -55,6 +54,7 @@ export default function EditPatient() {
       form.reset(formData);
       return data;
     },
+    retry: 2,
   });
 
   const onSubmit = async (data: PatientFormValues) => {
@@ -95,50 +95,68 @@ export default function EditPatient() {
   };
 
   if (isLoading) {
-    return <div>Carregando...</div>;
-  }
-
-  return (
-    <SidebarProvider>
+    return (
       <div className="flex min-h-screen w-full">
         <AppSidebar />
         <div className="flex-1 p-8">
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold">Editar Paciente</h1>
-          </div>
-
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Informações do Paciente</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-8">
-                  <PersonalInfoForm form={form} />
-                  <AddressForm form={form} />
-                  <MeasurementsForm form={form} />
-                  <HealthHistoryForm form={form} />
-                  <LifestyleForm form={form} />
-                  <GoalsForm form={form} />
-                  
-                  <div className="flex justify-end gap-4">
-                    <Button 
-                      type="button" 
-                      variant="outline"
-                      onClick={() => navigate("/patients")}
-                    >
-                      Cancelar
-                    </Button>
-                    <Button type="submit">
-                      Salvar Alterações
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </form>
-          </Form>
+          <div>Carregando...</div>
         </div>
       </div>
-    </SidebarProvider>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-screen w-full">
+        <AppSidebar />
+        <div className="flex-1 p-8">
+          <div className="text-red-500">
+            Erro ao carregar dados do paciente. Por favor, tente novamente.
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex min-h-screen w-full">
+      <AppSidebar />
+      <div className="flex-1 p-8">
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold">Editar Paciente</h1>
+        </div>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <Card>
+              <CardHeader>
+                <CardTitle>Informações do Paciente</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-8">
+                <PersonalInfoForm form={form} />
+                <AddressForm form={form} />
+                <MeasurementsForm form={form} />
+                <HealthHistoryForm form={form} />
+                <LifestyleForm form={form} />
+                <GoalsForm form={form} />
+                
+                <div className="flex justify-end gap-4">
+                  <Button 
+                    type="button" 
+                    variant="outline"
+                    onClick={() => navigate("/patients")}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button type="submit">
+                    Salvar Alterações
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </form>
+        </Form>
+      </div>
+    </div>
   );
 }

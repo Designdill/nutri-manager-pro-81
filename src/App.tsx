@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createContext, useContext } from "react";
 import { Toaster } from "@/components/ui/toaster";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -20,7 +21,14 @@ import NotificationsPage from "./pages/notifications/NotificationsPage";
 
 import "./App.css";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const AuthContext = createContext<{
   session: any;
@@ -32,25 +40,29 @@ export const useAuth = () => useContext(AuthContext);
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/patients" element={<PatientsPage />} />
-          <Route path="/patients/new" element={<NewPatient />} />
-          <Route path="/patients/:patientId/edit" element={<EditPatient />} />
-          <Route path="/patients/:patientId/details" element={<PatientDetailsPage />} />
-          <Route path="/appointments" element={<AppointmentsPage />} />
-          <Route path="/messages" element={<MessagesPage />} />
-          <Route path="/food-database" element={<FoodDatabasePage />} />
-          <Route path="/meal-plans" element={<MealPlansPage />} />
-          <Route path="/progress" element={<ProgressPage />} />
-          <Route path="/payments" element={<PaymentsPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/notifications" element={<NotificationsPage />} />
-        </Routes>
-        <Toaster />
-      </BrowserRouter>
+      <SidebarProvider>
+        <div className="min-h-screen flex w-full">
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/patients" element={<PatientsPage />} />
+              <Route path="/patients/new" element={<NewPatient />} />
+              <Route path="/patients/:patientId/edit" element={<EditPatient />} />
+              <Route path="/patients/:patientId/details" element={<PatientDetailsPage />} />
+              <Route path="/appointments" element={<AppointmentsPage />} />
+              <Route path="/messages" element={<MessagesPage />} />
+              <Route path="/food-database" element={<FoodDatabasePage />} />
+              <Route path="/meal-plans" element={<MealPlansPage />} />
+              <Route path="/progress" element={<ProgressPage />} />
+              <Route path="/payments" element={<PaymentsPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/notifications" element={<NotificationsPage />} />
+            </Routes>
+            <Toaster />
+          </BrowserRouter>
+        </div>
+      </SidebarProvider>
     </QueryClientProvider>
   );
 }
