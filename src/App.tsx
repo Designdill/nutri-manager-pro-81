@@ -1,8 +1,11 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { createContext, useContext } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import { Session } from "@supabase/supabase-js";
 import { Toaster } from "@/components/ui/toaster";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -30,39 +33,193 @@ const queryClient = new QueryClient({
   },
 });
 
-const AuthContext = createContext<{
-  session: any;
-  signOut: () => void;
-}>({ session: null, signOut: () => {} });
+interface AuthContextType {
+  session: Session | null;
+  signOut: () => Promise<void>;
+  isLoading: boolean;
+}
+
+const AuthContext = createContext<AuthContextType>({
+  session: null,
+  signOut: async () => {},
+  isLoading: true,
+});
 
 export const useAuth = () => useContext(AuthContext);
 
+function PrivateRoute({ children }: { children: React.ReactNode }) {
+  const { session, isLoading } = useAuth();
+  
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+  
+  if (!session) {
+    return <Navigate to="/login" />;
+  }
+  
+  return <>{children}</>;
+}
+
 function App() {
+  const [session, setSession] = useState<Session | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setIsLoading(false);
+    });
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log("Auth state changed:", _event, session?.user?.id);
+      setSession(session);
+      setIsLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const signOut = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast({
+        title: "Logged out successfully",
+        description: "You have been logged out of your account",
+      });
+    } catch (error) {
+      console.error("Error signing out:", error);
+      toast({
+        title: "Error signing out",
+        description: "There was a problem signing out of your account",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
-      <SidebarProvider>
-        <div className="min-h-screen flex w-full">
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/patients" element={<PatientsPage />} />
-              <Route path="/patients/new" element={<NewPatient />} />
-              <Route path="/patients/:patientId/edit" element={<EditPatient />} />
-              <Route path="/patients/:patientId/details" element={<PatientDetailsPage />} />
-              <Route path="/appointments" element={<AppointmentsPage />} />
-              <Route path="/messages" element={<MessagesPage />} />
-              <Route path="/food-database" element={<FoodDatabasePage />} />
-              <Route path="/meal-plans" element={<MealPlansPage />} />
-              <Route path="/progress" element={<ProgressPage />} />
-              <Route path="/payments" element={<PaymentsPage />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route path="/notifications" element={<NotificationsPage />} />
-            </Routes>
-            <Toaster />
-          </BrowserRouter>
-        </div>
-      </SidebarProvider>
+      <AuthContext.Provider value={{ session, signOut, isLoading }}>
+        <SidebarProvider>
+          <div className="min-h-screen flex w-full">
+            <BrowserRouter>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route
+                  path="/"
+                  element={
+                    <PrivateRoute>
+                      <Index />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/patients"
+                  element={
+                    <PrivateRoute>
+                      <PatientsPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/patients/new"
+                  element={
+                    <PrivateRoute>
+                      <NewPatient />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/patients/:patientId/edit"
+                  element={
+                    <PrivateRoute>
+                      <EditPatient />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/patients/:patientId/details"
+                  element={
+                    <PrivateRoute>
+                      <PatientDetailsPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/appointments"
+                  element={
+                    <PrivateRoute>
+                      <AppointmentsPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/messages"
+                  element={
+                    <PrivateRoute>
+                      <MessagesPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/food-database"
+                  element={
+                    <PrivateRoute>
+                      <FoodDatabasePage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/meal-plans"
+                  element={
+                    <PrivateRoute>
+                      <MealPlansPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/progress"
+                  element={
+                    <PrivateRoute>
+                      <ProgressPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/payments"
+                  element={
+                    <PrivateRoute>
+                      <PaymentsPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/settings"
+                  element={
+                    <PrivateRoute>
+                      <SettingsPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/notifications"
+                  element={
+                    <PrivateRoute>
+                      <NotificationsPage />
+                    </PrivateRoute>
+                  }
+                />
+              </Routes>
+              <Toaster />
+            </BrowserRouter>
+          </div>
+        </SidebarProvider>
+      </AuthContext.Provider>
     </QueryClientProvider>
   );
 }
