@@ -49,7 +49,7 @@ const Login = () => {
           }}
           providers={[]}
           theme="light"
-          onError={(error) => {
+          onAuthError={(error) => {
             console.error("Auth error:", error);
             toast({
               title: "Authentication Error",
