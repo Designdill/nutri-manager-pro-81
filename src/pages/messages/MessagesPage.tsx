@@ -69,7 +69,7 @@ export default function MessagesPage() {
           />
         </div>
         <div className="w-2/3">
-          <ChatWindow />
+          <ChatWindow selectedUser={null} />
         </div>
       </div>
     </div>

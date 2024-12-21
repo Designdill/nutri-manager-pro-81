@@ -17,7 +17,7 @@ interface ChatWindowProps {
 
 type Message = Tables<"messages">;
 
-export default function ChatWindow({ selectedUser }: ChatWindowProps) {
+export function ChatWindow({ selectedUser }: ChatWindowProps) {
   const { session } = useAuth();
   const { toast } = useToast();
   const [messages, setMessages] = useState<Message[]>([]);
