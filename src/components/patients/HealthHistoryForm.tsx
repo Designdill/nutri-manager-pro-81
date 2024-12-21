@@ -68,6 +68,19 @@ export function HealthHistoryForm({ form }: HealthHistoryFormProps) {
         />
         <FormField
           control={form.control}
+          name="surgery_history"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Histórico de Cirurgias</FormLabel>
+              <FormControl>
+                <Textarea placeholder="Histórico de cirurgias realizadas" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
           name="allergies"
           render={({ field }) => (
             <FormItem>

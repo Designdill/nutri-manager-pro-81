@@ -273,11 +273,13 @@ export type Database = {
           created_at: string
           current_weight: number | null
           dietary_restrictions: string | null
+          dietary_type: string | null
           email: string | null
           exercise_duration: string | null
           exercise_frequency: string | null
           exercise_type: string | null
           family_history: string | null
+          food_preferences: string | null
           full_name: string
           gender: string | null
           height: number | null
@@ -296,9 +298,11 @@ export type Database = {
           sleep_quality: string | null
           state: string | null
           street: string | null
+          surgery_history: string | null
           target_weight: number | null
           treatment_expectations: string | null
           updated_at: string
+          water_intake: number | null
         }
         Insert: {
           additional_notes?: string | null
@@ -311,11 +315,13 @@ export type Database = {
           created_at?: string
           current_weight?: number | null
           dietary_restrictions?: string | null
+          dietary_type?: string | null
           email?: string | null
           exercise_duration?: string | null
           exercise_frequency?: string | null
           exercise_type?: string | null
           family_history?: string | null
+          food_preferences?: string | null
           full_name: string
           gender?: string | null
           height?: number | null
@@ -334,9 +340,11 @@ export type Database = {
           sleep_quality?: string | null
           state?: string | null
           street?: string | null
+          surgery_history?: string | null
           target_weight?: number | null
           treatment_expectations?: string | null
           updated_at?: string
+          water_intake?: number | null
         }
         Update: {
           additional_notes?: string | null
@@ -349,11 +357,13 @@ export type Database = {
           created_at?: string
           current_weight?: number | null
           dietary_restrictions?: string | null
+          dietary_type?: string | null
           email?: string | null
           exercise_duration?: string | null
           exercise_frequency?: string | null
           exercise_type?: string | null
           family_history?: string | null
+          food_preferences?: string | null
           full_name?: string
           gender?: string | null
           height?: number | null
@@ -372,9 +382,11 @@ export type Database = {
           sleep_quality?: string | null
           state?: string | null
           street?: string | null
+          surgery_history?: string | null
           target_weight?: number | null
           treatment_expectations?: string | null
           updated_at?: string
+          water_intake?: number | null
         }
         Relationships: [
           {
@@ -464,6 +476,7 @@ export type Database = {
     }
     Enums: {
       appointment_status: "confirmed" | "pending" | "cancelled"
+      dietary_type: "omnivoro" | "vegetariano" | "vegano" | "outro"
     }
     CompositeTypes: {
       [_ in never]: never

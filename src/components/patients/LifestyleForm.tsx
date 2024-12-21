@@ -17,6 +17,29 @@ export function LifestyleForm({ form }: LifestyleFormProps) {
         <div className="grid gap-4 md:grid-cols-2">
           <FormField
             control={form.control}
+            name="dietary_type"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Tipo de Dieta</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="omnivoro">Onívoro</SelectItem>
+                    <SelectItem value="vegetariano">Vegetariano</SelectItem>
+                    <SelectItem value="vegano">Vegano</SelectItem>
+                    <SelectItem value="outro">Outro</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
             name="meals_per_day"
             render={({ field }) => (
               <FormItem>
@@ -30,12 +53,38 @@ export function LifestyleForm({ form }: LifestyleFormProps) {
           />
           <FormField
             control={form.control}
+            name="water_intake"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Consumo de Água (litros/dia)</FormLabel>
+                <FormControl>
+                  <Input type="number" step="0.1" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="food_preferences"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Preferências Alimentares</FormLabel>
+                <FormControl>
+                  <Textarea placeholder="Preferências e gostos alimentares" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
             name="dietary_restrictions"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Restrições Alimentares</FormLabel>
                 <FormControl>
-                  <Textarea placeholder="Restrições ou preferências alimentares" {...field} />
+                  <Textarea placeholder="Restrições ou intolerâncias alimentares" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

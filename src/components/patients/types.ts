@@ -30,10 +30,14 @@ export const patientFormSchema = z.object({
   medical_conditions: z.string().optional().nullable(),
   allergies: z.string().optional().nullable(),
   medications: z.string().optional().nullable(),
+  surgery_history: z.string().optional().nullable(),
 
   // Eating Habits
   meals_per_day: z.string().optional().nullable(),
   dietary_restrictions: z.string().optional().nullable(),
+  food_preferences: z.string().optional().nullable(),
+  water_intake: z.string().optional().nullable(),
+  dietary_type: z.string().optional().nullable(),
 
   // Physical Activity
   exercise_frequency: z.string().optional().nullable(),
