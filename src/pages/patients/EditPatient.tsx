@@ -8,18 +8,23 @@ import { HealthHistoryForm } from "@/components/patients/HealthHistoryForm";
 import { LifestyleForm } from "@/components/patients/LifestyleForm";
 import { GoalsForm } from "@/components/patients/GoalsForm";
 import { useForm } from "react-hook-form";
-import { PatientFormValues } from "@/components/patients/types";
+import { PatientFormValues, patientFormSchema } from "@/components/patients/types";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MeasurementsForm } from "@/components/patients/MeasurementsForm";
+import { Form } from "@/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 export default function EditPatient() {
   const { patientId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   
-  const form = useForm<PatientFormValues>();
+  const form = useForm<PatientFormValues>({
+    resolver: zodResolver(patientFormSchema),
+  });
 
   const { data: patient, isLoading } = useQuery({
     queryKey: ["patient", patientId],
@@ -94,42 +99,46 @@ export default function EditPatient() {
   }
 
   return (
-    <div className="flex min-h-screen">
-      <AppSidebar />
-      <div className="flex-1 p-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold">Editar Paciente</h1>
-        </div>
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full">
+        <AppSidebar />
+        <div className="flex-1 p-8">
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold">Editar Paciente</h1>
+          </div>
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <Card>
-            <CardHeader>
-              <CardTitle>Informações do Paciente</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-8">
-              <PersonalInfoForm form={form} />
-              <AddressForm form={form} />
-              <MeasurementsForm form={form} />
-              <HealthHistoryForm form={form} />
-              <LifestyleForm form={form} />
-              <GoalsForm form={form} />
-              
-              <div className="flex justify-end gap-4">
-                <Button 
-                  type="button" 
-                  variant="outline"
-                  onClick={() => navigate("/patients")}
-                >
-                  Cancelar
-                </Button>
-                <Button type="submit">
-                  Salvar Alterações
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </form>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Informações do Paciente</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-8">
+                  <PersonalInfoForm form={form} />
+                  <AddressForm form={form} />
+                  <MeasurementsForm form={form} />
+                  <HealthHistoryForm form={form} />
+                  <LifestyleForm form={form} />
+                  <GoalsForm form={form} />
+                  
+                  <div className="flex justify-end gap-4">
+                    <Button 
+                      type="button" 
+                      variant="outline"
+                      onClick={() => navigate("/patients")}
+                    >
+                      Cancelar
+                    </Button>
+                    <Button type="submit">
+                      Salvar Alterações
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </form>
+          </Form>
+        </div>
       </div>
-    </div>
+    </SidebarProvider>
   );
 }
