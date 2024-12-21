@@ -49,13 +49,25 @@ const Login = () => {
           }}
           providers={[]}
           theme="light"
-          onError={(error) => {
-            console.error("Auth error:", error);
-            toast({
-              title: "Authentication Error",
-              description: error.message,
-              variant: "destructive",
-            });
+          localization={{
+            variables: {
+              sign_in: {
+                email_label: "Email",
+                password_label: "Senha",
+                button_label: "Entrar",
+                loading_button_label: "Entrando...",
+                social_provider_text: "Entrar com {{provider}}",
+                link_text: "Já tem uma conta? Entre",
+              },
+              sign_up: {
+                email_label: "Email",
+                password_label: "Senha",
+                button_label: "Cadastrar",
+                loading_button_label: "Cadastrando...",
+                social_provider_text: "Cadastrar com {{provider}}",
+                link_text: "Não tem uma conta? Cadastre-se",
+              },
+            },
           }}
         />
       </div>
