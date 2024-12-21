@@ -1,6 +1,6 @@
-import { Patient } from "@/integrations/supabase/types/patients";
+import { Tables } from "@/integrations/supabase/types";
 
-export function exportPatientsToCSV(patients: Patient[]) {
+export function exportPatientsToCSV(patients: Tables<"patients">[]) {
   const headers = [
     "Nome Completo",
     "Email",
