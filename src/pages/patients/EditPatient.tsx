@@ -12,6 +12,7 @@ import { PatientFormValues } from "@/components/patients/types";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { MeasurementsForm } from "@/components/patients/MeasurementsForm";
 
 export default function EditPatient() {
   const { patientId } = useParams();
@@ -36,7 +37,17 @@ export default function EditPatient() {
       }
 
       console.log("Patient data fetched:", data);
-      form.reset(data);
+      // Convert numeric values to strings for the form
+      const formData = {
+        ...data,
+        current_weight: data.current_weight?.toString() || "",
+        target_weight: data.target_weight?.toString() || "",
+        height: data.height?.toString() || "",
+        meals_per_day: data.meals_per_day?.toString() || "",
+        sleep_hours: data.sleep_hours?.toString() || "",
+        water_intake: data.water_intake?.toString() || "",
+      };
+      form.reset(formData);
       return data;
     },
   });
@@ -44,9 +55,20 @@ export default function EditPatient() {
   const onSubmit = async (data: PatientFormValues) => {
     try {
       console.log("Updating patient with data:", data);
+      // Convert string values back to numbers for the database
+      const patientData = {
+        ...data,
+        current_weight: data.current_weight ? parseFloat(data.current_weight) : null,
+        target_weight: data.target_weight ? parseFloat(data.target_weight) : null,
+        height: data.height ? parseFloat(data.height) : null,
+        meals_per_day: data.meals_per_day ? parseInt(data.meals_per_day) : null,
+        sleep_hours: data.sleep_hours ? parseInt(data.sleep_hours) : null,
+        water_intake: data.water_intake ? parseFloat(data.water_intake) : null,
+      };
+
       const { error } = await supabase
         .from("patients")
-        .update(data)
+        .update(patientData)
         .eq("id", patientId);
 
       if (error) throw error;
@@ -87,6 +109,7 @@ export default function EditPatient() {
             <CardContent className="space-y-8">
               <PersonalInfoForm form={form} />
               <AddressForm form={form} />
+              <MeasurementsForm form={form} />
               <HealthHistoryForm form={form} />
               <LifestyleForm form={form} />
               <GoalsForm form={form} />
