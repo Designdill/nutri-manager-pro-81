@@ -7,7 +7,6 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { SearchBar } from "./components/SearchBar";
 import { ProfileSettings } from "./components/ProfileSettings";
 import { AppearanceSettings } from "./components/AppearanceSettings";
@@ -139,10 +138,13 @@ export default function SettingsPage() {
   };
 
   const resetSettings = async () => {
-    const defaultSettings = {
+    const defaultSettings: SettingsFormValues = {
+      full_name: profile?.full_name || "",
+      phone: profile?.phone || "",
       theme: "system",
       language: "pt-BR",
       email_notifications: true,
+      open_food_facts_api_key: "",
       google_calendar_connected: false,
       account_active: true,
     };
@@ -150,7 +152,13 @@ export default function SettingsPage() {
     try {
       const { error } = await supabase
         .from("user_settings")
-        .update(defaultSettings)
+        .update({
+          theme: defaultSettings.theme,
+          language: defaultSettings.language,
+          email_notifications: defaultSettings.email_notifications,
+          google_calendar_connected: defaultSettings.google_calendar_connected,
+          account_active: defaultSettings.account_active,
+        })
         .eq("user_id", session?.user?.id);
 
       if (error) throw error;
