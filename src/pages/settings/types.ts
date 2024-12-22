@@ -7,6 +7,11 @@ export const settingsFormSchema = z.object({
   language: z.enum(["pt-BR", "en-US"] as const),
   email_notifications: z.boolean(),
   open_food_facts_api_key: z.string().optional(),
+  usda_fooddata_api_key: z.string().optional(),
+  google_fit_connected: z.boolean().default(false),
+  apple_health_connected: z.boolean().default(false),
+  meal_delivery_connected: z.boolean().default(false),
+  recipe_planning_connected: z.boolean().default(false),
   google_calendar_connected: z.boolean(),
   account_active: z.boolean(),
 });
