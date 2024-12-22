@@ -22,13 +22,13 @@ export function NotificationSettings({ form }: NotificationSettingsProps) {
                 <HelpCircle className="h-4 w-4 text-muted-foreground" />
               </TooltipTrigger>
               <TooltipContent>
-                <p>Configure suas preferências de notificação</p>
+                <p>Gerencie suas preferências de notificação</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </div>
         <CardDescription>
-          Configure suas preferências de notificação
+          Gerencie suas preferências de notificação
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -38,11 +38,9 @@ export function NotificationSettings({ form }: NotificationSettingsProps) {
           render={({ field }) => (
             <FormItem className="flex items-center justify-between rounded-lg border p-4">
               <div className="space-y-0.5">
-                <FormLabel className="text-base">
-                  Notificações por Email
-                </FormLabel>
+                <FormLabel className="text-base">Notificações por Email</FormLabel>
                 <FormDescription>
-                  Receba notificações sobre consultas e mensagens por email
+                  Receba atualizações importantes por email
                 </FormDescription>
               </div>
               <FormControl>

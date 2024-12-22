@@ -22,7 +22,7 @@ export function ProfileSettings({ form }: ProfileSettingsProps) {
                 <HelpCircle className="h-4 w-4 text-muted-foreground" />
               </TooltipTrigger>
               <TooltipContent>
-                <p>Suas informações pessoais</p>
+                <p>Gerencie suas informações pessoais</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -44,6 +44,7 @@ export function ProfileSettings({ form }: ProfileSettingsProps) {
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="phone"

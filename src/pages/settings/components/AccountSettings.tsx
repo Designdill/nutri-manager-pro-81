@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FormField, FormItem, FormLabel, FormControl, FormDescription } from "@/components/ui/form";
+import { FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { HelpCircle } from "lucide-react";
@@ -38,10 +38,10 @@ export function AccountSettings({ form }: AccountSettingsProps) {
           render={({ field }) => (
             <FormItem className="flex items-center justify-between rounded-lg border p-4">
               <div className="space-y-0.5">
-                <FormLabel className="text-base">Conta Ativa</FormLabel>
-                <FormDescription>
-                  Desative sua conta temporariamente
-                </FormDescription>
+                <FormLabel className="text-base">Status da Conta</FormLabel>
+                <CardDescription>
+                  Ative ou desative sua conta
+                </CardDescription>
               </div>
               <FormControl>
                 <Switch
