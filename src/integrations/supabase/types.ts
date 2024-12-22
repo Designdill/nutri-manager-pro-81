@@ -146,6 +146,36 @@ export type Database = {
         }
         Relationships: []
       }
+      health_app_data: {
+        Row: {
+          app_name: string
+          created_at: string | null
+          data_type: string
+          id: string
+          recorded_at: string | null
+          user_id: string
+          value: Json
+        }
+        Insert: {
+          app_name: string
+          created_at?: string | null
+          data_type: string
+          id?: string
+          recorded_at?: string | null
+          user_id: string
+          value: Json
+        }
+        Update: {
+          app_name?: string
+          created_at?: string | null
+          data_type?: string
+          id?: string
+          recorded_at?: string | null
+          user_id?: string
+          value?: Json
+        }
+        Relationships: []
+      }
       meal_plans: {
         Row: {
           afternoon_snack: string | null
@@ -495,43 +525,55 @@ export type Database = {
         Row: {
           accessibility_settings: Json | null
           account_active: boolean | null
+          apple_health_connected: boolean | null
           created_at: string
           email_notifications: boolean | null
           google_calendar_connected: boolean | null
           language: string | null
+          meal_delivery_connected: boolean | null
           notification_preferences: Json | null
           open_food_facts_api_key: string | null
+          recipe_planning_connected: boolean | null
           security_settings: Json | null
           theme: string | null
           updated_at: string
+          usda_fooddata_api_key: string | null
           user_id: string
         }
         Insert: {
           accessibility_settings?: Json | null
           account_active?: boolean | null
+          apple_health_connected?: boolean | null
           created_at?: string
           email_notifications?: boolean | null
           google_calendar_connected?: boolean | null
           language?: string | null
+          meal_delivery_connected?: boolean | null
           notification_preferences?: Json | null
           open_food_facts_api_key?: string | null
+          recipe_planning_connected?: boolean | null
           security_settings?: Json | null
           theme?: string | null
           updated_at?: string
+          usda_fooddata_api_key?: string | null
           user_id: string
         }
         Update: {
           accessibility_settings?: Json | null
           account_active?: boolean | null
+          apple_health_connected?: boolean | null
           created_at?: string
           email_notifications?: boolean | null
           google_calendar_connected?: boolean | null
           language?: string | null
+          meal_delivery_connected?: boolean | null
           notification_preferences?: Json | null
           open_food_facts_api_key?: string | null
+          recipe_planning_connected?: boolean | null
           security_settings?: Json | null
           theme?: string | null
           updated_at?: string
+          usda_fooddata_api_key?: string | null
           user_id?: string
         }
         Relationships: []
