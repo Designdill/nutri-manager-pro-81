@@ -8,6 +8,7 @@ import { ConsultationFormValues, consultationFormSchema } from "./types";
 import { BasicMeasurements } from "./consultation-form/BasicMeasurements";
 import { ActivityAndAdherence } from "./consultation-form/ActivityAndAdherence";
 import { NotesAndPlans } from "./consultation-form/NotesAndPlans";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface ConsultationFormProps {
   patientId: string;
@@ -81,14 +82,21 @@ export function ConsultationForm({ patientId, patientHeight, onSuccess, onCancel
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-2xl mx-auto p-4">
-        <div className="grid gap-6">
-          <BasicMeasurements form={form} calculateBMI={calculateBMI} />
-          <ActivityAndAdherence form={form} />
-          <NotesAndPlans form={form} />
-        </div>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Novo Atendimento</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-6">
+              <BasicMeasurements form={form} calculateBMI={calculateBMI} />
+              <ActivityAndAdherence form={form} />
+              <NotesAndPlans form={form} />
+            </div>
+          </CardContent>
+        </Card>
 
-        <div className="flex justify-end space-x-2 sticky bottom-0 bg-background p-4 border-t">
+        <div className="flex justify-end space-x-2 sticky bottom-4 bg-background p-4 rounded-lg shadow-lg border">
           {onCancel && (
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancelar
