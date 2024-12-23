@@ -6,12 +6,33 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { HelpCircle } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 import { SettingsFormValues } from "../types";
+import { useToast } from "@/hooks/use-toast";
 
 interface IntegrationSettingsProps {
   form: UseFormReturn<SettingsFormValues>;
 }
 
 export function IntegrationSettings({ form }: IntegrationSettingsProps) {
+  const { toast } = useToast();
+
+  const handleIntegrationToggle = async (value: boolean, integrationName: string) => {
+    try {
+      console.log(`Toggling ${integrationName} integration:`, value);
+      // Here we'll add proper API endpoint handling later
+      toast({
+        title: "Integration status updated",
+        description: `${integrationName} integration has been ${value ? 'enabled' : 'disabled'}`,
+      });
+    } catch (error) {
+      console.error(`Error toggling ${integrationName} integration:`, error);
+      toast({
+        title: "Error updating integration",
+        description: "There was a problem updating the integration status. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -88,7 +109,10 @@ export function IntegrationSettings({ form }: IntegrationSettingsProps) {
                 <FormControl>
                   <Switch
                     checked={field.value}
-                    onCheckedChange={field.onChange}
+                    onCheckedChange={(value) => {
+                      field.onChange(value);
+                      handleIntegrationToggle(value, 'Google Fit');
+                    }}
                   />
                 </FormControl>
               </FormItem>
@@ -109,7 +133,10 @@ export function IntegrationSettings({ form }: IntegrationSettingsProps) {
                 <FormControl>
                   <Switch
                     checked={field.value}
-                    onCheckedChange={field.onChange}
+                    onCheckedChange={(value) => {
+                      field.onChange(value);
+                      handleIntegrationToggle(value, 'Apple Health');
+                    }}
                   />
                 </FormControl>
               </FormItem>
@@ -135,7 +162,10 @@ export function IntegrationSettings({ form }: IntegrationSettingsProps) {
                 <FormControl>
                   <Switch
                     checked={field.value}
-                    onCheckedChange={field.onChange}
+                    onCheckedChange={(value) => {
+                      field.onChange(value);
+                      handleIntegrationToggle(value, 'Meal Delivery');
+                    }}
                   />
                 </FormControl>
               </FormItem>
@@ -156,7 +186,10 @@ export function IntegrationSettings({ form }: IntegrationSettingsProps) {
                 <FormControl>
                   <Switch
                     checked={field.value}
-                    onCheckedChange={field.onChange}
+                    onCheckedChange={(value) => {
+                      field.onChange(value);
+                      handleIntegrationToggle(value, 'Recipe Planning');
+                    }}
                   />
                 </FormControl>
               </FormItem>
