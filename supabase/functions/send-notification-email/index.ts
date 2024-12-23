@@ -27,14 +27,6 @@ const emailTemplates = {
       <p><a href="${data.loginUrl}">${data.loginUrl}</a></p>
     `,
   },
-  registration: {
-    subject: "Confirmação de Cadastro",
-    html: (data: Record<string, string>) => `
-      <h2>Olá, ${data.name}!</h2>
-      <p>Seu cadastro foi realizado com sucesso.</p>
-      <p>Agora você pode acessar seu perfil e começar a utilizar nosso sistema.</p>
-    `,
-  },
   appointment_reminder: {
     subject: "Lembrete de Consulta",
     html: (data: Record<string, string>) => `

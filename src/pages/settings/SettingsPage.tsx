@@ -12,6 +12,7 @@ import { ProfileSettings } from "./components/ProfileSettings";
 import { AppearanceSettings } from "./components/AppearanceSettings";
 import { NotificationSettings } from "./components/NotificationSettings";
 import { IntegrationSettings } from "./components/IntegrationSettings";
+import { EmailSettings } from "./components/EmailSettings";
 import { AccountSettings } from "./components/AccountSettings";
 import { settingsFormSchema, SettingsFormValues } from "./types";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -61,6 +62,12 @@ export default function SettingsPage() {
       open_food_facts_api_key: userSettings?.open_food_facts_api_key || "",
       google_calendar_connected: userSettings?.google_calendar_connected || false,
       account_active: userSettings?.account_active || true,
+      appointment_reminder_emails: true,
+      progress_report_emails: true,
+      newsletter_emails: true,
+      email_frequency: "weekly",
+      appointment_reminder_template: "",
+      progress_report_template: "",
     },
   });
 
@@ -96,6 +103,12 @@ export default function SettingsPage() {
           open_food_facts_api_key: data.open_food_facts_api_key,
           google_calendar_connected: data.google_calendar_connected,
           account_active: data.account_active,
+          appointment_reminder_emails: data.appointment_reminder_emails,
+          progress_report_emails: data.progress_report_emails,
+          newsletter_emails: data.newsletter_emails,
+          appointment_reminder_template: data.appointment_reminder_template,
+          progress_report_template: data.progress_report_template,
+          email_frequency: data.email_frequency,
         })
         .eq("user_id", session?.user?.id);
 
@@ -147,6 +160,12 @@ export default function SettingsPage() {
       open_food_facts_api_key: "",
       google_calendar_connected: false,
       account_active: true,
+      appointment_reminder_emails: true,
+      progress_report_emails: true,
+      newsletter_emails: true,
+      email_frequency: "weekly",
+      appointment_reminder_template: "",
+      progress_report_template: "",
     };
 
     try {
@@ -158,6 +177,12 @@ export default function SettingsPage() {
           email_notifications: defaultSettings.email_notifications,
           google_calendar_connected: defaultSettings.google_calendar_connected,
           account_active: defaultSettings.account_active,
+          appointment_reminder_emails: defaultSettings.appointment_reminder_emails,
+          progress_report_emails: defaultSettings.progress_report_emails,
+          newsletter_emails: defaultSettings.newsletter_emails,
+          email_frequency: defaultSettings.email_frequency,
+          appointment_reminder_template: defaultSettings.appointment_reminder_template,
+          progress_report_template: defaultSettings.progress_report_template,
         })
         .eq("user_id", session?.user?.id);
 
@@ -187,6 +212,7 @@ export default function SettingsPage() {
     { id: "profile", component: <ProfileSettings form={form} />, keywords: ["perfil", "nome", "telefone"] },
     { id: "appearance", component: <AppearanceSettings form={form} />, keywords: ["aparência", "tema", "idioma"] },
     { id: "notifications", component: <NotificationSettings form={form} />, keywords: ["notificações", "email"] },
+    { id: "email", component: <EmailSettings form={form} />, keywords: ["email", "templates", "mensagens"] },
     { id: "integrations", component: <IntegrationSettings form={form} />, keywords: ["integrações", "api", "calendar"] },
     { id: "account", component: <AccountSettings form={form} />, keywords: ["conta", "ativo"] },
   ];

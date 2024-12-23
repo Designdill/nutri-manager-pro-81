@@ -14,6 +14,13 @@ export const settingsFormSchema = z.object({
   recipe_planning_connected: z.boolean().default(false),
   google_calendar_connected: z.boolean(),
   account_active: z.boolean(),
+  // New email settings
+  appointment_reminder_emails: z.boolean().default(true),
+  progress_report_emails: z.boolean().default(true),
+  newsletter_emails: z.boolean().default(true),
+  appointment_reminder_template: z.string().optional(),
+  progress_report_template: z.string().optional(),
+  email_frequency: z.enum(["daily", "weekly", "monthly"]).default("weekly"),
 });
 
 export type SettingsFormValues = z.infer<typeof settingsFormSchema>;
