@@ -1,30 +1,13 @@
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+import { Form } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
 import { supabase } from "@/integrations/supabase/client";
-
-const consultationFormSchema = z.object({
-  consultation_date: z.string().min(1, "Data é obrigatória"),
-  weight: z.string().min(1, "Peso é obrigatório"),
-  bmi: z.string(),
-  body_fat_percentage: z.string().optional(),
-  waist_circumference: z.string().optional(),
-  physical_activity_level: z.string().optional(),
-  meal_plan_adherence: z.string().optional(),
-  diet_related_symptoms: z.string().optional(),
-  observations: z.string().optional(),
-  meal_plan: z.string().optional(),
-  long_term_goals: z.string().optional(),
-  nutritional_interventions: z.string().optional(),
-});
-
-type ConsultationFormValues = z.infer<typeof consultationFormSchema>;
+import { ConsultationFormValues, consultationFormSchema } from "./types";
+import { BasicMeasurements } from "./consultation-form/BasicMeasurements";
+import { ActivityAndAdherence } from "./consultation-form/ActivityAndAdherence";
+import { NotesAndPlans } from "./consultation-form/NotesAndPlans";
 
 interface ConsultationFormProps {
   patientId: string;
@@ -98,202 +81,14 @@ export function ConsultationForm({ patientId, patientHeight, onSuccess, onCancel
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="consultation_date"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Data do Atendimento</FormLabel>
-              <FormControl>
-                <Input type="date" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-2xl mx-auto p-4">
+        <div className="grid gap-6">
+          <BasicMeasurements form={form} calculateBMI={calculateBMI} />
+          <ActivityAndAdherence form={form} />
+          <NotesAndPlans form={form} />
+        </div>
 
-        <FormField
-          control={form.control}
-          name="weight"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Peso Atual (kg)</FormLabel>
-              <FormControl>
-                <Input 
-                  type="number" 
-                  step="0.1" 
-                  {...field} 
-                  onChange={(e) => {
-                    field.onChange(e);
-                    calculateBMI(e.target.value);
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="bmi"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>IMC</FormLabel>
-              <FormControl>
-                <Input type="number" step="0.01" {...field} readOnly />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="body_fat_percentage"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Gordura Corporal (%)</FormLabel>
-              <FormControl>
-                <Input type="number" step="0.1" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="waist_circumference"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Circunferência da Cintura (cm)</FormLabel>
-              <FormControl>
-                <Input type="number" step="0.1" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="physical_activity_level"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nível de Atividade Física</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o nível" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="sedentário">Sedentário</SelectItem>
-                  <SelectItem value="moderadamente ativo">Moderadamente Ativo</SelectItem>
-                  <SelectItem value="muito ativo">Muito Ativo</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="meal_plan_adherence"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Aderência ao Plano Alimentar</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione a aderência" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="total">Total</SelectItem>
-                  <SelectItem value="parcial">Parcial</SelectItem>
-                  <SelectItem value="não seguiu">Não Seguiu</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="diet_related_symptoms"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Sintomas Relacionados à Dieta</FormLabel>
-              <FormControl>
-                <Textarea {...field} placeholder="Descreva os sintomas ou problemas relacionados à dieta" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="observations"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Observações</FormLabel>
-              <FormControl>
-                <Textarea {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="meal_plan"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Plano Alimentar Sugerido</FormLabel>
-              <FormControl>
-                <Textarea {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="long_term_goals"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Metas a Longo Prazo</FormLabel>
-              <FormControl>
-                <Textarea {...field} placeholder="Estabeleça metas nutricionais e de saúde para o próximo período" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="nutritional_interventions"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Intervenções Nutricionais Realizadas</FormLabel>
-              <FormControl>
-                <Textarea {...field} placeholder="Descreva as intervenções nutricionais realizadas desde a última consulta" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="flex justify-end space-x-2">
+        <div className="flex justify-end space-x-2 sticky bottom-0 bg-background p-4 border-t">
           {onCancel && (
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancelar

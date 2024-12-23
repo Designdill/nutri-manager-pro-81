@@ -55,3 +55,20 @@ export const patientFormSchema = z.object({
 });
 
 export type PatientFormValues = z.infer<typeof patientFormSchema>;
+
+export const consultationFormSchema = z.object({
+  consultation_date: z.string().min(1, "Data é obrigatória"),
+  weight: z.string().min(1, "Peso é obrigatório"),
+  bmi: z.string(),
+  body_fat_percentage: z.string().optional(),
+  waist_circumference: z.string().optional(),
+  physical_activity_level: z.string().optional(),
+  meal_plan_adherence: z.string().optional(),
+  diet_related_symptoms: z.string().optional(),
+  observations: z.string().optional(),
+  meal_plan: z.string().optional(),
+  long_term_goals: z.string().optional(),
+  nutritional_interventions: z.string().optional(),
+});
+
+export type ConsultationFormValues = z.infer<typeof consultationFormSchema>;
