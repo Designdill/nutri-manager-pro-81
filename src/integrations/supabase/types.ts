@@ -60,35 +60,56 @@ export type Database = {
       consultations: {
         Row: {
           bmi: number
+          body_fat_percentage: number | null
           consultation_date: string
           created_at: string
+          diet_related_symptoms: string | null
           id: string
+          long_term_goals: string | null
           meal_plan: string | null
+          meal_plan_adherence: string | null
+          nutritional_interventions: string | null
           observations: string | null
           patient_id: string
+          physical_activity_level: string | null
           updated_at: string
+          waist_circumference: number | null
           weight: number
         }
         Insert: {
           bmi: number
+          body_fat_percentage?: number | null
           consultation_date: string
           created_at?: string
+          diet_related_symptoms?: string | null
           id?: string
+          long_term_goals?: string | null
           meal_plan?: string | null
+          meal_plan_adherence?: string | null
+          nutritional_interventions?: string | null
           observations?: string | null
           patient_id: string
+          physical_activity_level?: string | null
           updated_at?: string
+          waist_circumference?: number | null
           weight: number
         }
         Update: {
           bmi?: number
+          body_fat_percentage?: number | null
           consultation_date?: string
           created_at?: string
+          diet_related_symptoms?: string | null
           id?: string
+          long_term_goals?: string | null
           meal_plan?: string | null
+          meal_plan_adherence?: string | null
+          nutritional_interventions?: string | null
           observations?: string | null
           patient_id?: string
+          physical_activity_level?: string | null
           updated_at?: string
+          waist_circumference?: number | null
           weight?: number
         }
         Relationships: [
