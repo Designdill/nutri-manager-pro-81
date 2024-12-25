@@ -14,6 +14,7 @@ import { NotificationSettings } from "./components/NotificationSettings";
 import { IntegrationSettings } from "./components/IntegrationSettings";
 import { EmailSettings } from "./components/EmailSettings";
 import { AccountSettings } from "./components/AccountSettings";
+import { BackupSettings } from "./components/BackupSettings";
 import { settingsFormSchema, SettingsFormValues } from "./types";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { RotateCcw } from "lucide-react";
@@ -215,6 +216,7 @@ export default function SettingsPage() {
     { id: "email", component: <EmailSettings form={form} />, keywords: ["email", "templates", "mensagens"] },
     { id: "integrations", component: <IntegrationSettings form={form} />, keywords: ["integrações", "api", "calendar"] },
     { id: "account", component: <AccountSettings form={form} />, keywords: ["conta", "ativo"] },
+    { id: "backup", component: <BackupSettings />, keywords: ["backup", "restauração", "exportar", "importar"] },
   ];
 
   const filteredComponents = components.filter(({ keywords }) =>
