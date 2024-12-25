@@ -122,6 +122,39 @@ export type Database = {
           },
         ]
       }
+      exam_types: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          max_reference: number | null
+          min_reference: number | null
+          name: string
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          max_reference?: number | null
+          min_reference?: number | null
+          name: string
+          unit: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          max_reference?: number | null
+          min_reference?: number | null
+          name?: string
+          unit?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       foods: {
         Row: {
           calories: number | null
@@ -312,6 +345,57 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      patient_exams: {
+        Row: {
+          created_at: string
+          exam_date: string
+          exam_type_id: string
+          id: string
+          notes: string | null
+          patient_id: string
+          status: Database["public"]["Enums"]["exam_status"]
+          updated_at: string
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          exam_date: string
+          exam_type_id: string
+          id?: string
+          notes?: string | null
+          patient_id: string
+          status: Database["public"]["Enums"]["exam_status"]
+          updated_at?: string
+          value: number
+        }
+        Update: {
+          created_at?: string
+          exam_date?: string
+          exam_type_id?: string
+          id?: string
+          notes?: string | null
+          patient_id?: string
+          status?: Database["public"]["Enums"]["exam_status"]
+          updated_at?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_exams_exam_type_id_fkey"
+            columns: ["exam_type_id"]
+            isOneToOne: false
+            referencedRelation: "exam_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_exams_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       patient_photos: {
         Row: {
@@ -609,6 +693,7 @@ export type Database = {
     Enums: {
       appointment_status: "confirmed" | "pending" | "cancelled"
       dietary_type: "omnivoro" | "vegetariano" | "vegano" | "outro"
+      exam_status: "normal" | "above_reference" | "below_reference"
       notification_type:
         | "welcome"
         | "registration"

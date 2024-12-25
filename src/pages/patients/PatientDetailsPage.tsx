@@ -1,5 +1,6 @@
 import { AppSidebar } from "@/components/AppSidebar";
 import { ConsultationForm } from "@/components/patients/ConsultationForm";
+import { ExamsTab } from "@/components/patients/exams/ExamsTab";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -61,6 +62,7 @@ export default function PatientDetailsPage() {
             <TabsTrigger value="info">Informações</TabsTrigger>
             <TabsTrigger value="history">Histórico</TabsTrigger>
             <TabsTrigger value="progress">Progresso</TabsTrigger>
+            <TabsTrigger value="exams">Exames</TabsTrigger>
           </TabsList>
 
           <TabsContent value="info">
@@ -189,6 +191,10 @@ export default function PatientDetailsPage() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="exams">
+            <ExamsTab patientId={patientId!} />
           </TabsContent>
         </Tabs>
       </div>
