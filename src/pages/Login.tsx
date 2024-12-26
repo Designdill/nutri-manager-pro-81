@@ -30,10 +30,20 @@ const Login = () => {
   }
 
   const handleError = (error: Error) => {
-    console.error("Auth error:", error);
+    console.error("Auth error details:", error);
+    
+    let errorMessage = "Erro durante a autenticação";
+    
+    // Check for specific error types
+    if (error.message.includes("invalid_credentials")) {
+      errorMessage = "Email ou senha inválidos";
+    } else if (error.message.includes("Email not confirmed")) {
+      errorMessage = "Por favor, confirme seu email antes de fazer login";
+    }
+
     toast({
-      title: "Error during authentication",
-      description: "Please try again or contact support if the problem persists",
+      title: "Erro de autenticação",
+      description: errorMessage,
       variant: "destructive",
     });
   };
@@ -42,7 +52,7 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-lg">
         <h1 className="text-2xl font-bold text-center mb-8 text-gray-900">
-          Nutrition Management System
+          Sistema de Gestão Nutricional
         </h1>
         <Auth
           supabaseClient={supabase}
