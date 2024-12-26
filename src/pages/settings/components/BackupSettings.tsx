@@ -16,15 +16,19 @@ export const BackupSettings = () => {
       console.log("Starting data export...");
       
       // Fetch user settings
-      const { data: settings } = await supabase
+      const { data: settings, error: settingsError } = await supabase
         .from("user_settings")
         .select("*")
         .single();
 
+      if (settingsError) throw settingsError;
+
       // Fetch settings history
-      const { data: history } = await supabase
+      const { data: history, error: historyError } = await supabase
         .from("settings_history")
         .select("*");
+
+      if (historyError) throw historyError;
 
       const backupData = {
         timestamp: new Date().toISOString(),
@@ -75,12 +79,18 @@ export const BackupSettings = () => {
           const backupData = JSON.parse(e.target?.result as string);
           
           if (backupData.settings) {
+            const { user_id, created_at, updated_at, ...settingsData } = backupData.settings;
+            
             // Update user settings
             const { error: settingsError } = await supabase
               .from("user_settings")
-              .upsert(backupData.settings);
+              .update(settingsData)
+              .eq("user_id", user_id);
 
-            if (settingsError) throw settingsError;
+            if (settingsError) {
+              console.error("Error updating settings:", settingsError);
+              throw settingsError;
+            }
           }
 
           toast({

@@ -631,15 +631,28 @@ export type Database = {
           accessibility_settings: Json | null
           account_active: boolean | null
           apple_health_connected: boolean | null
+          appointment_reminder_emails: boolean | null
+          appointment_reminder_template: string | null
           created_at: string
+          email_frequency: string | null
           email_notifications: boolean | null
+          email_service: string | null
           google_calendar_connected: boolean | null
           language: string | null
           meal_delivery_connected: boolean | null
+          newsletter_emails: boolean | null
           notification_preferences: Json | null
           open_food_facts_api_key: string | null
+          progress_report_emails: boolean | null
+          progress_report_template: string | null
           recipe_planning_connected: boolean | null
+          resend_api_key: string | null
           security_settings: Json | null
+          smtp_host: string | null
+          smtp_password: string | null
+          smtp_port: string | null
+          smtp_secure: boolean | null
+          smtp_user: string | null
           theme: string | null
           updated_at: string
           usda_fooddata_api_key: string | null
@@ -649,15 +662,28 @@ export type Database = {
           accessibility_settings?: Json | null
           account_active?: boolean | null
           apple_health_connected?: boolean | null
+          appointment_reminder_emails?: boolean | null
+          appointment_reminder_template?: string | null
           created_at?: string
+          email_frequency?: string | null
           email_notifications?: boolean | null
+          email_service?: string | null
           google_calendar_connected?: boolean | null
           language?: string | null
           meal_delivery_connected?: boolean | null
+          newsletter_emails?: boolean | null
           notification_preferences?: Json | null
           open_food_facts_api_key?: string | null
+          progress_report_emails?: boolean | null
+          progress_report_template?: string | null
           recipe_planning_connected?: boolean | null
+          resend_api_key?: string | null
           security_settings?: Json | null
+          smtp_host?: string | null
+          smtp_password?: string | null
+          smtp_port?: string | null
+          smtp_secure?: boolean | null
+          smtp_user?: string | null
           theme?: string | null
           updated_at?: string
           usda_fooddata_api_key?: string | null
@@ -667,15 +693,28 @@ export type Database = {
           accessibility_settings?: Json | null
           account_active?: boolean | null
           apple_health_connected?: boolean | null
+          appointment_reminder_emails?: boolean | null
+          appointment_reminder_template?: string | null
           created_at?: string
+          email_frequency?: string | null
           email_notifications?: boolean | null
+          email_service?: string | null
           google_calendar_connected?: boolean | null
           language?: string | null
           meal_delivery_connected?: boolean | null
+          newsletter_emails?: boolean | null
           notification_preferences?: Json | null
           open_food_facts_api_key?: string | null
+          progress_report_emails?: boolean | null
+          progress_report_template?: string | null
           recipe_planning_connected?: boolean | null
+          resend_api_key?: string | null
           security_settings?: Json | null
+          smtp_host?: string | null
+          smtp_password?: string | null
+          smtp_port?: string | null
+          smtp_secure?: boolean | null
+          smtp_user?: string | null
           theme?: string | null
           updated_at?: string
           usda_fooddata_api_key?: string | null
