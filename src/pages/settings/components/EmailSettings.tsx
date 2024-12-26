@@ -1,8 +1,10 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormField, FormItem, FormLabel, FormControl, FormDescription } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Mail, HelpCircle, User, Calendar, Clock } from "lucide-react";
+import { Mail, HelpCircle, Server } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 import { SettingsFormValues } from "../types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -27,86 +29,154 @@ export function EmailSettings({ form }: EmailSettingsProps) {
                 <HelpCircle className="h-4 w-4 text-muted-foreground" />
               </TooltipTrigger>
               <TooltipContent>
-                <p>Gerencie suas preferências de email e templates</p>
+                <p>Configure suas preferências de email e serviço de envio</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </div>
         <CardDescription>
-          Configure suas preferências de email e templates de mensagem
+          Configure suas preferências de email e método de envio
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <Tabs defaultValue="notifications" className="w-full">
+        <Tabs defaultValue="service" className="w-full">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="notifications">Notificações</TabsTrigger>
+            <TabsTrigger value="service">Serviço</TabsTrigger>
             <TabsTrigger value="templates">Templates</TabsTrigger>
             <TabsTrigger value="preferences">Preferências</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="notifications" className="space-y-4">
+          <TabsContent value="service" className="space-y-4">
             <FormField
               control={form.control}
-              name="appointment_reminder_emails"
+              name="email_service"
               render={({ field }) => (
-                <FormItem className="flex items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-base">Lembretes de Consulta</FormLabel>
-                    <FormDescription>
-                      Enviar lembretes automáticos de consultas
-                    </FormDescription>
-                  </div>
+                <FormItem className="space-y-3">
+                  <FormLabel>Serviço de Email</FormLabel>
                   <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="progress_report_emails"
-              render={({ field }) => (
-                <FormItem className="flex items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-base">Relatórios de Progresso</FormLabel>
-                    <FormDescription>
-                      Enviar relatórios mensais de progresso
-                    </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      className="grid grid-cols-1 gap-4"
+                    >
+                      <div className="flex items-center space-x-2 rounded-lg border p-4">
+                        <RadioGroupItem value="resend" id="resend" />
+                        <label htmlFor="resend" className="flex flex-col">
+                          <span className="font-medium">Resend</span>
+                          <span className="text-sm text-muted-foreground">
+                            Use o serviço Resend para envio de emails
+                          </span>
+                        </label>
+                      </div>
+                      <div className="flex items-center space-x-2 rounded-lg border p-4">
+                        <RadioGroupItem value="smtp" id="smtp" />
+                        <label htmlFor="smtp" className="flex flex-col">
+                          <span className="font-medium">SMTP Próprio</span>
+                          <span className="text-sm text-muted-foreground">
+                            Use seu próprio servidor SMTP
+                          </span>
+                        </label>
+                      </div>
+                    </RadioGroup>
                   </FormControl>
                 </FormItem>
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="newsletter_emails"
-              render={({ field }) => (
-                <FormItem className="flex items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-base">Boletim Informativo</FormLabel>
+            {form.watch("email_service") === "resend" && (
+              <FormField
+                control={form.control}
+                name="resend_api_key"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>API Key do Resend</FormLabel>
+                    <FormControl>
+                      <Input type="password" {...field} />
+                    </FormControl>
                     <FormDescription>
-                      Receber dicas nutricionais e atualizações
+                      Insira sua chave de API do Resend
                     </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+                  </FormItem>
+                )}
+              />
+            )}
+
+            {form.watch("email_service") === "smtp" && (
+              <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="smtp_host"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Servidor SMTP</FormLabel>
+                      <FormControl>
+                        <Input placeholder="smtp.seudominio.com" {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="smtp_port"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Porta SMTP</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="587" {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="smtp_user"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Usuário SMTP</FormLabel>
+                      <FormControl>
+                        <Input placeholder="seu@email.com" {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="smtp_password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Senha SMTP</FormLabel>
+                      <FormControl>
+                        <Input type="password" {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="smtp_secure"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel>Usar SSL/TLS</FormLabel>
+                        <FormDescription>
+                          Ative para usar conexão segura
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="templates" className="space-y-4">
