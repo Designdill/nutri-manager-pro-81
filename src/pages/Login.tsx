@@ -13,6 +13,7 @@ const Login = () => {
 
   useEffect(() => {
     console.log("Login page - session state:", session?.user?.id, "isLoading:", isLoading);
+    console.log("Current origin:", window.location.origin);
     
     if (session && !isLoading) {
       console.log("Redirecting to home - user is authenticated");
