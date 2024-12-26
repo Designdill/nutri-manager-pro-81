@@ -29,25 +29,6 @@ const Login = () => {
     );
   }
 
-  const handleError = (error: Error) => {
-    console.error("Auth error details:", error);
-    
-    let errorMessage = "Erro durante a autenticação";
-    
-    // Check for specific error types
-    if (error.message.includes("invalid_credentials")) {
-      errorMessage = "Email ou senha inválidos";
-    } else if (error.message.includes("Email not confirmed")) {
-      errorMessage = "Por favor, confirme seu email antes de fazer login";
-    }
-
-    toast({
-      title: "Erro de autenticação",
-      description: errorMessage,
-      variant: "destructive",
-    });
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-lg">
@@ -69,7 +50,6 @@ const Login = () => {
           }}
           providers={[]}
           theme="light"
-          onError={handleError}
           redirectTo={window.location.origin}
           localization={{
             variables: {
