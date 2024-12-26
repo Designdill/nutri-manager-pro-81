@@ -60,11 +60,10 @@ const Login = () => {
                 loading_button_label: "Entrando...",
                 social_provider_text: "Entrar com {{provider}}",
                 link_text: "Já tem uma conta? Entre",
-                password_recovery: {
-                  button_label: "Recuperar senha",
-                  message: "Enviaremos instruções para recuperação de senha.",
-                  confirmation_text: "Verifique seu email para instruções de recuperação de senha",
-                },
+                forgotten_password_label: "Esqueceu sua senha?",
+                forgotten_password_link_label: "Recuperar senha",
+                forgotten_password_message: "Enviaremos instruções para recuperação de senha.",
+                confirmation_text: "Verifique seu email para instruções de recuperação de senha",
               },
               sign_up: {
                 email_label: "Email",
