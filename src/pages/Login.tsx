@@ -28,6 +28,15 @@ const Login = () => {
     );
   }
 
+  const handleError = (error: Error) => {
+    console.error("Auth error:", error);
+    toast({
+      title: "Error during authentication",
+      description: "Please try again or contact support if the problem persists",
+      variant: "destructive",
+    });
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-lg">
@@ -49,6 +58,8 @@ const Login = () => {
           }}
           providers={[]}
           theme="light"
+          onError={handleError}
+          redirectTo={window.location.origin}
           localization={{
             variables: {
               sign_in: {
