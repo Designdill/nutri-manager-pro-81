@@ -2,16 +2,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Download, Upload } from "lucide-react";
-import { useState } from "react";
+import { Download, HelpCircle, Upload } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-export const BackupSettings = () => {
+export function BackupSettings() {
   const { toast } = useToast();
-  const [isExporting, setIsExporting] = useState(false);
-  const [isImporting, setIsImporting] = useState(false);
 
-  const handleExportData = async () => {
-    setIsExporting(true);
+  const handleExport = async () => {
     try {
       console.log("Starting data export...");
       
@@ -21,14 +18,20 @@ export const BackupSettings = () => {
         .select("*")
         .single();
 
-      if (settingsError) throw settingsError;
+      if (settingsError) {
+        console.error("Error fetching settings:", settingsError);
+        throw settingsError;
+      }
 
       // Fetch settings history
       const { data: history, error: historyError } = await supabase
         .from("settings_history")
         .select("*");
 
-      if (historyError) throw historyError;
+      if (historyError) {
+        console.error("Error fetching history:", historyError);
+        throw historyError;
+      }
 
       const backupData = {
         timestamp: new Date().toISOString(),
@@ -40,52 +43,50 @@ export const BackupSettings = () => {
       const blob = new Blob([JSON.stringify(backupData, null, 2)], {
         type: "application/json",
       });
-      const url = window.URL.createObjectURL(blob);
+      const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `backup-${new Date().toISOString()}.json`;
+      link.download = `nutri-manager-backup-${new Date().toISOString()}.json`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      URL.revokeObjectURL(url);
 
       toast({
-        title: "Backup realizado com sucesso",
-        description: "Seus dados foram exportados com sucesso.",
+        title: "Backup exportado com sucesso",
+        description: "Suas configurações foram salvas em um arquivo JSON",
       });
     } catch (error) {
-      console.error("Error exporting data:", error);
+      console.error("Error during export:", error);
       toast({
-        title: "Erro ao realizar backup",
-        description: "Ocorreu um erro ao exportar seus dados.",
+        title: "Erro ao exportar backup",
+        description: "Não foi possível exportar suas configurações",
         variant: "destructive",
       });
-    } finally {
-      setIsExporting(false);
     }
   };
 
-  const handleImportData = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    setIsImporting(true);
+  const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
-      console.log("Starting data import...");
-      
+      console.log("Starting backup import...");
+      const file = event.target.files?.[0];
+      if (!file) return;
+
       const reader = new FileReader();
       reader.onload = async (e) => {
         try {
+          console.log("Reading backup file...");
           const backupData = JSON.parse(e.target?.result as string);
           
           if (backupData.settings) {
+            console.log("Processing settings from backup...");
             const { user_id, created_at, updated_at, ...settingsData } = backupData.settings;
             
             // Update user settings
             const { error: settingsError } = await supabase
               .from("user_settings")
               .update(settingsData)
-              .eq("user_id", user_id);
+              .eq("user_id", session?.user?.id);
 
             if (settingsError) {
               console.error("Error updating settings:", settingsError);
@@ -94,72 +95,74 @@ export const BackupSettings = () => {
           }
 
           toast({
-            title: "Restauração concluída",
-            description: "Seus dados foram restaurados com sucesso.",
+            title: "Backup restaurado com sucesso",
+            description: "Suas configurações foram restauradas",
           });
         } catch (error) {
-          console.error("Error parsing backup file:", error);
-          toast({
-            title: "Erro na restauração",
-            description: "O arquivo de backup parece estar corrompido ou inválido.",
-            variant: "destructive",
-          });
+          console.error("Error processing backup file:", error);
+          throw error;
         }
       };
 
       reader.readAsText(file);
     } catch (error) {
-      console.error("Error importing data:", error);
+      console.error("Error during import:", error);
       toast({
-        title: "Erro na restauração",
-        description: "Ocorreu um erro ao importar seus dados.",
+        title: "Erro ao restaurar backup",
+        description: "Não foi possível restaurar suas configurações",
         variant: "destructive",
       });
-    } finally {
-      setIsImporting(false);
-      // Reset file input
-      event.target.value = "";
     }
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Backup e Restauração</CardTitle>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Download className="h-5 w-5" />
+            <CardTitle>Backup e Restauração</CardTitle>
+          </div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <HelpCircle className="h-4 w-4 text-muted-foreground" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Exporte e importe suas configurações</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
         <CardDescription>
-          Exporte seus dados para backup ou restaure a partir de um arquivo de backup
+          Faça backup das suas configurações ou restaure a partir de um arquivo
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex flex-col gap-4 sm:flex-row sm:justify-between">
-          <Button
-            onClick={handleExportData}
-            disabled={isExporting}
-            className="w-full sm:w-auto"
-          >
+        <div className="flex flex-col space-y-4 md:flex-row md:space-x-4 md:space-y-0">
+          <Button onClick={handleExport} className="flex-1">
             <Download className="mr-2 h-4 w-4" />
-            {isExporting ? "Exportando..." : "Exportar Dados"}
+            Exportar Configurações
           </Button>
-          
-          <div className="relative w-full sm:w-auto">
+          <div className="flex-1">
             <input
               type="file"
+              id="import-backup"
               accept=".json"
-              onChange={handleImportData}
-              disabled={isImporting}
-              className="absolute inset-0 cursor-pointer opacity-0"
+              onChange={handleImport}
+              className="hidden"
             />
             <Button
+              onClick={() => document.getElementById("import-backup")?.click()}
               variant="outline"
-              disabled={isImporting}
-              className="w-full sm:w-auto"
+              className="w-full"
             >
               <Upload className="mr-2 h-4 w-4" />
-              {isImporting ? "Importando..." : "Importar Backup"}
+              Importar Backup
             </Button>
           </div>
         </div>
       </CardContent>
     </Card>
   );
-};
+}
