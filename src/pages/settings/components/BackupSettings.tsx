@@ -4,9 +4,11 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Download, HelpCircle, Upload } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useAuth } from "@/App";
 
 export function BackupSettings() {
   const { toast } = useToast();
+  const { session } = useAuth();
 
   const handleExport = async () => {
     try {
