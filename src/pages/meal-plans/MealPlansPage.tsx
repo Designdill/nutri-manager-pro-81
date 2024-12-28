@@ -1,82 +1,76 @@
-import { AppSidebar } from "@/components/AppSidebar";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { PlusCircle } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
+import { useAuth } from "@/App";
+import { AppSidebar } from "@/components/AppSidebar";
 import { CreateMealPlanForm } from "@/components/meal-plans/CreateMealPlanForm";
 import { MealPlansList } from "@/components/meal-plans/MealPlansList";
-import { Tables } from "@/integrations/supabase/types";
-
-type Patient = Tables<"patients">;
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
 
 export default function MealPlansPage() {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { session } = useAuth();
+  const { toast } = useToast();
+  const [isCreating, setIsCreating] = useState(false);
 
-  const { data: patients, isLoading: patientsLoading } = useQuery({
-    queryKey: ["patients"],
+  const { data: mealPlans, isLoading, error } = useQuery({
+    queryKey: ["meal-plans"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("patients")
-        .select("*");
-      
-      if (error) {
-        console.error("Error fetching patients:", error);
+      console.log("Fetching meal plans...");
+      try {
+        const { data, error } = await supabase
+          .from("meal_plans")
+          .select(`
+            *,
+            patients (
+              id,
+              full_name
+            )
+          `)
+          .order("created_at", { ascending: false });
+
+        if (error) {
+          console.error("Error fetching meal plans:", error);
+          throw error;
+        }
+
+        console.log("Meal plans fetched successfully:", data);
+        return data;
+      } catch (error) {
+        console.error("Failed to fetch meal plans:", error);
+        toast({
+          title: "Erro ao carregar planos alimentares",
+          description: "Por favor, tente novamente mais tarde.",
+          variant: "destructive",
+        });
         throw error;
       }
-
-      return data as Patient[];
     },
-  });
-
-  const { data: mealPlans, isLoading: mealPlansLoading } = useQuery({
-    queryKey: ["meal_plans"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("meal_plans")
-        .select("*");
-      
-      if (error) {
-        console.error("Error fetching meal plans:", error);
-        throw error;
-      }
-
-      return data;
-    },
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
   return (
     <div className="flex min-h-screen">
       <AppSidebar />
-      <div className="flex-1 p-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Planos Alimentares</h1>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <PlusCircle className="w-4 h-4 mr-2" />
-                Novo Plano
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-3xl">
-              <DialogHeader>
-                <DialogTitle>Criar Novo Plano Alimentar</DialogTitle>
-              </DialogHeader>
-              <CreateMealPlanForm
-                patients={patients}
-                patientsLoading={patientsLoading}
-                onSuccess={() => setIsDialogOpen(false)}
-                onCancel={() => setIsDialogOpen(false)}
-              />
-            </DialogContent>
-          </Dialog>
+      <div className="flex-1 space-y-8 p-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">Planos Alimentares</h1>
+            <p className="text-muted-foreground">
+              Gerencie os planos alimentares dos seus pacientes
+            </p>
+          </div>
         </div>
 
-        <MealPlansList 
-          mealPlans={mealPlans} 
-          isLoading={mealPlansLoading} 
-        />
+        {isCreating ? (
+          <CreateMealPlanForm onCancel={() => setIsCreating(false)} />
+        ) : (
+          <MealPlansList
+            mealPlans={mealPlans || []}
+            isLoading={isLoading}
+            onCreateNew={() => setIsCreating(true)}
+          />
+        )}
       </div>
     </div>
   );
