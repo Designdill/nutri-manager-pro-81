@@ -77,7 +77,7 @@ export function QuestionnairesList() {
             <TableCell>{questionnaire.patients?.full_name}</TableCell>
             <TableCell>
               <Badge
-                variant={questionnaire.status === "completed" ? "success" : "secondary"}
+                variant={questionnaire.status === "completed" ? "secondary" : "outline"}
               >
                 {questionnaire.status === "completed" ? "Respondido" : "Pendente"}
               </Badge>
