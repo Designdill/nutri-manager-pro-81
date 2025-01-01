@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { FileText, User } from "lucide-react";
+import { Database } from "@/integrations/supabase/types";
 
 interface QuestionnaireResponse {
   question: string;
@@ -19,6 +20,12 @@ interface QuestionnaireData {
   } | null;
 }
 
+type QuestionnaireRow = Database["public"]["Tables"]["questionnaires"]["Row"] & {
+  patients: {
+    full_name: string;
+  } | null;
+};
+
 export function QuestionnaireResponseViewer() {
   const { id } = useParams();
 
@@ -30,7 +37,7 @@ export function QuestionnaireResponseViewer() {
         .from("questionnaires")
         .select(`
           *,
-          patients:patient_id (
+          patients (
             full_name
           )
         `)
@@ -43,7 +50,15 @@ export function QuestionnaireResponseViewer() {
       }
 
       console.log("Fetched questionnaire:", data);
-      return data as QuestionnaireData;
+
+      // Transform the data to match our expected interface
+      const transformedData: QuestionnaireData = {
+        id: data.id,
+        responses: data.responses as QuestionnaireResponse[] || null,
+        patients: data.patients,
+      };
+
+      return transformedData;
     },
   });
 
