@@ -57,6 +57,66 @@ export type Database = {
           },
         ]
       }
+      compound_formulas: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          dosage: string | null
+          duration: string | null
+          id: string
+          ingredients: Json
+          instructions: string | null
+          nutritionist_id: string
+          patient_id: string
+          prescribed_at: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          dosage?: string | null
+          duration?: string | null
+          id?: string
+          ingredients: Json
+          instructions?: string | null
+          nutritionist_id: string
+          patient_id: string
+          prescribed_at?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          dosage?: string | null
+          duration?: string | null
+          id?: string
+          ingredients?: Json
+          instructions?: string | null
+          nutritionist_id?: string
+          patient_id?: string
+          prescribed_at?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "compound_formulas_nutritionist_id_fkey"
+            columns: ["nutritionist_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "compound_formulas_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       consultations: {
         Row: {
           bmi: number
@@ -599,6 +659,57 @@ export type Database = {
         }
         Relationships: []
       }
+      questionnaires: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          nutritionist_id: string
+          patient_id: string
+          responses: Json | null
+          sent_at: string | null
+          status: Database["public"]["Enums"]["questionnaire_status"] | null
+          updated_at: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          nutritionist_id: string
+          patient_id: string
+          responses?: Json | null
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["questionnaire_status"] | null
+          updated_at?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          nutritionist_id?: string
+          patient_id?: string
+          responses?: Json | null
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["questionnaire_status"] | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "questionnaires_nutritionist_id_fkey"
+            columns: ["nutritionist_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "questionnaires_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       settings_history: {
         Row: {
           changed_at: string
@@ -742,6 +853,7 @@ export type Database = {
         | "follow_up_reminder"
         | "account_deactivation"
         | "integration_update"
+      questionnaire_status: "pending" | "completed"
     }
     CompositeTypes: {
       [_ in never]: never
