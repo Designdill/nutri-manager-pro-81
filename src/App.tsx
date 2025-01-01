@@ -23,8 +23,7 @@ import SettingsPage from "./pages/settings/SettingsPage";
 import NotificationsPage from "./pages/notifications/NotificationsPage";
 import QuestionnairesPage from "./pages/questionnaires/QuestionnairesPage";
 import NewQuestionnairePage from "./pages/questionnaires/NewQuestionnairePage";
-
-import "./App.css";
+import { QuestionnaireResponseViewer } from "./pages/questionnaires/components/QuestionnaireResponseViewer";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -229,6 +228,14 @@ function App() {
                   element={
                     <PrivateRoute>
                       <NewQuestionnairePage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/questionnaires/:id/responses"
+                  element={
+                    <PrivateRoute>
+                      <QuestionnaireResponseViewer />
                     </PrivateRoute>
                   }
                 />
