@@ -51,10 +51,17 @@ export function QuestionnaireResponseViewer() {
 
       console.log("Fetched questionnaire:", data);
 
+      // Safely transform the responses data with type checking
+      const rawResponses = data.responses as Array<{
+        question: string;
+        answer: string | string[];
+        type: "text" | "multiple_choice" | "checkbox";
+      }> | null;
+
       // Transform the data to match our expected interface
       const transformedData: QuestionnaireData = {
         id: data.id,
-        responses: data.responses as QuestionnaireResponse[] || null,
+        responses: rawResponses,
         patients: data.patients,
       };
 
