@@ -12,7 +12,39 @@ export default function MealPlansPage() {
   const { toast } = useToast();
   const [isCreating, setIsCreating] = useState(false);
 
-  const { data: mealPlans, isLoading, error } = useQuery({
+  const { data: patients, isLoading: patientsLoading } = useQuery({
+    queryKey: ["patients"],
+    queryFn: async () => {
+      console.log("Fetching patients data...");
+      try {
+        const { data, error } = await supabase
+          .from("patients")
+          .select(`
+            *,
+            profiles (
+              id,
+              full_name,
+              avatar_url
+            )
+          `);
+
+        if (error) throw error;
+
+        console.log("Patients data fetched:", data);
+        return data;
+      } catch (error) {
+        console.error("Error fetching patients:", error);
+        toast({
+          title: "Erro ao carregar pacientes",
+          description: "Por favor, tente novamente mais tarde.",
+          variant: "destructive",
+        });
+        throw error;
+      }
+    },
+  });
+
+  const { data: mealPlans, isLoading: mealPlansLoading } = useQuery({
     queryKey: ["meal-plans"],
     queryFn: async () => {
       console.log("Fetching meal plans...");
@@ -28,10 +60,7 @@ export default function MealPlansPage() {
           `)
           .order("created_at", { ascending: false });
 
-        if (error) {
-          console.error("Error fetching meal plans:", error);
-          throw error;
-        }
+        if (error) throw error;
 
         console.log("Meal plans fetched successfully:", data);
         return data;
@@ -63,11 +92,16 @@ export default function MealPlansPage() {
         </div>
 
         {isCreating ? (
-          <CreateMealPlanForm onCancel={() => setIsCreating(false)} />
+          <CreateMealPlanForm
+            patients={patients || []}
+            patientsLoading={patientsLoading}
+            onSuccess={() => setIsCreating(false)}
+            onCancel={() => setIsCreating(false)}
+          />
         ) : (
           <MealPlansList
             mealPlans={mealPlans || []}
-            isLoading={isLoading}
+            isLoading={mealPlansLoading}
             onCreateNew={() => setIsCreating(true)}
           />
         )}
