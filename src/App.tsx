@@ -21,6 +21,8 @@ import ProgressPage from "./pages/progress/ProgressPage";
 import PaymentsPage from "./pages/payments/PaymentsPage";
 import SettingsPage from "./pages/settings/SettingsPage";
 import NotificationsPage from "./pages/notifications/NotificationsPage";
+import QuestionnairesPage from "./pages/questionnaires/QuestionnairesPage";
+import NewQuestionnairePage from "./pages/questionnaires/NewQuestionnairePage";
 
 import "./App.css";
 
@@ -211,6 +213,22 @@ function App() {
                   element={
                     <PrivateRoute>
                       <NotificationsPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/questionnaires"
+                  element={
+                    <PrivateRoute>
+                      <QuestionnairesPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/questionnaires/new"
+                  element={
+                    <PrivateRoute>
+                      <NewQuestionnairePage />
                     </PrivateRoute>
                   }
                 />

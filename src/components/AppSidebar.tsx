@@ -9,7 +9,8 @@ import {
   CreditCard,
   Apple,
   ClipboardList,
-  Settings
+  Settings,
+  FileQuestion
 } from "lucide-react";
 import {
   Sidebar,
@@ -54,6 +55,11 @@ const nutritionistMenuItems = [
     title: "Banco de Alimentos",
     url: "/food-database",
     icon: Apple,
+  },
+  {
+    title: "Questionários",
+    url: "/questionnaires",
+    icon: FileQuestion,
   },
   {
     title: "Mensagens",
