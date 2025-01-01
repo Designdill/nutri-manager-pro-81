@@ -5,6 +5,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { FileText, User } from "lucide-react";
 
+interface QuestionnaireResponse {
+  question: string;
+  answer: string | string[];
+  type: "text" | "multiple_choice" | "checkbox";
+}
+
+interface QuestionnaireData {
+  id: string;
+  responses: QuestionnaireResponse[] | null;
+  patients: {
+    full_name: string;
+  } | null;
+}
+
 export function QuestionnaireResponseViewer() {
   const { id } = useParams();
 
@@ -29,7 +43,7 @@ export function QuestionnaireResponseViewer() {
       }
 
       console.log("Fetched questionnaire:", data);
-      return data;
+      return data as QuestionnaireData;
     },
   });
 
@@ -69,7 +83,7 @@ export function QuestionnaireResponseViewer() {
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-[500px] pr-4">
-          {questionnaire.responses.map((response: any, index: number) => (
+          {questionnaire.responses.map((response: QuestionnaireResponse, index: number) => (
             <div key={index} className="mb-6">
               <div className="flex items-start gap-2 mb-2">
                 <FileText className="w-4 h-4 mt-1 text-muted-foreground" />
