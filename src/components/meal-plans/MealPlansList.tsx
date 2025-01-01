@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tables } from "@/integrations/supabase/types";
 import { PlusCircle, UtensilsCrossed } from "lucide-react";
+import { MealPlanWithPatient } from "./types";
 
 interface MealPlansListProps {
-  mealPlans: Tables<"meal_plans">[];
+  mealPlans: MealPlanWithPatient[];
   isLoading: boolean;
   onCreateNew: () => void;
 }

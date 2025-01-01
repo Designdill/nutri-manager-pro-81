@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { Tables } from "@/integrations/supabase/types";
 
 export const mealPlanSchema = z.object({
   patientId: z.string().min(1, "Selecione um paciente"),
@@ -13,3 +14,10 @@ export const mealPlanSchema = z.object({
 });
 
 export type MealPlanFormData = z.infer<typeof mealPlanSchema>;
+
+export interface MealPlanWithPatient extends Tables<"meal_plans"> {
+  patients?: {
+    id: string;
+    full_name: string | null;
+  } | null;
+}
