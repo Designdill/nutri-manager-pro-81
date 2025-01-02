@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { FileText, User } from "lucide-react";
+import { FileText, User, CheckSquare, Radio } from "lucide-react";
 import { Database } from "@/integrations/supabase/types";
 
 interface QuestionnaireResponse {
@@ -95,8 +95,19 @@ export function QuestionnaireResponseViewer() {
     );
   }
 
+  const getQuestionIcon = (type: string) => {
+    switch (type) {
+      case "checkbox":
+        return <CheckSquare className="w-4 h-4 mt-1 text-primary" />;
+      case "multiple_choice":
+        return <Radio className="w-4 h-4 mt-1 text-primary" />;
+      default:
+        return <FileText className="w-4 h-4 mt-1 text-primary" />;
+    }
+  };
+
   return (
-    <Card>
+    <Card className="max-w-3xl mx-auto">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <User className="w-5 h-5" />
@@ -104,30 +115,45 @@ export function QuestionnaireResponseViewer() {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-[500px] pr-4">
-          {questionnaire.responses.map((response: QuestionnaireResponse, index: number) => (
-            <div key={index} className="mb-6">
-              <div className="flex items-start gap-2 mb-2">
-                <FileText className="w-4 h-4 mt-1 text-muted-foreground" />
-                <h3 className="font-medium">{response.question}</h3>
+        <ScrollArea className="h-[600px] pr-4 rounded-lg border">
+          <div className="p-4 space-y-8">
+            {questionnaire.responses.map((response: QuestionnaireResponse, index: number) => (
+              <div key={index} className="bg-card rounded-lg p-4 shadow-sm">
+                <div className="flex items-start gap-3 mb-3">
+                  {getQuestionIcon(response.type)}
+                  <h3 className="font-medium text-lg text-foreground">
+                    {response.question}
+                  </h3>
+                </div>
+                <div className="ml-7">
+                  {response.type === "multiple_choice" || response.type === "checkbox" ? (
+                    <ul className="space-y-2">
+                      {Array.isArray(response.answer) ? (
+                        response.answer.map((option: string, optionIndex: number) => (
+                          <li 
+                            key={optionIndex}
+                            className="flex items-center gap-2 text-muted-foreground"
+                          >
+                            <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                            {option}
+                          </li>
+                        ))
+                      ) : (
+                        <li className="flex items-center gap-2 text-muted-foreground">
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                          {response.answer}
+                        </li>
+                      )}
+                    </ul>
+                  ) : (
+                    <p className="text-muted-foreground whitespace-pre-wrap">
+                      {response.answer}
+                    </p>
+                  )}
+                </div>
               </div>
-              <div className="pl-6">
-                {response.type === "multiple_choice" || response.type === "checkbox" ? (
-                  <ul className="list-disc pl-4">
-                    {Array.isArray(response.answer) ? (
-                      response.answer.map((option: string, optionIndex: number) => (
-                        <li key={optionIndex}>{option}</li>
-                      ))
-                    ) : (
-                      <li>{response.answer}</li>
-                    )}
-                  </ul>
-                ) : (
-                  <p className="text-muted-foreground">{response.answer}</p>
-                )}
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </ScrollArea>
       </CardContent>
     </Card>
