@@ -22,16 +22,18 @@ export function HistoryTab({ patientId, patient, consultations }: HistoryTabProp
           <DialogTrigger asChild>
             <Button>Novo Atendimento</Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Novo Atendimento</DialogTitle>
             </DialogHeader>
-            <ConsultationForm
-              patientId={patientId}
-              patientHeight={patient?.height}
-              onSuccess={() => setIsConsultationDialogOpen(false)}
-              onCancel={() => setIsConsultationDialogOpen(false)}
-            />
+            <div className="py-4">
+              <ConsultationForm
+                patientId={patientId}
+                patientHeight={patient?.height}
+                onSuccess={() => setIsConsultationDialogOpen(false)}
+                onCancel={() => setIsConsultationDialogOpen(false)}
+              />
+            </div>
           </DialogContent>
         </Dialog>
       </CardHeader>
