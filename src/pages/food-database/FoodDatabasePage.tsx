@@ -3,26 +3,32 @@ import { useQuery } from "@tanstack/react-query";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { PlusIcon, SearchIcon } from "lucide-react";
+import { PlusIcon, SearchIcon, FilterIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Food, OpenFoodFactsProduct, NewFood } from "./types";
 import { FoodForm } from "./components/FoodForm";
 import { FoodTable } from "./components/FoodTable";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 
 export default function FoodDatabasePage() {
   const { toast } = useToast();
   const [isAdding, setIsAdding] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [newFood, setNewFood] = useState<Partial<NewFood>>({});
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
 
-  const { data: foods, refetch } = useQuery({
-    queryKey: ["foods"],
+  const { data: foods, isLoading, refetch } = useQuery({
+    queryKey: ["foods", selectedCategory],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("foods")
-        .select("*")
-        .order("name");
+      console.log("Fetching foods with category filter:", selectedCategory);
+      let query = supabase.from("foods").select("*");
+      
+      if (selectedCategory) {
+        query = query.eq("category", selectedCategory);
+      }
+      
+      const { data, error } = await query.order("name");
 
       if (error) {
         console.error("Error fetching foods:", error);
@@ -30,6 +36,23 @@ export default function FoodDatabasePage() {
       }
 
       return data as Food[];
+    },
+  });
+
+  const { data: categories } = useQuery({
+    queryKey: ["food-categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("foods")
+        .select("category")
+        .distinct();
+
+      if (error) {
+        console.error("Error fetching categories:", error);
+        throw error;
+      }
+
+      return data.map(item => item.category);
     },
   });
 
@@ -124,41 +147,70 @@ export default function FoodDatabasePage() {
   };
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-background">
       <AppSidebar />
       <div className="flex-1 p-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Banco de Alimentos</h1>
-          <div className="flex gap-4">
-            <div className="flex gap-2">
-              <Input
-                placeholder="Buscar no Open Food Facts..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-64"
-              />
-              <Button onClick={searchOpenFoodFacts}>
-                <SearchIcon className="mr-2" />
-                Buscar
-              </Button>
+        <Card>
+          <CardHeader>
+            <CardTitle>Banco de Alimentos</CardTitle>
+            <CardDescription>
+              Gerencie o catálogo de alimentos e suas informações nutricionais
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col gap-6">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                  <div className="flex gap-2 w-full sm:w-auto">
+                    <Input
+                      placeholder="Buscar no Open Food Facts..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full sm:w-64"
+                    />
+                    <Button onClick={searchOpenFoodFacts}>
+                      <SearchIcon className="mr-2 h-4 w-4" />
+                      Buscar
+                    </Button>
+                  </div>
+                  <div className="flex gap-2 w-full sm:w-auto">
+                    <select
+                      className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 sm:w-[200px]"
+                      value={selectedCategory}
+                      onChange={(e) => setSelectedCategory(e.target.value)}
+                    >
+                      <option value="">Todas as categorias</option>
+                      {categories?.map((category) => (
+                        <option key={category} value={category}>
+                          {category}
+                        </option>
+                      ))}
+                    </select>
+                    <Button onClick={() => setIsAdding(!isAdding)}>
+                      <PlusIcon className="mr-2 h-4 w-4" />
+                      Adicionar Alimento
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              {isAdding && (
+                <FoodForm
+                  newFood={newFood}
+                  setNewFood={setNewFood}
+                  onSubmit={handleAddFood}
+                  onCancel={() => setIsAdding(false)}
+                />
+              )}
+
+              {isLoading ? (
+                <div className="text-center py-4">Carregando...</div>
+              ) : (
+                <FoodTable foods={foods || []} />
+              )}
             </div>
-            <Button onClick={() => setIsAdding(!isAdding)}>
-              <PlusIcon className="mr-2" />
-              Adicionar Alimento
-            </Button>
-          </div>
-        </div>
-
-        {isAdding && (
-          <FoodForm
-            newFood={newFood}
-            setNewFood={setNewFood}
-            onSubmit={handleAddFood}
-            onCancel={() => setIsAdding(false)}
-          />
-        )}
-
-        <FoodTable foods={foods || []} />
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
