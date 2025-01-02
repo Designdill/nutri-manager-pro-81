@@ -31,7 +31,7 @@ export function NotificationSettings({ form }: NotificationSettingsProps) {
           Gerencie suas preferências de notificação
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-6">
         <FormField
           control={form.control}
           name="email_notifications"
@@ -52,6 +52,94 @@ export function NotificationSettings({ form }: NotificationSettingsProps) {
             </FormItem>
           )}
         />
+
+        <FormField
+          control={form.control}
+          name="push_notifications"
+          render={({ field }) => (
+            <FormItem className="flex items-center justify-between rounded-lg border p-4">
+              <div className="space-y-0.5">
+                <FormLabel className="text-base">Notificações Push</FormLabel>
+                <FormDescription>
+                  Receba notificações em tempo real no seu dispositivo
+                </FormDescription>
+              </div>
+              <FormControl>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
+        <div className="space-y-4">
+          <h3 className="text-lg font-medium">Preferências por Tipo</h3>
+          
+          <FormField
+            control={form.control}
+            name="notification_preferences.appointments"
+            render={({ field }) => (
+              <FormItem className="flex items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base">Consultas</FormLabel>
+                  <FormDescription>
+                    Notificações sobre agendamentos e lembretes
+                  </FormDescription>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="notification_preferences.messages"
+            render={({ field }) => (
+              <FormItem className="flex items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base">Mensagens</FormLabel>
+                  <FormDescription>
+                    Notificações de novas mensagens
+                  </FormDescription>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="notification_preferences.updates"
+            render={({ field }) => (
+              <FormItem className="flex items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base">Atualizações</FormLabel>
+                  <FormDescription>
+                    Notificações sobre atualizações do sistema
+                  </FormDescription>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        </div>
       </CardContent>
     </Card>
   );

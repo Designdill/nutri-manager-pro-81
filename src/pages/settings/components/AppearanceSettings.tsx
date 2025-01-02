@@ -1,7 +1,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
+import { FormField, FormItem, FormLabel, FormControl, FormDescription } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
 import { HelpCircle } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 import { SettingsFormValues } from "../types";
@@ -31,7 +33,7 @@ export function AppearanceSettings({ form }: AppearanceSettingsProps) {
           Personalize a aparência do sistema
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-6">
         <FormField
           control={form.control}
           name="theme"
@@ -53,6 +55,102 @@ export function AppearanceSettings({ form }: AppearanceSettingsProps) {
             </FormItem>
           )}
         />
+
+        <FormField
+          control={form.control}
+          name="auto_dark_mode"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+              <div className="space-y-0.5">
+                <FormLabel className="text-base">Modo Noturno Automático</FormLabel>
+                <FormDescription>
+                  Ativar modo escuro automaticamente em horários específicos
+                </FormDescription>
+              </div>
+              <FormControl>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
+        {form.watch("auto_dark_mode") && (
+          <div className="grid gap-4 md:grid-cols-2">
+            <FormField
+              control={form.control}
+              name="dark_mode_start"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Início do Modo Noturno</FormLabel>
+                  <FormControl>
+                    <Input type="time" {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="dark_mode_end"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Fim do Modo Noturno</FormLabel>
+                  <FormControl>
+                    <Input type="time" {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          </div>
+        )}
+
+        <div className="space-y-4">
+          <h3 className="text-lg font-medium">Tema Personalizado</h3>
+          <div className="grid gap-4 md:grid-cols-3">
+            <FormField
+              control={form.control}
+              name="custom_theme.primary"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Cor Primária</FormLabel>
+                  <FormControl>
+                    <Input type="color" {...field} className="h-10" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="custom_theme.secondary"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Cor Secundária</FormLabel>
+                  <FormControl>
+                    <Input type="color" {...field} className="h-10" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="custom_theme.accent"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Cor de Destaque</FormLabel>
+                  <FormControl>
+                    <Input type="color" {...field} className="h-10" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+
         <FormField
           control={form.control}
           name="language"

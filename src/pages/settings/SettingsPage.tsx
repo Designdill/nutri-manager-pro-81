@@ -57,18 +57,40 @@ export default function SettingsPage() {
     defaultValues: {
       full_name: profile?.full_name || "",
       phone: profile?.phone || "",
+      address_street: profile?.address_street || "",
+      address_number: profile?.address_number || "",
+      address_complement: profile?.address_complement || "",
+      address_neighborhood: profile?.address_neighborhood || "",
+      address_city: profile?.address_city || "",
+      address_state: profile?.address_state || "",
+      address_postal_code: profile?.address_postal_code || "",
+      address_country: profile?.address_country || "Brasil",
       theme: (userSettings?.theme as "light" | "dark" | "system") || "system",
       language: (userSettings?.language as "pt-BR" | "en-US") || "pt-BR",
+      auto_dark_mode: userSettings?.auto_dark_mode || false,
+      dark_mode_start: userSettings?.dark_mode_start || "18:00",
+      dark_mode_end: userSettings?.dark_mode_end || "06:00",
+      custom_theme: userSettings?.custom_theme || {
+        primary: "#0ea5e9",
+        secondary: "#64748b",
+        accent: "#f59e0b",
+      },
       email_notifications: userSettings?.email_notifications || false,
+      push_notifications: userSettings?.push_notifications || true,
+      notification_preferences: userSettings?.notification_preferences || {
+        appointments: true,
+        messages: true,
+        updates: true,
+      },
+      email_signature: userSettings?.email_signature || "",
+      email_filters: userSettings?.email_filters || [],
       open_food_facts_api_key: userSettings?.open_food_facts_api_key || "",
       google_calendar_connected: userSettings?.google_calendar_connected || false,
       account_active: userSettings?.account_active || true,
-      appointment_reminder_emails: true,
-      progress_report_emails: true,
-      newsletter_emails: true,
-      email_frequency: "weekly",
-      appointment_reminder_template: "",
-      progress_report_template: "",
+      auto_backup: userSettings?.auto_backup || false,
+      backup_frequency: (userSettings?.backup_frequency as "daily" | "weekly" | "monthly") || "weekly",
+      cloud_storage_provider: userSettings?.cloud_storage_provider || "",
+      cloud_storage_settings: userSettings?.cloud_storage_settings || undefined,
     },
   });
 
@@ -79,8 +101,10 @@ export default function SettingsPage() {
         theme: userSettings?.theme,
         language: userSettings?.language,
         email_notifications: userSettings?.email_notifications,
-        google_calendar_connected: userSettings?.google_calendar_connected,
-        account_active: userSettings?.account_active,
+        push_notifications: userSettings?.push_notifications,
+        notification_preferences: userSettings?.notification_preferences,
+        auto_dark_mode: userSettings?.auto_dark_mode,
+        custom_theme: userSettings?.custom_theme,
       };
 
       // Update profile
@@ -89,6 +113,14 @@ export default function SettingsPage() {
         .update({
           full_name: data.full_name,
           phone: data.phone,
+          address_street: data.address_street,
+          address_number: data.address_number,
+          address_complement: data.address_complement,
+          address_neighborhood: data.address_neighborhood,
+          address_city: data.address_city,
+          address_state: data.address_state,
+          address_postal_code: data.address_postal_code,
+          address_country: data.address_country,
         })
         .eq("id", session?.user?.id);
 
@@ -100,16 +132,22 @@ export default function SettingsPage() {
         .update({
           theme: data.theme,
           language: data.language,
+          auto_dark_mode: data.auto_dark_mode,
+          dark_mode_start: data.dark_mode_start,
+          dark_mode_end: data.dark_mode_end,
+          custom_theme: data.custom_theme,
           email_notifications: data.email_notifications,
+          push_notifications: data.push_notifications,
+          notification_preferences: data.notification_preferences,
+          email_signature: data.email_signature,
+          email_filters: data.email_filters,
           open_food_facts_api_key: data.open_food_facts_api_key,
           google_calendar_connected: data.google_calendar_connected,
           account_active: data.account_active,
-          appointment_reminder_emails: data.appointment_reminder_emails,
-          progress_report_emails: data.progress_report_emails,
-          newsletter_emails: data.newsletter_emails,
-          appointment_reminder_template: data.appointment_reminder_template,
-          progress_report_template: data.progress_report_template,
-          email_frequency: data.email_frequency,
+          auto_backup: data.auto_backup,
+          backup_frequency: data.backup_frequency,
+          cloud_storage_provider: data.cloud_storage_provider,
+          cloud_storage_settings: data.cloud_storage_settings,
         })
         .eq("user_id", session?.user?.id);
 
@@ -117,7 +155,7 @@ export default function SettingsPage() {
 
       // Log settings changes
       const changes = Object.entries(data).filter(
-        ([key, value]) => oldSettings[key as keyof typeof oldSettings] !== value
+        ([key, value]) => JSON.stringify(oldSettings[key as keyof typeof oldSettings]) !== JSON.stringify(value)
       );
 
       if (changes.length > 0) {
@@ -127,8 +165,8 @@ export default function SettingsPage() {
             changes.map(([setting_name, new_value]) => ({
               user_id: session?.user?.id,
               setting_name,
-              old_value: String(oldSettings[setting_name as keyof typeof oldSettings]),
-              new_value: String(new_value),
+              old_value: JSON.stringify(oldSettings[setting_name as keyof typeof oldSettings]),
+              new_value: JSON.stringify(new_value),
             }))
           );
 
@@ -210,13 +248,13 @@ export default function SettingsPage() {
   };
 
   const components = [
-    { id: "profile", component: <ProfileSettings form={form} />, keywords: ["perfil", "nome", "telefone"] },
-    { id: "appearance", component: <AppearanceSettings form={form} />, keywords: ["aparência", "tema", "idioma"] },
-    { id: "notifications", component: <NotificationSettings form={form} />, keywords: ["notificações", "email"] },
-    { id: "email", component: <EmailSettings form={form} />, keywords: ["email", "templates", "mensagens"] },
-    { id: "integrations", component: <IntegrationSettings form={form} />, keywords: ["integrações", "api", "calendar"] },
+    { id: "profile", component: <ProfileSettings form={form} />, keywords: ["perfil", "nome", "telefone", "endereço", "foto"] },
+    { id: "appearance", component: <AppearanceSettings form={form} />, keywords: ["aparência", "tema", "idioma", "modo noturno", "cores"] },
+    { id: "notifications", component: <NotificationSettings form={form} />, keywords: ["notificações", "email", "push"] },
+    { id: "email", component: <EmailSettings form={form} />, keywords: ["email", "templates", "mensagens", "assinatura", "filtros"] },
+    { id: "integrations", component: <IntegrationSettings form={form} />, keywords: ["integrações", "api", "calendar", "saúde"] },
     { id: "account", component: <AccountSettings form={form} />, keywords: ["conta", "ativo"] },
-    { id: "backup", component: <BackupSettings />, keywords: ["backup", "restauração", "exportar", "importar"] },
+    { id: "backup", component: <BackupSettings />, keywords: ["backup", "restauração", "exportar", "importar", "nuvem"] },
   ];
 
   const filteredComponents = components.filter(({ keywords }) =>

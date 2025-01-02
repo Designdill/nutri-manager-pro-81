@@ -628,6 +628,14 @@ export type Database = {
       }
       profiles: {
         Row: {
+          address_city: string | null
+          address_complement: string | null
+          address_country: string | null
+          address_neighborhood: string | null
+          address_number: string | null
+          address_postal_code: string | null
+          address_state: string | null
+          address_street: string | null
           avatar_url: string | null
           created_at: string
           full_name: string | null
@@ -638,6 +646,14 @@ export type Database = {
           username: string | null
         }
         Insert: {
+          address_city?: string | null
+          address_complement?: string | null
+          address_country?: string | null
+          address_neighborhood?: string | null
+          address_number?: string | null
+          address_postal_code?: string | null
+          address_state?: string | null
+          address_street?: string | null
           avatar_url?: string | null
           created_at?: string
           full_name?: string | null
@@ -648,6 +664,14 @@ export type Database = {
           username?: string | null
         }
         Update: {
+          address_city?: string | null
+          address_complement?: string | null
+          address_country?: string | null
+          address_neighborhood?: string | null
+          address_number?: string | null
+          address_postal_code?: string | null
+          address_state?: string | null
+          address_street?: string | null
           avatar_url?: string | null
           created_at?: string
           full_name?: string | null
@@ -744,10 +768,20 @@ export type Database = {
           apple_health_connected: boolean | null
           appointment_reminder_emails: boolean | null
           appointment_reminder_template: string | null
+          auto_backup: boolean | null
+          auto_dark_mode: boolean | null
+          backup_frequency: string | null
+          cloud_storage_provider: string | null
+          cloud_storage_settings: Json | null
           created_at: string
+          custom_theme: Json | null
+          dark_mode_end: string | null
+          dark_mode_start: string | null
+          email_filters: Json | null
           email_frequency: string | null
           email_notifications: boolean | null
           email_service: string | null
+          email_signature: string | null
           google_calendar_connected: boolean | null
           language: string | null
           meal_delivery_connected: boolean | null
@@ -756,6 +790,7 @@ export type Database = {
           open_food_facts_api_key: string | null
           progress_report_emails: boolean | null
           progress_report_template: string | null
+          push_notifications: boolean | null
           recipe_planning_connected: boolean | null
           resend_api_key: string | null
           security_settings: Json | null
@@ -775,10 +810,20 @@ export type Database = {
           apple_health_connected?: boolean | null
           appointment_reminder_emails?: boolean | null
           appointment_reminder_template?: string | null
+          auto_backup?: boolean | null
+          auto_dark_mode?: boolean | null
+          backup_frequency?: string | null
+          cloud_storage_provider?: string | null
+          cloud_storage_settings?: Json | null
           created_at?: string
+          custom_theme?: Json | null
+          dark_mode_end?: string | null
+          dark_mode_start?: string | null
+          email_filters?: Json | null
           email_frequency?: string | null
           email_notifications?: boolean | null
           email_service?: string | null
+          email_signature?: string | null
           google_calendar_connected?: boolean | null
           language?: string | null
           meal_delivery_connected?: boolean | null
@@ -787,6 +832,7 @@ export type Database = {
           open_food_facts_api_key?: string | null
           progress_report_emails?: boolean | null
           progress_report_template?: string | null
+          push_notifications?: boolean | null
           recipe_planning_connected?: boolean | null
           resend_api_key?: string | null
           security_settings?: Json | null
@@ -806,10 +852,20 @@ export type Database = {
           apple_health_connected?: boolean | null
           appointment_reminder_emails?: boolean | null
           appointment_reminder_template?: string | null
+          auto_backup?: boolean | null
+          auto_dark_mode?: boolean | null
+          backup_frequency?: string | null
+          cloud_storage_provider?: string | null
+          cloud_storage_settings?: Json | null
           created_at?: string
+          custom_theme?: Json | null
+          dark_mode_end?: string | null
+          dark_mode_start?: string | null
+          email_filters?: Json | null
           email_frequency?: string | null
           email_notifications?: boolean | null
           email_service?: string | null
+          email_signature?: string | null
           google_calendar_connected?: boolean | null
           language?: string | null
           meal_delivery_connected?: boolean | null
@@ -818,6 +874,7 @@ export type Database = {
           open_food_facts_api_key?: string | null
           progress_report_emails?: boolean | null
           progress_report_template?: string | null
+          push_notifications?: boolean | null
           recipe_planning_connected?: boolean | null
           resend_api_key?: string | null
           security_settings?: Json | null
