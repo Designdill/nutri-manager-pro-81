@@ -45,6 +45,13 @@ export const settingsFormSchema = z.object({
     credentials: z.record(z.string()).optional(),
     bucket: z.string().optional(),
   }).optional(),
+  email_service: z.enum(["resend", "smtp"]).default("smtp"),
+  resend_api_key: z.string().optional(),
+  smtp_host: z.string().optional(),
+  smtp_port: z.string().optional(),
+  smtp_user: z.string().optional(),
+  smtp_password: z.string().optional(),
+  smtp_secure: z.boolean().default(true),
 });
 
 export type SettingsFormValues = z.infer<typeof settingsFormSchema>;

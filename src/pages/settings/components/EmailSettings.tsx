@@ -7,13 +7,14 @@ import { Mail, HelpCircle } from "lucide-react";
 import { EmailServiceSelector } from "./email/EmailServiceSelector";
 import { ResendSettings } from "./email/ResendSettings";
 import { SmtpSettings } from "./email/SmtpSettings";
-import { EmailTemplates } from "./email/EmailTemplates";
 
 interface EmailSettingsProps {
   form: UseFormReturn<SettingsFormValues>;
 }
 
 export function EmailSettings({ form }: EmailSettingsProps) {
+  const emailService = form.watch("email_service");
+
   return (
     <Card>
       <CardHeader>
@@ -46,12 +47,8 @@ export function EmailSettings({ form }: EmailSettingsProps) {
           
           <TabsContent value="service" className="space-y-4">
             <EmailServiceSelector form={form} />
-            {form.watch("email_service") === "resend" && <ResendSettings form={form} />}
-            {form.watch("email_service") === "smtp" && <SmtpSettings form={form} />}
-          </TabsContent>
-
-          <TabsContent value="templates" className="space-y-4">
-            <EmailTemplates form={form} />
+            {emailService === "resend" && <ResendSettings form={form} />}
+            {emailService === "smtp" && <SmtpSettings form={form} />}
           </TabsContent>
         </Tabs>
       </CardContent>
