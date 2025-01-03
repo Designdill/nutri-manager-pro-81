@@ -52,6 +52,17 @@ export const settingsFormSchema = z.object({
   smtp_user: z.string().optional(),
   smtp_password: z.string().optional(),
   smtp_secure: z.boolean().default(true),
+  appointment_reminder_emails: z.boolean().default(true),
+  progress_report_emails: z.boolean().default(true),
+  newsletter_emails: z.boolean().default(true),
+  email_frequency: z.enum(["daily", "weekly", "monthly"]).default("weekly"),
+  appointment_reminder_template: z.string().optional(),
+  progress_report_template: z.string().optional(),
+  google_fit_connected: z.boolean().default(false),
+  apple_health_connected: z.boolean().default(false),
+  meal_delivery_connected: z.boolean().default(false),
+  recipe_planning_connected: z.boolean().default(false),
+  usda_fooddata_api_key: z.string().optional(),
 });
 
 export type SettingsFormValues = z.infer<typeof settingsFormSchema>;

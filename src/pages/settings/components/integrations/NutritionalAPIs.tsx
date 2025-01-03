@@ -19,7 +19,7 @@ export function NutritionalAPIs({ form }: NutritionalAPIsProps) {
           <FormItem>
             <FormLabel>Chave API Open Food Facts</FormLabel>
             <FormControl>
-              <Input {...field} type="password" />
+              <Input {...field} type="password" value={field.value || ""} />
             </FormControl>
             <FormDescription>
               Necessária para buscar informações nutricionais detalhadas
@@ -35,7 +35,7 @@ export function NutritionalAPIs({ form }: NutritionalAPIsProps) {
           <FormItem>
             <FormLabel>Chave API USDA FoodData Central</FormLabel>
             <FormControl>
-              <Input {...field} type="password" />
+              <Input {...field} type="password" value={field.value || ""} />
             </FormControl>
             <FormDescription>
               Para acesso à base de dados nutricional do USDA

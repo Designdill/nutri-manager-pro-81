@@ -29,9 +29,9 @@ export function MealSystems({ form }: MealSystemsProps) {
             <FormControl>
               <Switch
                 checked={field.value}
-                onCheckedChange={(value) => {
-                  field.onChange(value);
-                  handleIntegrationToggle(value, 'Meal Delivery');
+                onCheckedChange={(checked) => {
+                  field.onChange(checked);
+                  handleIntegrationToggle(checked, 'Meal Delivery');
                 }}
               />
             </FormControl>
@@ -53,9 +53,9 @@ export function MealSystems({ form }: MealSystemsProps) {
             <FormControl>
               <Switch
                 checked={field.value}
-                onCheckedChange={(value) => {
-                  field.onChange(value);
-                  handleIntegrationToggle(value, 'Recipe Planning');
+                onCheckedChange={(checked) => {
+                  field.onChange(checked);
+                  handleIntegrationToggle(checked, 'Recipe Planning');
                 }}
               />
             </FormControl>

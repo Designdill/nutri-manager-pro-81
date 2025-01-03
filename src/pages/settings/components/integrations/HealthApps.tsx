@@ -29,9 +29,9 @@ export function HealthApps({ form }: HealthAppsProps) {
             <FormControl>
               <Switch
                 checked={field.value}
-                onCheckedChange={(value) => {
-                  field.onChange(value);
-                  handleIntegrationToggle(value, 'Google Fit');
+                onCheckedChange={(checked) => {
+                  field.onChange(checked);
+                  handleIntegrationToggle(checked, 'Google Fit');
                 }}
               />
             </FormControl>
@@ -53,9 +53,9 @@ export function HealthApps({ form }: HealthAppsProps) {
             <FormControl>
               <Switch
                 checked={field.value}
-                onCheckedChange={(value) => {
-                  field.onChange(value);
-                  handleIntegrationToggle(value, 'Apple Health');
+                onCheckedChange={(checked) => {
+                  field.onChange(checked);
+                  handleIntegrationToggle(checked, 'Apple Health');
                 }}
               />
             </FormControl>

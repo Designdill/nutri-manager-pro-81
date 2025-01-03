@@ -33,6 +33,7 @@ export function EmailTemplates({ form }: EmailTemplatesProps) {
                 placeholder="Olá {nome}, sua consulta está agendada para {data} às {hora}."
                 className="min-h-[100px]"
                 {...field}
+                value={field.value || ""}
               />
             </FormControl>
             <FormDescription>
@@ -53,6 +54,7 @@ export function EmailTemplates({ form }: EmailTemplatesProps) {
                 placeholder="Relatório de Progresso - {mes}/{ano}..."
                 className="min-h-[100px]"
                 {...field}
+                value={field.value || ""}
               />
             </FormControl>
           </FormItem>
