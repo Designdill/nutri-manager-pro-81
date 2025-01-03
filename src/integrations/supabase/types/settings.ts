@@ -39,6 +39,17 @@ export interface UserSettingsTable {
     backup_frequency: 'daily' | 'weekly' | 'monthly';
     cloud_storage_provider: string | null;
     cloud_storage_settings: CloudStorageSettings | null;
+    google_fit_connected: boolean;
+    apple_health_connected: boolean;
+    meal_delivery_connected: boolean;
+    recipe_planning_connected: boolean;
+    appointment_reminder_emails: boolean;
+    progress_report_emails: boolean;
+    newsletter_emails: boolean;
+    email_frequency: 'daily' | 'weekly' | 'monthly';
+    appointment_reminder_template: string | null;
+    progress_report_template: string | null;
+    usda_fooddata_api_key: string | null;
   };
   Insert: Omit<UserSettingsTable['Row'], 'created_at' | 'updated_at'>;
   Update: Partial<UserSettingsTable['Insert']>;
