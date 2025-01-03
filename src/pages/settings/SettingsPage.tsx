@@ -18,6 +18,7 @@ import { BackupSettings } from "./components/BackupSettings";
 import { settingsFormSchema, SettingsFormValues } from "./types";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { RotateCcw } from "lucide-react";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export default function SettingsPage() {
   const { session } = useAuth();
@@ -54,6 +55,7 @@ export default function SettingsPage() {
   });
 
   const form = useForm<SettingsFormValues>({
+    resolver: zodResolver(settingsFormSchema),
     defaultValues: {
       full_name: profile?.full_name || "",
       phone: profile?.phone || "",
