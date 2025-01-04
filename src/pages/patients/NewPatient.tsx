@@ -5,6 +5,8 @@ import { toast } from "sonner";
 import { User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/App";
 import type { TablesInsert } from "@/integrations/supabase/types";
@@ -115,48 +117,71 @@ export default function NewPatient() {
   }
 
   return (
-    <div className="container mx-auto py-6">
+    <div className="container mx-auto py-6 max-w-5xl">
       <div className="flex items-center justify-between mb-8">
         <div className="space-y-1">
-          <h2 className="text-2xl font-semibold tracking-tight">Novo Paciente</h2>
-          <p className="text-sm text-muted-foreground">
-            Preencha as informações do paciente abaixo
+          <h2 className="text-3xl font-bold tracking-tight">Novo Paciente</h2>
+          <p className="text-muted-foreground">
+            Preencha as informações do paciente nos campos abaixo
           </p>
         </div>
       </div>
 
-      <div className="space-y-8">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <PersonalInfoForm form={form} />
-            <AddressForm form={form} />
-            <MeasurementsForm form={form} />
-            <HealthHistoryForm form={form} />
-            <LifestyleForm form={form} />
-            <GoalsForm form={form} />
+      <Card>
+        <CardContent className="p-6">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              <Tabs defaultValue="personal" className="space-y-6">
+                <TabsList className="grid grid-cols-3 lg:grid-cols-6 w-full">
+                  <TabsTrigger value="personal">Pessoal</TabsTrigger>
+                  <TabsTrigger value="address">Endereço</TabsTrigger>
+                  <TabsTrigger value="measurements">Medidas</TabsTrigger>
+                  <TabsTrigger value="health">Saúde</TabsTrigger>
+                  <TabsTrigger value="lifestyle">Estilo de Vida</TabsTrigger>
+                  <TabsTrigger value="goals">Objetivos</TabsTrigger>
+                </TabsList>
 
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Fotos</h3>
-              <p className="text-sm text-muted-foreground">
-                Funcionalidade de upload de fotos será implementada em breve
-              </p>
-            </div>
+                <TabsContent value="personal" className="space-y-6">
+                  <PersonalInfoForm form={form} />
+                </TabsContent>
 
-            <div className="flex justify-end space-x-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => navigate("/patients")}
-              >
-                Cancelar
-              </Button>
-              <Button type="submit">
-                <User className="mr-2 h-4 w-4" /> Cadastrar Paciente
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </div>
+                <TabsContent value="address" className="space-y-6">
+                  <AddressForm form={form} />
+                </TabsContent>
+
+                <TabsContent value="measurements" className="space-y-6">
+                  <MeasurementsForm form={form} />
+                </TabsContent>
+
+                <TabsContent value="health" className="space-y-6">
+                  <HealthHistoryForm form={form} />
+                </TabsContent>
+
+                <TabsContent value="lifestyle" className="space-y-6">
+                  <LifestyleForm form={form} />
+                </TabsContent>
+
+                <TabsContent value="goals" className="space-y-6">
+                  <GoalsForm form={form} />
+                </TabsContent>
+              </Tabs>
+
+              <div className="flex justify-end space-x-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate("/patients")}
+                >
+                  Cancelar
+                </Button>
+                <Button type="submit">
+                  <User className="mr-2 h-4 w-4" /> Cadastrar Paciente
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
     </div>
   );
 }
