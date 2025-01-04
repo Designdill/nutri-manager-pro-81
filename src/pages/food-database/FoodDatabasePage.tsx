@@ -11,7 +11,6 @@ export default function FoodDatabasePage() {
   const { data: categories } = useQuery({
     queryKey: ["food-categories"],
     queryFn: async () => {
-      // Instead of using distinct, we'll use a select with unique values
       const { data, error } = await supabase
         .from("foods")
         .select("category");
@@ -24,9 +23,11 @@ export default function FoodDatabasePage() {
     },
   });
 
-  const { data: foods } = useQuery({
+  const { data: foods = [] } = useQuery({
     queryKey: ["foods", selectedCategory],
     queryFn: async () => {
+      if (!selectedCategory) return [];
+      
       const { data, error } = await supabase
         .from("foods")
         .select("*")
@@ -35,7 +36,7 @@ export default function FoodDatabasePage() {
       if (error) throw error;
       return data;
     },
-    enabled: !!selectedCategory,
+    enabled: true, // Sempre habilitado, mas retorna array vazio se não houver categoria
   });
 
   return (

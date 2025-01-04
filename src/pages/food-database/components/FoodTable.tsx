@@ -23,10 +23,10 @@ export function FoodTable({ foods }: FoodTableProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {foods.length === 0 ? (
+          {!foods || foods.length === 0 ? (
             <TableRow>
               <TableCell colSpan={8} className="text-center py-4">
-                Nenhum alimento encontrado
+                {!foods ? "Carregando..." : "Nenhum alimento encontrado"}
               </TableCell>
             </TableRow>
           ) : (
