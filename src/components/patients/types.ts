@@ -52,6 +52,13 @@ export const patientFormSchema = z.object({
   nutritional_goals: z.string().optional().nullable(),
   treatment_expectations: z.string().optional().nullable(),
   additional_notes: z.string().optional().nullable(),
+
+  // Photos (optional)
+  photos: z.object({
+    front: z.string().optional().nullable(),
+    side: z.string().optional().nullable(),
+    back: z.string().optional().nullable(),
+  }).optional().nullable(),
 });
 
 export type PatientFormValues = z.infer<typeof patientFormSchema>;

@@ -55,7 +55,6 @@ export function PatientPhotos({ patientId }: PatientPhotosProps) {
         title: "Foto adicionada com sucesso",
       });
 
-      // Atualiza a lista de fotos
       fetchPhotos();
     } catch (error: any) {
       console.error("Error uploading photo:", error);
@@ -88,9 +87,10 @@ export function PatientPhotos({ patientId }: PatientPhotosProps) {
     }
   };
 
-  // Fetch photos when component mounts
   useEffect(() => {
-    fetchPhotos();
+    if (patientId) {
+      fetchPhotos();
+    }
   }, [patientId]);
 
   const PhotoUploadButton = ({ photoType, label }: { photoType: string; label: string }) => (
@@ -125,18 +125,20 @@ export function PatientPhotos({ patientId }: PatientPhotosProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Fotos do Paciente</CardTitle>
+        <CardTitle>Fotos do Paciente (Opcional)</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
-          {/* Botões de Upload */}
+          <p className="text-sm text-muted-foreground">
+            Você pode adicionar fotos do paciente agora ou posteriormente durante as consultas.
+          </p>
+          
           <div className="flex flex-wrap gap-4">
             <PhotoUploadButton photoType="front" label="Foto Frontal" />
             <PhotoUploadButton photoType="side" label="Foto Lateral" />
             <PhotoUploadButton photoType="back" label="Foto Costas" />
           </div>
 
-          {/* Visualização das Fotos */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {['front', 'side', 'back'].map(type => {
               const latestPhoto = getLatestPhotos(type);
