@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -88,8 +88,8 @@ export function PatientPhotos({ patientId }: PatientPhotosProps) {
     }
   };
 
-  // Busca as fotos ao montar o componente
-  useState(() => {
+  // Fetch photos when component mounts
+  useEffect(() => {
     fetchPhotos();
   }, [patientId]);
 

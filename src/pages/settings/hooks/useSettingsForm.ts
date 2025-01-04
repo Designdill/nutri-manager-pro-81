@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SettingsFormValues, settingsFormSchema } from "../types/settings-form";
+import type { UserSettingsTable } from "@/integrations/supabase/types/settings";
 
 export function useSettingsForm() {
   const { session } = useAuth();
@@ -18,7 +19,7 @@ export function useSettingsForm() {
         .maybeSingle();
 
       if (error) throw error;
-      return data;
+      return data as UserSettingsTable['Row'] | null;
     },
   });
 
@@ -79,20 +80,6 @@ export function useSettingsForm() {
       backup_frequency: (userSettings?.backup_frequency as "daily" | "weekly" | "monthly") || "weekly",
       cloud_storage_provider: userSettings?.cloud_storage_provider || "",
       cloud_storage_settings: userSettings?.cloud_storage_settings as { provider: string; credentials?: Record<string, string>; bucket?: string } || undefined,
-      email_service: (userSettings?.email_service as "resend" | "smtp") || "smtp",
-      resend_api_key: userSettings?.resend_api_key || "",
-      smtp_host: userSettings?.smtp_host || "",
-      smtp_port: userSettings?.smtp_port || "",
-      smtp_user: userSettings?.smtp_user || "",
-      smtp_password: userSettings?.smtp_password || "",
-      smtp_secure: userSettings?.smtp_secure || true,
-      appointment_reminder_emails: userSettings?.appointment_reminder_emails || true,
-      progress_report_emails: userSettings?.progress_report_emails || true,
-      newsletter_emails: userSettings?.newsletter_emails || true,
-      email_frequency: (userSettings?.email_frequency as "daily" | "weekly" | "monthly") || "weekly",
-      appointment_reminder_template: userSettings?.appointment_reminder_template || "",
-      progress_report_template: userSettings?.progress_report_template || "",
-      usda_fooddata_api_key: userSettings?.usda_fooddata_api_key || "",
     },
   });
 

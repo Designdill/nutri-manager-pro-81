@@ -65,13 +65,14 @@ const Login = () => {
                       inputBorderHover: '#4A6741',
                       inputBorderFocus: '#4A6741',
                     },
-                    borderRadii: {
-                      buttonBorderRadius: '0.5rem',
-                      inputBorderRadius: '0.5rem',
-                    },
                     space: {
                       inputPadding: '0.75rem',
                       buttonPadding: '0.75rem',
+                    },
+                    radii: {
+                      borderRadiusButton: '0.5rem',
+                      buttonBorderRadius: '0.5rem',
+                      inputBorderRadius: '0.5rem',
                     },
                   },
                 },
