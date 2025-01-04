@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { FileQuestion, Plus } from "lucide-react";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
+import { PatientPhotos } from "@/components/patients/photos/PatientPhotos";
 
 interface InfoTabProps {
   patient: any; // TODO: Add proper type
@@ -72,6 +73,8 @@ export function InfoTab({ patient }: InfoTabProps) {
           </div>
         </CardContent>
       </Card>
+
+      <PatientPhotos patientId={patient.id} />
     </div>
   );
 }
