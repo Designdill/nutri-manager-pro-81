@@ -24,6 +24,7 @@ export interface UserSettingsTable {
     email_notifications: boolean;
     open_food_facts_api_key: string | null;
     google_calendar_connected: boolean;
+    google_fit_connected: boolean;
     account_active: boolean;
     created_at: string;
     updated_at: string;
@@ -39,7 +40,6 @@ export interface UserSettingsTable {
     backup_frequency: 'daily' | 'weekly' | 'monthly';
     cloud_storage_provider: string | null;
     cloud_storage_settings: CloudStorageSettings | null;
-    google_fit_connected: boolean;
     apple_health_connected: boolean;
     meal_delivery_connected: boolean;
     recipe_planning_connected: boolean;
@@ -50,6 +50,13 @@ export interface UserSettingsTable {
     appointment_reminder_template: string | null;
     progress_report_template: string | null;
     usda_fooddata_api_key: string | null;
+    email_service: 'resend' | 'smtp';
+    resend_api_key: string | null;
+    smtp_host: string | null;
+    smtp_port: string | null;
+    smtp_user: string | null;
+    smtp_password: string | null;
+    smtp_secure: boolean;
   };
   Insert: Omit<UserSettingsTable['Row'], 'created_at' | 'updated_at'>;
   Update: Partial<UserSettingsTable['Insert']>;
