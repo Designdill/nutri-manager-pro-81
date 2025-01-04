@@ -10,7 +10,8 @@ import {
   Apple,
   ClipboardList,
   Settings,
-  FileQuestion
+  FileQuestion,
+  Menu
 } from "lucide-react";
 import {
   Sidebar,
@@ -23,7 +24,9 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/App";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import { Button } from "./ui/button";
 
 const nutritionistMenuItems = [
   {
@@ -113,15 +116,22 @@ const patientMenuItems = [
 
 export function AppSidebar() {
   const { session } = useAuth();
+  const location = useLocation();
   const userRole = "nutritionist"; // TODO: Get this from user profile
 
   const menuItems = userRole === "nutritionist" ? nutritionistMenuItems : patientMenuItems;
 
   return (
-    <Sidebar>
+    <Sidebar className="border-r bg-card">
       <SidebarContent>
+        <div className="flex items-center justify-between px-4 py-2">
+          <h2 className="text-xl font-bold text-primary">Nutri Manager</h2>
+          <Button variant="ghost" size="icon">
+            <Menu className="h-5 w-5" />
+          </Button>
+        </div>
         <SidebarGroup>
-          <SidebarGroupLabel>
+          <SidebarGroupLabel className="text-muted-foreground">
             {userRole === "nutritionist" ? "Gestão Nutricional" : "Minha Nutrição"}
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -129,7 +139,13 @@ export function AppSidebar() {
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <Link to={item.url} className="flex items-center gap-2">
+                    <Link
+                      to={item.url}
+                      className={cn(
+                        "nav-link",
+                        location.pathname === item.url && "nav-link-active"
+                      )}
+                    >
                       <item.icon className="h-5 w-5" />
                       <span>{item.title}</span>
                     </Link>
