@@ -8,9 +8,18 @@ interface FoodFormProps {
   setNewFood: (food: Partial<Food>) => void;
   onSubmit: () => void;
   onCancel: () => void;
+  categories?: string[];
+  onCategoryChange?: (category: string) => void;
 }
 
-export function FoodForm({ newFood, setNewFood, onSubmit, onCancel }: FoodFormProps) {
+export function FoodForm({ 
+  newFood, 
+  setNewFood, 
+  onSubmit, 
+  onCancel,
+  categories,
+  onCategoryChange 
+}: FoodFormProps) {
   return (
     <div className="bg-card p-6 rounded-lg shadow-sm mb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       <div className="space-y-2">
@@ -27,7 +36,10 @@ export function FoodForm({ newFood, setNewFood, onSubmit, onCancel }: FoodFormPr
         <Input
           id="category"
           value={newFood.category || ""}
-          onChange={(e) => setNewFood({ ...newFood, category: e.target.value })}
+          onChange={(e) => {
+            setNewFood({ ...newFood, category: e.target.value });
+            onCategoryChange?.(e.target.value);
+          }}
         />
       </div>
 

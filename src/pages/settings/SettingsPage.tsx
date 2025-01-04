@@ -7,9 +7,11 @@ import { SettingsHeader } from "./components/SettingsHeader";
 import { SettingsForm } from "./components/SettingsForm";
 import { useSettingsForm } from "./hooks/useSettingsForm";
 import { SettingsFormValues } from "./types/settings-form";
+import { useAuth } from "@/App";
 
 export default function SettingsPage() {
   const { toast } = useToast();
+  const { session } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { form, userSettings } = useSettingsForm();
