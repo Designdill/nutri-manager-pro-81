@@ -25,6 +25,7 @@ export interface UserSettingsTable {
     open_food_facts_api_key: string | null;
     google_calendar_connected: boolean;
     google_fit_connected: boolean;
+    apple_health_connected: boolean;
     account_active: boolean;
     created_at: string;
     updated_at: string;
@@ -40,7 +41,6 @@ export interface UserSettingsTable {
     backup_frequency: 'daily' | 'weekly' | 'monthly';
     cloud_storage_provider: string | null;
     cloud_storage_settings: CloudStorageSettings | null;
-    apple_health_connected: boolean;
     meal_delivery_connected: boolean;
     recipe_planning_connected: boolean;
     appointment_reminder_emails: boolean;
