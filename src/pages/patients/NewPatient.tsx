@@ -2,21 +2,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { User } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Form } from "@/components/ui/form";
 import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/App";
 import type { TablesInsert } from "@/integrations/supabase/types";
-import { PersonalInfoForm } from "@/components/patients/PersonalInfoForm";
-import { AddressForm } from "@/components/patients/AddressForm";
-import { MeasurementsForm } from "@/components/patients/MeasurementsForm";
-import { HealthHistoryForm } from "@/components/patients/HealthHistoryForm";
-import { LifestyleForm } from "@/components/patients/LifestyleForm";
-import { GoalsForm } from "@/components/patients/GoalsForm";
 import { patientFormSchema, type PatientFormValues } from "@/components/patients/types";
+import { PatientRegistrationForm } from "@/components/patients/PatientRegistrationForm";
 
 type PatientInsert = TablesInsert<"patients">;
 
@@ -149,57 +140,11 @@ export default function NewPatient() {
 
       <Card>
         <CardContent className="p-6">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <Tabs defaultValue="personal" className="space-y-6">
-                <TabsList className="grid grid-cols-3 lg:grid-cols-6 w-full">
-                  <TabsTrigger value="personal">Pessoal</TabsTrigger>
-                  <TabsTrigger value="address">Endereço</TabsTrigger>
-                  <TabsTrigger value="measurements">Medidas</TabsTrigger>
-                  <TabsTrigger value="health">Saúde</TabsTrigger>
-                  <TabsTrigger value="lifestyle">Estilo de Vida</TabsTrigger>
-                  <TabsTrigger value="goals">Objetivos</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="personal" className="space-y-6">
-                  <PersonalInfoForm form={form} />
-                </TabsContent>
-
-                <TabsContent value="address" className="space-y-6">
-                  <AddressForm form={form} />
-                </TabsContent>
-
-                <TabsContent value="measurements" className="space-y-6">
-                  <MeasurementsForm form={form} />
-                </TabsContent>
-
-                <TabsContent value="health" className="space-y-6">
-                  <HealthHistoryForm form={form} />
-                </TabsContent>
-
-                <TabsContent value="lifestyle" className="space-y-6">
-                  <LifestyleForm form={form} />
-                </TabsContent>
-
-                <TabsContent value="goals" className="space-y-6">
-                  <GoalsForm form={form} />
-                </TabsContent>
-              </Tabs>
-
-              <div className="flex justify-end space-x-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => navigate("/patients")}
-                >
-                  Cancelar
-                </Button>
-                <Button type="submit">
-                  <User className="mr-2 h-4 w-4" /> Cadastrar Paciente
-                </Button>
-              </div>
-            </form>
-          </Form>
+          <PatientRegistrationForm 
+            form={form} 
+            onSubmit={onSubmit}
+            onCancel={() => navigate("/patients")}
+          />
         </CardContent>
       </Card>
     </div>
