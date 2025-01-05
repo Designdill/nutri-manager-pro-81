@@ -15,6 +15,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MeasurementsForm } from "@/components/patients/MeasurementsForm";
 import { Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowLeft, Save } from "lucide-react";
 
 export default function EditPatient() {
   const { patientId } = useParams();
@@ -41,7 +43,6 @@ export default function EditPatient() {
       }
 
       console.log("Patient data fetched:", data);
-      // Convert numeric values to strings for the form
       const formData = {
         ...data,
         current_weight: data.current_weight?.toString() || "",
@@ -60,7 +61,6 @@ export default function EditPatient() {
   const onSubmit = async (data: PatientFormValues) => {
     try {
       console.log("Updating patient with data:", data);
-      // Convert string values back to numbers for the database
       const patientData = {
         ...data,
         current_weight: data.current_weight ? parseFloat(data.current_weight) : null,
@@ -99,7 +99,9 @@ export default function EditPatient() {
       <div className="flex min-h-screen w-full">
         <AppSidebar />
         <div className="flex-1 p-8">
-          <div>Carregando...</div>
+          <div className="flex items-center justify-center h-full">
+            <div className="animate-pulse text-lg">Carregando...</div>
+          </div>
         </div>
       </div>
     );
@@ -110,7 +112,7 @@ export default function EditPatient() {
       <div className="flex min-h-screen w-full">
         <AppSidebar />
         <div className="flex-1 p-8">
-          <div className="text-red-500">
+          <div className="text-red-500 flex items-center justify-center h-full">
             Erro ao carregar dados do paciente. Por favor, tente novamente.
           </div>
         </div>
@@ -121,41 +123,91 @@ export default function EditPatient() {
   return (
     <div className="flex min-h-screen w-full">
       <AppSidebar />
-      <div className="flex-1 p-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold">Editar Paciente</h1>
-        </div>
+      <div className="flex-1 p-8 bg-gray-50">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => navigate("/patients")}
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <div>
+                <h1 className="text-2xl font-bold">Editar Paciente</h1>
+                <p className="text-muted-foreground">
+                  {patient?.full_name}
+                </p>
+              </div>
+            </div>
+            <Button onClick={form.handleSubmit(onSubmit)}>
+              <Save className="h-4 w-4 mr-2" />
+              Salvar Alterações
+            </Button>
+          </div>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <Card>
-              <CardHeader>
-                <CardTitle>Informações do Paciente</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-8">
-                <PersonalInfoForm form={form} />
-                <AddressForm form={form} />
-                <MeasurementsForm form={form} />
-                <HealthHistoryForm form={form} />
-                <LifestyleForm form={form} />
-                <GoalsForm form={form} />
-                
-                <div className="flex justify-end gap-4">
-                  <Button 
-                    type="button" 
-                    variant="outline"
-                    onClick={() => navigate("/patients")}
-                  >
-                    Cancelar
-                  </Button>
-                  <Button type="submit">
-                    Salvar Alterações
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </form>
-        </Form>
+          <Form {...form}>
+            <form className="space-y-6">
+              <Tabs defaultValue="personal" className="w-full">
+                <TabsList className="w-full justify-start mb-6">
+                  <TabsTrigger value="personal">Informações Pessoais</TabsTrigger>
+                  <TabsTrigger value="health">Saúde</TabsTrigger>
+                  <TabsTrigger value="lifestyle">Estilo de Vida</TabsTrigger>
+                  <TabsTrigger value="goals">Objetivos</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="personal">
+                  <div className="grid gap-6">
+                    <Card>
+                      <CardContent className="pt-6">
+                        <PersonalInfoForm form={form} />
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardContent className="pt-6">
+                        <AddressForm form={form} />
+                      </CardContent>
+                    </Card>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="health">
+                  <div className="grid gap-6">
+                    <Card>
+                      <CardContent className="pt-6">
+                        <MeasurementsForm form={form} />
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardContent className="pt-6">
+                        <HealthHistoryForm form={form} />
+                      </CardContent>
+                    </Card>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="lifestyle">
+                  <Card>
+                    <CardContent className="pt-6">
+                      <LifestyleForm form={form} />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="goals">
+                  <Card>
+                    <CardContent className="pt-6">
+                      <GoalsForm form={form} />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            </form>
+          </Form>
+        </div>
       </div>
     </div>
   );
