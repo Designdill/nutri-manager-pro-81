@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,6 +16,10 @@ export function PatientPhotos({ patientId, showComparison = false }: PatientPhot
   const [uploading, setUploading] = useState(false);
   const [photos, setPhotos] = useState<PhotoRecord[]>([]);
   const { toast } = useToast();
+
+  useEffect(() => {
+    fetchPhotos();
+  }, [patientId]);
 
   const uploadPhoto = async (event: React.ChangeEvent<HTMLInputElement>, photoType: string) => {
     try {
@@ -88,7 +92,7 @@ export function PatientPhotos({ patientId, showComparison = false }: PatientPhot
     }
   };
 
-  const getLatestPhotos = (type: string) => {
+  const getLatestPhoto = (type: string) => {
     return photos.find(photo => photo.photo_type === type);
   };
 
@@ -125,7 +129,7 @@ export function PatientPhotos({ patientId, showComparison = false }: PatientPhot
               />
             </div>
 
-            <PhotoGrid photos={photos} getLatestPhoto={getLatestPhotos} />
+            <PhotoGrid photos={photos} getLatestPhoto={getLatestPhoto} />
           </div>
         </CardContent>
       </Card>

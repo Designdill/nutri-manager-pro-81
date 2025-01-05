@@ -2,10 +2,10 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format } from "date-fns";
-import { PhotoType } from "../types";
+import { PhotoRecord } from "../types";
 
 interface PhotoComparisonProps {
-  photos: PhotoType[];
+  photos: PhotoRecord[];
   photoType: 'front' | 'side' | 'back';
 }
 
