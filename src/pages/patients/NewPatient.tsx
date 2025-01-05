@@ -94,7 +94,27 @@ export default function NewPatient() {
         throw error;
       }
 
-      toast.success("Paciente cadastrado com sucesso!");
+      // Send welcome email if email is provided
+      if (values.email) {
+        try {
+          const { error: emailError } = await supabase.functions.invoke('send-welcome-email', {
+            body: { patientData: { full_name: values.full_name, email: values.email } }
+          });
+
+          if (emailError) {
+            console.error("Error sending welcome email:", emailError);
+            toast.error("Paciente cadastrado, mas houve um erro ao enviar o email de boas-vindas");
+          } else {
+            toast.success("Paciente cadastrado e email de boas-vindas enviado com sucesso!");
+          }
+        } catch (emailError) {
+          console.error("Error invoking send-welcome-email function:", emailError);
+          toast.error("Paciente cadastrado, mas houve um erro ao enviar o email de boas-vindas");
+        }
+      } else {
+        toast.success("Paciente cadastrado com sucesso!");
+      }
+
       navigate("/patients");
     } catch (error) {
       console.error("Error:", error);
