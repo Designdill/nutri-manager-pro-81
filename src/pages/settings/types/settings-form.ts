@@ -42,7 +42,6 @@ export const settingsFormSchema = z.object({
   email_filters: z.array(z.string()),
   open_food_facts_api_key: z.string().optional(),
   google_calendar_connected: z.boolean(),
-  google_fit_connected: z.boolean(),
   apple_health_connected: z.boolean(),
   meal_delivery_connected: z.boolean(),
   recipe_planning_connected: z.boolean(),

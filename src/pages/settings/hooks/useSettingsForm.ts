@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SettingsFormValues, settingsFormSchema } from "../types/settings-form";
-import type { UserSettingsTable } from "@/integrations/supabase/types/settings";
+import type { UserSettingsTable } from "@/integrations/supabase/types/settings/user-settings";
 
 export function useSettingsForm() {
   const { session } = useAuth();
@@ -19,7 +19,7 @@ export function useSettingsForm() {
         .maybeSingle();
 
       if (error) throw error;
-      return data as UserSettingsTable['Row'] | null;
+      return data as UserSettingsTable["Row"] | null;
     },
   });
 
@@ -71,7 +71,6 @@ export function useSettingsForm() {
       email_filters: userSettings?.email_filters || [],
       open_food_facts_api_key: userSettings?.open_food_facts_api_key || "",
       google_calendar_connected: userSettings?.google_calendar_connected || false,
-      google_fit_connected: false,
       apple_health_connected: userSettings?.apple_health_connected || false,
       meal_delivery_connected: userSettings?.meal_delivery_connected || false,
       recipe_planning_connected: userSettings?.recipe_planning_connected || false,
