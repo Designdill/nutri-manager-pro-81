@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SettingsFormValues, settingsFormSchema } from "../types/settings-form";
 import type { UserSettingsTable } from "@/integrations/supabase/types/settings/user-settings";
+import { ThemeSettings } from "@/integrations/supabase/types/settings/theme";
 
 export function useSettingsForm() {
   const { session } = useAuth();
@@ -37,6 +38,12 @@ export function useSettingsForm() {
     },
   });
 
+  const defaultTheme: ThemeSettings = {
+    primary: "#0ea5e9",
+    secondary: "#64748b",
+    accent: "#f59e0b",
+  };
+
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(settingsFormSchema),
     defaultValues: {
@@ -55,11 +62,7 @@ export function useSettingsForm() {
       auto_dark_mode: userSettings?.auto_dark_mode || false,
       dark_mode_start: userSettings?.dark_mode_start || "18:00",
       dark_mode_end: userSettings?.dark_mode_end || "06:00",
-      custom_theme: userSettings?.custom_theme || {
-        primary: "#0ea5e9",
-        secondary: "#64748b",
-        accent: "#f59e0b",
-      },
+      custom_theme: (userSettings?.custom_theme as ThemeSettings) || defaultTheme,
       email_notifications: userSettings?.email_notifications || false,
       push_notifications: userSettings?.push_notifications || true,
       notification_preferences: userSettings?.notification_preferences || {
@@ -68,7 +71,7 @@ export function useSettingsForm() {
         updates: true,
       },
       email_signature: userSettings?.email_signature || "",
-      email_filters: userSettings?.email_filters || [],
+      email_filters: Array.isArray(userSettings?.email_filters) ? userSettings.email_filters : [],
       open_food_facts_api_key: userSettings?.open_food_facts_api_key || "",
       google_calendar_connected: userSettings?.google_calendar_connected || false,
       apple_health_connected: userSettings?.apple_health_connected || false,

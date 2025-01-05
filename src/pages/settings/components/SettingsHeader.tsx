@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { RotateCcw } from "lucide-react";
-import { SettingsFormValues } from "../types/settings-form";
+import { SettingsFormValues } from "../types";
 import { UseFormReset } from "react-hook-form";
 
 interface SettingsHeaderProps {
@@ -36,7 +36,6 @@ export function SettingsHeader({ onReset, resetForm }: SettingsHeaderProps) {
       email_filters: [],
       open_food_facts_api_key: "",
       google_calendar_connected: false,
-      google_fit_connected: false,
       apple_health_connected: false,
       meal_delivery_connected: false,
       recipe_planning_connected: false,

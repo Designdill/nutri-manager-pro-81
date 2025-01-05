@@ -6,7 +6,7 @@ import { SearchBar } from "./components/SearchBar";
 import { SettingsHeader } from "./components/SettingsHeader";
 import { SettingsForm } from "./components/SettingsForm";
 import { useSettingsForm } from "./hooks/useSettingsForm";
-import { SettingsFormValues } from "./types/settings-form";
+import { SettingsFormValues } from "./types";
 import { useAuth } from "@/App";
 
 export default function SettingsPage() {
@@ -70,7 +70,6 @@ export default function SettingsPage() {
           backup_frequency: data.backup_frequency,
           cloud_storage_provider: data.cloud_storage_provider,
           cloud_storage_settings: data.cloud_storage_settings,
-          google_fit_connected: data.google_fit_connected,
           apple_health_connected: data.apple_health_connected,
           meal_delivery_connected: data.meal_delivery_connected,
           recipe_planning_connected: data.recipe_planning_connected,
