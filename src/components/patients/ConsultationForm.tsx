@@ -9,6 +9,7 @@ import { BasicMeasurements } from "./consultation-form/BasicMeasurements";
 import { ActivityAndAdherence } from "./consultation-form/ActivityAndAdherence";
 import { NotesAndPlans } from "./consultation-form/NotesAndPlans";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PatientPhotos } from "./photos/PatientPhotos";
 
 interface ConsultationFormProps {
   patientId: string;
@@ -92,6 +93,7 @@ export function ConsultationForm({ patientId, patientHeight, onSuccess, onCancel
               <BasicMeasurements form={form} calculateBMI={calculateBMI} />
               <ActivityAndAdherence form={form} />
               <NotesAndPlans form={form} />
+              <PatientPhotos patientId={patientId} />
             </div>
           </CardContent>
         </Card>

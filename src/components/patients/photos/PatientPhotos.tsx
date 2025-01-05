@@ -6,14 +6,17 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { Camera, Loader2 } from "lucide-react";
+import { PhotoComparison } from "./PhotoComparison";
+import { PhotoType } from "../types";
 
 interface PatientPhotosProps {
   patientId: string;
+  showComparison?: boolean;
 }
 
-export function PatientPhotos({ patientId }: PatientPhotosProps) {
+export function PatientPhotos({ patientId, showComparison = false }: PatientPhotosProps) {
   const [uploading, setUploading] = useState(false);
-  const [photos, setPhotos] = useState<any[]>([]);
+  const [photos, setPhotos] = useState<PhotoType[]>([]);
   const { toast } = useToast();
 
   const uploadPhoto = async (event: React.ChangeEvent<HTMLInputElement>, photoType: string) => {
@@ -123,68 +126,78 @@ export function PatientPhotos({ patientId }: PatientPhotosProps) {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Fotos do Paciente (Opcional)</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-6">
-          <p className="text-sm text-muted-foreground">
-            Você pode adicionar fotos do paciente agora ou posteriormente durante as consultas.
-          </p>
-          
-          <div className="flex flex-wrap gap-4">
-            <PhotoUploadButton photoType="front" label="Foto Frontal" />
-            <PhotoUploadButton photoType="side" label="Foto Lateral" />
-            <PhotoUploadButton photoType="back" label="Foto Costas" />
-          </div>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Fotos do Paciente</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
+            <p className="text-sm text-muted-foreground">
+              Você pode adicionar fotos do paciente agora ou posteriormente durante as consultas.
+            </p>
+            
+            <div className="flex flex-wrap gap-4">
+              <PhotoUploadButton photoType="front" label="Foto Frontal" />
+              <PhotoUploadButton photoType="side" label="Foto Lateral" />
+              <PhotoUploadButton photoType="back" label="Foto Costas" />
+            </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {['front', 'side', 'back'].map(type => {
-              const latestPhoto = getLatestPhotos(type);
-              return (
-                <div key={type} className="space-y-2">
-                  <h3 className="font-medium capitalize">
-                    Foto {type === 'front' ? 'Frontal' : type === 'side' ? 'Lateral' : 'Costas'}
-                  </h3>
-                  {latestPhoto ? (
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <div className="cursor-pointer">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {['front', 'side', 'back'].map(type => {
+                const latestPhoto = getLatestPhotos(type);
+                return (
+                  <div key={type} className="space-y-2">
+                    <h3 className="font-medium capitalize">
+                      Foto {type === 'front' ? 'Frontal' : type === 'side' ? 'Lateral' : 'Costas'}
+                    </h3>
+                    {latestPhoto ? (
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <div className="cursor-pointer">
+                            <img
+                              src={latestPhoto.photo_url}
+                              alt={`Foto ${type}`}
+                              className="w-full h-48 object-cover rounded-lg"
+                            />
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {format(new Date(latestPhoto.taken_at), "dd/MM/yyyy")}
+                            </p>
+                          </div>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>
+                              Foto {type === 'front' ? 'Frontal' : type === 'side' ? 'Lateral' : 'Costas'}
+                            </DialogTitle>
+                          </DialogHeader>
                           <img
                             src={latestPhoto.photo_url}
                             alt={`Foto ${type}`}
-                            className="w-full h-48 object-cover rounded-lg"
+                            className="w-full max-h-[80vh] object-contain rounded-lg"
                           />
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {format(new Date(latestPhoto.taken_at), "dd/MM/yyyy")}
-                          </p>
-                        </div>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>
-                            Foto {type === 'front' ? 'Frontal' : type === 'side' ? 'Lateral' : 'Costas'}
-                          </DialogTitle>
-                        </DialogHeader>
-                        <img
-                          src={latestPhoto.photo_url}
-                          alt={`Foto ${type}`}
-                          className="w-full max-h-[80vh] object-contain rounded-lg"
-                        />
-                      </DialogContent>
-                    </Dialog>
-                  ) : (
-                    <div className="w-full h-48 bg-muted rounded-lg flex items-center justify-center">
-                      <p className="text-sm text-muted-foreground">Nenhuma foto</p>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                        </DialogContent>
+                      </Dialog>
+                    ) : (
+                      <div className="w-full h-48 bg-muted rounded-lg flex items-center justify-center">
+                        <p className="text-sm text-muted-foreground">Nenhuma foto</p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {showComparison && photos.length > 0 && (
+        <div className="space-y-6">
+          <PhotoComparison photos={photos} photoType="front" />
+          <PhotoComparison photos={photos} photoType="side" />
+          <PhotoComparison photos={photos} photoType="back" />
         </div>
-      </CardContent>
-    </Card>
+      )}
+    </div>
   );
 }
