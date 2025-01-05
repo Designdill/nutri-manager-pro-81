@@ -1,5 +1,19 @@
 import { z } from "zod";
 
+export const photoTypeEnum = z.enum(['front', 'side', 'back']);
+export type PhotoType = z.infer<typeof photoTypeEnum>;
+
+export const photoSchema = z.object({
+  id: z.string(),
+  patient_id: z.string(),
+  photo_type: photoTypeEnum,
+  photo_url: z.string(),
+  taken_at: z.string(),
+  notes: z.string().optional(),
+});
+
+export type PhotoRecord = z.infer<typeof photoSchema>;
+
 export const patientFormSchema = z.object({
   // Personal Information
   full_name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
@@ -63,17 +77,6 @@ export const patientFormSchema = z.object({
 
 export type PatientFormValues = z.infer<typeof patientFormSchema>;
 
-export const photoSchema = z.object({
-  id: z.string(),
-  patient_id: z.string(),
-  photo_type: z.enum(['front', 'side', 'back']),
-  photo_url: z.string(),
-  taken_at: z.string(),
-  notes: z.string().optional(),
-});
-
-export type PhotoType = z.infer<typeof photoSchema>;
-
 export const consultationFormSchema = z.object({
   consultation_date: z.string().min(1, "Data é obrigatória"),
   weight: z.string().min(1, "Peso é obrigatório"),
@@ -90,4 +93,3 @@ export const consultationFormSchema = z.object({
 });
 
 export type ConsultationFormValues = z.infer<typeof consultationFormSchema>;
-

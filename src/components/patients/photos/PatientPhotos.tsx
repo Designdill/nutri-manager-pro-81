@@ -1,13 +1,11 @@
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { format } from "date-fns";
-import { Camera, Loader2 } from "lucide-react";
 import { PhotoComparison } from "./PhotoComparison";
-import { PhotoType } from "../types";
+import { PhotoGrid } from "./PhotoGrid";
+import { PhotoUploadButton } from "./PhotoUploadButton";
+import { PhotoRecord } from "../types";
 
 interface PatientPhotosProps {
   patientId: string;
@@ -16,7 +14,7 @@ interface PatientPhotosProps {
 
 export function PatientPhotos({ patientId, showComparison = false }: PatientPhotosProps) {
   const [uploading, setUploading] = useState(false);
-  const [photos, setPhotos] = useState<PhotoType[]>([]);
+  const [photos, setPhotos] = useState<PhotoRecord[]>([]);
   const { toast } = useToast();
 
   const uploadPhoto = async (event: React.ChangeEvent<HTMLInputElement>, photoType: string) => {
@@ -84,45 +82,14 @@ export function PatientPhotos({ patientId, showComparison = false }: PatientPhot
       if (error) throw error;
 
       console.log("Photos fetched:", data);
-      setPhotos(data || []);
+      setPhotos(data as PhotoRecord[]);
     } catch (error) {
       console.error("Error fetching photos:", error);
     }
   };
 
-  useEffect(() => {
-    if (patientId) {
-      fetchPhotos();
-    }
-  }, [patientId]);
-
-  const PhotoUploadButton = ({ photoType, label }: { photoType: string; label: string }) => (
-    <div>
-      <input
-        type="file"
-        id={`photo-${photoType}`}
-        accept="image/*"
-        onChange={(e) => uploadPhoto(e, photoType)}
-        disabled={uploading}
-        className="hidden"
-      />
-      <Button
-        variant="outline"
-        onClick={() => document.getElementById(`photo-${photoType}`)?.click()}
-        disabled={uploading}
-      >
-        {uploading ? (
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-        ) : (
-          <Camera className="mr-2 h-4 w-4" />
-        )}
-        {label}
-      </Button>
-    </div>
-  );
-
   const getLatestPhotos = (type: string) => {
-    return photos.filter(photo => photo.photo_type === type)[0];
+    return photos.find(photo => photo.photo_type === type);
   };
 
   return (
@@ -138,55 +105,27 @@ export function PatientPhotos({ patientId, showComparison = false }: PatientPhot
             </p>
             
             <div className="flex flex-wrap gap-4">
-              <PhotoUploadButton photoType="front" label="Foto Frontal" />
-              <PhotoUploadButton photoType="side" label="Foto Lateral" />
-              <PhotoUploadButton photoType="back" label="Foto Costas" />
+              <PhotoUploadButton 
+                photoType="front" 
+                label="Foto Frontal" 
+                uploading={uploading} 
+                onUpload={(e) => uploadPhoto(e, "front")} 
+              />
+              <PhotoUploadButton 
+                photoType="side" 
+                label="Foto Lateral" 
+                uploading={uploading} 
+                onUpload={(e) => uploadPhoto(e, "side")} 
+              />
+              <PhotoUploadButton 
+                photoType="back" 
+                label="Foto Costas" 
+                uploading={uploading} 
+                onUpload={(e) => uploadPhoto(e, "back")} 
+              />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {['front', 'side', 'back'].map(type => {
-                const latestPhoto = getLatestPhotos(type);
-                return (
-                  <div key={type} className="space-y-2">
-                    <h3 className="font-medium capitalize">
-                      Foto {type === 'front' ? 'Frontal' : type === 'side' ? 'Lateral' : 'Costas'}
-                    </h3>
-                    {latestPhoto ? (
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <div className="cursor-pointer">
-                            <img
-                              src={latestPhoto.photo_url}
-                              alt={`Foto ${type}`}
-                              className="w-full h-48 object-cover rounded-lg"
-                            />
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {format(new Date(latestPhoto.taken_at), "dd/MM/yyyy")}
-                            </p>
-                          </div>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>
-                              Foto {type === 'front' ? 'Frontal' : type === 'side' ? 'Lateral' : 'Costas'}
-                            </DialogTitle>
-                          </DialogHeader>
-                          <img
-                            src={latestPhoto.photo_url}
-                            alt={`Foto ${type}`}
-                            className="w-full max-h-[80vh] object-contain rounded-lg"
-                          />
-                        </DialogContent>
-                      </Dialog>
-                    ) : (
-                      <div className="w-full h-48 bg-muted rounded-lg flex items-center justify-center">
-                        <p className="text-sm text-muted-foreground">Nenhuma foto</p>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+            <PhotoGrid photos={photos} getLatestPhoto={getLatestPhotos} />
           </div>
         </CardContent>
       </Card>
