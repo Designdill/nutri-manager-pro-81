@@ -71,7 +71,7 @@ export function useSettingsForm() {
       email_filters: userSettings?.email_filters || [],
       open_food_facts_api_key: userSettings?.open_food_facts_api_key || "",
       google_calendar_connected: userSettings?.google_calendar_connected || false,
-      google_fit_connected: userSettings?.google_fit_connected || false,
+      google_fit_connected: false, // Added default value since it's not in the database
       apple_health_connected: userSettings?.apple_health_connected || false,
       meal_delivery_connected: userSettings?.meal_delivery_connected || false,
       recipe_planning_connected: userSettings?.recipe_planning_connected || false,
