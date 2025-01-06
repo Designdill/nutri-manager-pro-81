@@ -50,11 +50,11 @@ export function useSettingsForm() {
       return defaultTheme;
     }
 
-    const theme = jsonTheme as Record<string, string>;
+    const theme = jsonTheme as Record<string, unknown>;
     return {
-      primary: theme.primary || defaultTheme.primary,
-      secondary: theme.secondary || defaultTheme.secondary,
-      accent: theme.accent || defaultTheme.accent,
+      primary: String(theme.primary || defaultTheme.primary),
+      secondary: String(theme.secondary || defaultTheme.secondary),
+      accent: String(theme.accent || defaultTheme.accent),
     };
   };
 

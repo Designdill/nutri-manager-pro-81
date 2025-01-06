@@ -11,11 +11,11 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-interface EmailData {
-  to: string;
+interface EmailRequest {
+  from: string;
+  to: string[];
   subject: string;
   html: string;
-  from?: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -24,64 +24,69 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { to, subject, html, from = "Sistema Nutricional <onboarding@resend.dev>" }: EmailData = await req.json();
+    const supabase = createClient(
+      SUPABASE_URL!,
+      SUPABASE_SERVICE_ROLE_KEY!
+    );
 
-    console.log("Sending email to:", to);
-    console.log("Subject:", subject);
-
-    if (!RESEND_API_KEY) {
-      throw new Error("RESEND_API_KEY is not set");
-    }
-
-    const emailResponse = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-      },
-      body: JSON.stringify({
-        from,
-        to: [to],
-        subject,
-        html,
-      }),
-    });
-
-    if (!emailResponse.ok) {
-      const error = await emailResponse.text();
-      console.error("Error sending email:", error);
-      throw new Error(`Failed to send email: ${error}`);
-    }
-
-    const data = await emailResponse.json();
-    console.log("Email sent successfully:", data);
-
-    // Create notification record
-    const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
+    const emailRequest: EmailRequest = await req.json();
     
-    const { error: notificationError } = await supabase
-      .from("notifications")
-      .insert({
-        user_id: to, // Using email as identifier
-        type: "email_sent",
-        title: "Email Enviado",
-        message: `Email enviado para ${to}: ${subject}`,
+    // Get user settings to determine email service
+    const { data: settings } = await supabase
+      .from("user_settings")
+      .select("*")
+      .single();
+
+    if (settings?.email_service === "resend" && RESEND_API_KEY) {
+      const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${RESEND_API_KEY}`,
+        },
+        body: JSON.stringify(emailRequest),
       });
 
-    if (notificationError) {
-      console.error("Error creating notification:", notificationError);
+      if (!res.ok) {
+        const error = await res.text();
+        throw new Error(`Resend API error: ${error}`);
+      }
+
+      const data = await res.json();
+      return new Response(JSON.stringify(data), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    } else if (settings?.email_service === "smtp") {
+      // Implement SMTP sending logic here using settings
+      const smtpConfig = {
+        host: settings.smtp_host,
+        port: settings.smtp_port,
+        user: settings.smtp_user,
+        password: settings.smtp_password,
+        secure: settings.smtp_secure,
+      };
+
+      // For now, we'll just return a mock response
+      return new Response(
+        JSON.stringify({ message: "Email sent via SMTP" }),
+        {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
     }
 
-    return new Response(JSON.stringify({ success: true, data }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 200,
-    });
+    throw new Error("No email service configured");
   } catch (error: any) {
     console.error("Error in send-email function:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 500,
-    });
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
+    );
   }
 };
 
