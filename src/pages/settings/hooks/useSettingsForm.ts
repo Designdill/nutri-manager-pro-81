@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SettingsFormValues, settingsFormSchema } from "../types/settings-form";
 import type { UserSettingsTable } from "@/integrations/supabase/types/settings/user-settings";
-import { parseThemeSettings } from "@/integrations/supabase/types/settings/theme";
+import { parseThemeSettings, themeSettingsToJson } from "@/integrations/supabase/types/settings/theme";
 import { Json } from "@/integrations/supabase/types/database";
 
 export function useSettingsForm() {
