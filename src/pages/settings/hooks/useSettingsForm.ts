@@ -45,20 +45,19 @@ export function useSettingsForm() {
     accent: "#f59e0b",
   };
 
-  // Parse custom theme from JSON to ThemeSettings
   const parseCustomTheme = (jsonTheme: Json | null): ThemeSettings => {
-    if (typeof jsonTheme === 'object' && jsonTheme !== null && 
-        'primary' in jsonTheme && 'secondary' in jsonTheme && 'accent' in jsonTheme) {
-      return {
-        primary: String(jsonTheme.primary),
-        secondary: String(jsonTheme.secondary),
-        accent: String(jsonTheme.accent),
-      };
+    if (!jsonTheme || typeof jsonTheme !== 'object') {
+      return defaultTheme;
     }
-    return defaultTheme;
+
+    const theme = jsonTheme as Record<string, string>;
+    return {
+      primary: theme.primary || defaultTheme.primary,
+      secondary: theme.secondary || defaultTheme.secondary,
+      accent: theme.accent || defaultTheme.accent,
+    };
   };
 
-  // Parse email filters from JSON to string array
   const parseEmailFilters = (jsonFilters: Json | null): string[] => {
     if (Array.isArray(jsonFilters)) {
       return jsonFilters.map(filter => String(filter));
@@ -79,12 +78,12 @@ export function useSettingsForm() {
       address_state: profile?.address_state || "",
       address_postal_code: profile?.address_postal_code || "",
       address_country: profile?.address_country || "Brasil",
-      theme: (userSettings?.theme as "light" | "dark" | "system") || "system",
-      language: (userSettings?.language as "pt-BR" | "en-US") || "pt-BR",
+      theme: userSettings?.theme as "light" | "dark" | "system" || "system",
+      language: userSettings?.language as "pt-BR" | "en-US" || "pt-BR",
       auto_dark_mode: userSettings?.auto_dark_mode || false,
       dark_mode_start: userSettings?.dark_mode_start || "18:00",
       dark_mode_end: userSettings?.dark_mode_end || "06:00",
-      custom_theme: parseCustomTheme(userSettings?.custom_theme as Json),
+      custom_theme: parseCustomTheme(userSettings?.custom_theme),
       email_notifications: userSettings?.email_notifications || false,
       push_notifications: userSettings?.push_notifications || true,
       notification_preferences: userSettings?.notification_preferences || {
