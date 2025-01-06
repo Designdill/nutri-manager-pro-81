@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { SettingsFormValues, settingsFormSchema } from "../types/settings-form";
 import type { UserSettingsTable } from "@/integrations/supabase/types/settings/user-settings";
 import { ThemeSettings } from "@/integrations/supabase/types/settings/theme";
+import { Json } from "@/integrations/supabase/types";
 
 export function useSettingsForm() {
   const { session } = useAuth();
@@ -45,7 +46,7 @@ export function useSettingsForm() {
   };
 
   // Parse custom theme from JSON to ThemeSettings
-  const parseCustomTheme = (jsonTheme: any): ThemeSettings => {
+  const parseCustomTheme = (jsonTheme: Json | null): ThemeSettings => {
     if (typeof jsonTheme === 'object' && jsonTheme !== null && 
         'primary' in jsonTheme && 'secondary' in jsonTheme && 'accent' in jsonTheme) {
       return {
@@ -58,7 +59,7 @@ export function useSettingsForm() {
   };
 
   // Parse email filters from JSON to string array
-  const parseEmailFilters = (jsonFilters: any): string[] => {
+  const parseEmailFilters = (jsonFilters: Json | null): string[] => {
     if (Array.isArray(jsonFilters)) {
       return jsonFilters.map(filter => String(filter));
     }
