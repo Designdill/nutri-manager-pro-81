@@ -13,15 +13,23 @@ export const parseThemeSettings = (jsonTheme: Json | null): ThemeSettings => {
     accent: "#f59e0b",
   };
 
-  if (!jsonTheme || typeof jsonTheme !== 'object') {
+  if (!jsonTheme || typeof jsonTheme !== 'object' || Array.isArray(jsonTheme)) {
     return defaultTheme;
   }
 
   const theme = jsonTheme as Record<string, unknown>;
   
   return {
-    primary: String(theme.primary || defaultTheme.primary),
-    secondary: String(theme.secondary || defaultTheme.secondary),
-    accent: String(theme.accent || defaultTheme.accent),
+    primary: typeof theme.primary === 'string' ? theme.primary : defaultTheme.primary,
+    secondary: typeof theme.secondary === 'string' ? theme.secondary : defaultTheme.secondary,
+    accent: typeof theme.accent === 'string' ? theme.accent : defaultTheme.accent,
+  };
+};
+
+export const themeSettingsToJson = (theme: ThemeSettings): Json => {
+  return {
+    primary: theme.primary,
+    secondary: theme.secondary,
+    accent: theme.accent,
   };
 };
