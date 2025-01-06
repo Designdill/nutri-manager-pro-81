@@ -84,7 +84,7 @@ export function useSettingsForm() {
       auto_dark_mode: userSettings?.auto_dark_mode || false,
       dark_mode_start: userSettings?.dark_mode_start || "18:00",
       dark_mode_end: userSettings?.dark_mode_end || "06:00",
-      custom_theme: parseCustomTheme(userSettings?.custom_theme),
+      custom_theme: parseCustomTheme(userSettings?.custom_theme as Json),
       email_notifications: userSettings?.email_notifications || false,
       push_notifications: userSettings?.push_notifications || true,
       notification_preferences: userSettings?.notification_preferences || {
