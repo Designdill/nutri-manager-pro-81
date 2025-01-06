@@ -44,6 +44,27 @@ export function useSettingsForm() {
     accent: "#f59e0b",
   };
 
+  // Parse custom theme from JSON to ThemeSettings
+  const parseCustomTheme = (jsonTheme: any): ThemeSettings => {
+    if (typeof jsonTheme === 'object' && jsonTheme !== null && 
+        'primary' in jsonTheme && 'secondary' in jsonTheme && 'accent' in jsonTheme) {
+      return {
+        primary: String(jsonTheme.primary),
+        secondary: String(jsonTheme.secondary),
+        accent: String(jsonTheme.accent),
+      };
+    }
+    return defaultTheme;
+  };
+
+  // Parse email filters from JSON to string array
+  const parseEmailFilters = (jsonFilters: any): string[] => {
+    if (Array.isArray(jsonFilters)) {
+      return jsonFilters.map(filter => String(filter));
+    }
+    return [];
+  };
+
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(settingsFormSchema),
     defaultValues: {
@@ -62,7 +83,7 @@ export function useSettingsForm() {
       auto_dark_mode: userSettings?.auto_dark_mode || false,
       dark_mode_start: userSettings?.dark_mode_start || "18:00",
       dark_mode_end: userSettings?.dark_mode_end || "06:00",
-      custom_theme: (userSettings?.custom_theme as ThemeSettings) || defaultTheme,
+      custom_theme: parseCustomTheme(userSettings?.custom_theme),
       email_notifications: userSettings?.email_notifications || false,
       push_notifications: userSettings?.push_notifications || true,
       notification_preferences: userSettings?.notification_preferences || {
@@ -71,7 +92,7 @@ export function useSettingsForm() {
         updates: true,
       },
       email_signature: userSettings?.email_signature || "",
-      email_filters: Array.isArray(userSettings?.email_filters) ? userSettings.email_filters : [],
+      email_filters: parseEmailFilters(userSettings?.email_filters),
       open_food_facts_api_key: userSettings?.open_food_facts_api_key || "",
       google_calendar_connected: userSettings?.google_calendar_connected || false,
       apple_health_connected: userSettings?.apple_health_connected || false,
