@@ -59,15 +59,19 @@ export function useSettingsForm() {
       address_state: profile?.address_state || "",
       address_postal_code: profile?.address_postal_code || "",
       address_country: profile?.address_country || "Brasil",
-      theme: userSettings?.theme as "light" | "dark" | "system" || "system",
-      language: userSettings?.language as "pt-BR" | "en-US" || "pt-BR",
+      theme: (userSettings?.theme as "light" | "dark" | "system") || "system",
+      language: (userSettings?.language as "pt-BR" | "en-US") || "pt-BR",
       auto_dark_mode: userSettings?.auto_dark_mode || false,
       dark_mode_start: userSettings?.dark_mode_start || "18:00",
       dark_mode_end: userSettings?.dark_mode_end || "06:00",
       custom_theme: parseThemeSettings(userSettings?.custom_theme),
       email_notifications: userSettings?.email_notifications || false,
       push_notifications: userSettings?.push_notifications || true,
-      notification_preferences: userSettings?.notification_preferences || {
+      notification_preferences: userSettings?.notification_preferences as {
+        appointments: boolean;
+        messages: boolean;
+        updates: boolean;
+      } || {
         appointments: true,
         messages: true,
         updates: true,
