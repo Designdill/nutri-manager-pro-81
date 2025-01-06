@@ -14,20 +14,29 @@ import { Button } from "@/components/ui/button";
 import { Eye, Trash } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useState } from "react";
 
 export function QuestionnairesList() {
   const { toast } = useToast();
+  const [statusFilter, setStatusFilter] = useState<string>("all");
 
   const { data: questionnaires, isLoading } = useQuery({
-    queryKey: ["questionnaires"],
+    queryKey: ["questionnaires", statusFilter],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("questionnaires")
         .select(`
           *,
-          patients:patients(full_name)
+          patients:patients(full_name, email)
         `)
         .order("created_at", { ascending: false });
+
+      if (statusFilter !== "all") {
+        query = query.eq("status", statusFilter);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
       return data;
@@ -62,52 +71,78 @@ export function QuestionnairesList() {
   }
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Paciente</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Data de Envio</TableHead>
-          <TableHead>Ações</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {questionnaires?.map((questionnaire) => (
-          <TableRow key={questionnaire.id}>
-            <TableCell>{questionnaire.patients?.full_name}</TableCell>
-            <TableCell>
-              <Badge
-                variant={questionnaire.status === "completed" ? "secondary" : "outline"}
-              >
-                {questionnaire.status === "completed" ? "Respondido" : "Pendente"}
-              </Badge>
-            </TableCell>
-            <TableCell>
-              {questionnaire.sent_at
-                ? format(new Date(questionnaire.sent_at), "dd/MM/yyyy")
-                : "-"}
-            </TableCell>
-            <TableCell className="space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                asChild
-              >
-                <Link to={`/questionnaires/${questionnaire.id}`}>
-                  <Eye className="w-4 h-4" />
-                </Link>
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleDelete(questionnaire.id)}
-              >
-                <Trash className="w-4 h-4" />
-              </Button>
-            </TableCell>
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <Select
+          value={statusFilter}
+          onValueChange={(value) => setStatusFilter(value)}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Filtrar por status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos</SelectItem>
+            <SelectItem value="pending">Pendentes</SelectItem>
+            <SelectItem value="completed">Respondidos</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Paciente</TableHead>
+            <TableHead>Email</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Data de Envio</TableHead>
+            <TableHead>Data de Resposta</TableHead>
+            <TableHead>Ações</TableHead>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {questionnaires?.map((questionnaire) => (
+            <TableRow key={questionnaire.id}>
+              <TableCell>{questionnaire.patients?.full_name}</TableCell>
+              <TableCell>{questionnaire.patients?.email}</TableCell>
+              <TableCell>
+                <Badge
+                  variant={questionnaire.status === "completed" ? "secondary" : "outline"}
+                >
+                  {questionnaire.status === "completed" ? "Respondido" : "Pendente"}
+                </Badge>
+              </TableCell>
+              <TableCell>
+                {questionnaire.sent_at
+                  ? format(new Date(questionnaire.sent_at), "dd/MM/yyyy")
+                  : "-"}
+              </TableCell>
+              <TableCell>
+                {questionnaire.completed_at
+                  ? format(new Date(questionnaire.completed_at), "dd/MM/yyyy")
+                  : "-"}
+              </TableCell>
+              <TableCell className="space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  asChild
+                >
+                  <Link to={`/questionnaires/${questionnaire.id}`}>
+                    <Eye className="w-4 h-4" />
+                  </Link>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleDelete(questionnaire.id)}
+                >
+                  <Trash className="w-4 h-4" />
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 }
