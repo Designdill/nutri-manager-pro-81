@@ -5,8 +5,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SettingsFormValues, settingsFormSchema } from "../types/settings-form";
 import type { UserSettingsTable } from "@/integrations/supabase/types/settings/user-settings";
-import { ThemeSettings } from "@/integrations/supabase/types/settings/theme";
-import { Json } from "@/integrations/supabase/types";
+import { parseThemeSettings } from "@/integrations/supabase/types/settings/theme";
+import { Json } from "@/integrations/supabase/types/database";
 
 export function useSettingsForm() {
   const { session } = useAuth();
@@ -39,25 +39,6 @@ export function useSettingsForm() {
     },
   });
 
-  const defaultTheme: ThemeSettings = {
-    primary: "#0ea5e9",
-    secondary: "#64748b",
-    accent: "#f59e0b",
-  };
-
-  const parseCustomTheme = (jsonTheme: Json | null): ThemeSettings => {
-    if (!jsonTheme || typeof jsonTheme !== 'object') {
-      return defaultTheme;
-    }
-
-    const theme = jsonTheme as Record<string, unknown>;
-    return {
-      primary: String(theme.primary || defaultTheme.primary),
-      secondary: String(theme.secondary || defaultTheme.secondary),
-      accent: String(theme.accent || defaultTheme.accent),
-    };
-  };
-
   const parseEmailFilters = (jsonFilters: Json | null): string[] => {
     if (Array.isArray(jsonFilters)) {
       return jsonFilters.map(filter => String(filter));
@@ -83,7 +64,7 @@ export function useSettingsForm() {
       auto_dark_mode: userSettings?.auto_dark_mode || false,
       dark_mode_start: userSettings?.dark_mode_start || "18:00",
       dark_mode_end: userSettings?.dark_mode_end || "06:00",
-      custom_theme: parseCustomTheme(userSettings?.custom_theme),
+      custom_theme: parseThemeSettings(userSettings?.custom_theme),
       email_notifications: userSettings?.email_notifications || false,
       push_notifications: userSettings?.push_notifications || true,
       notification_preferences: userSettings?.notification_preferences || {
