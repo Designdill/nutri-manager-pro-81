@@ -1,49 +1,35 @@
-import { useEffect, useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 export function useGoogleCalendar() {
-  const [isGoogleCalendarConnected, setIsGoogleCalendarConnected] = useState(false);
-  const { toast } = useToast();
-
-  useEffect(() => {
-    checkGoogleCalendarConnection();
-  }, []);
-
-  const checkGoogleCalendarConnection = async () => {
-    try {
-      const { data: settings } = await supabase
+  const { data: settings } = useQuery({
+    queryKey: ["user-settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase
         .from("user_settings")
         .select("google_calendar_connected")
-        .single();
+        .maybeSingle();
 
-      setIsGoogleCalendarConnected(settings?.google_calendar_connected || false);
-    } catch (error) {
-      console.error("Error checking Google Calendar connection:", error);
-    }
-  };
+      if (error) {
+        console.error("Error fetching user settings:", error);
+        return null;
+      }
+
+      return data;
+    },
+  });
 
   const syncWithGoogleCalendar = async () => {
-    try {
-      // Aqui você implementará a lógica de sincronização com o Google Calendar
-      // usando a API do Google Calendar
-      
-      toast({
-        title: "Sincronização com Google Agenda",
-        description: "Suas consultas foram sincronizadas com sucesso!",
-      });
-    } catch (error) {
-      console.error("Error syncing with Google Calendar:", error);
-      toast({
-        title: "Erro na sincronização",
-        description: "Não foi possível sincronizar com o Google Agenda.",
-        variant: "destructive",
-      });
-    }
+    toast({
+      title: "Google Calendar",
+      description: "Sincronização iniciada...",
+    });
+    // Implementation will be added later
   };
 
   return {
-    isGoogleCalendarConnected,
+    isGoogleCalendarConnected: settings?.google_calendar_connected ?? false,
     syncWithGoogleCalendar,
   };
 }

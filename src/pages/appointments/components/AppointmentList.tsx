@@ -15,7 +15,7 @@ interface Appointment {
   };
 }
 
-interface AppointmentListProps {
+export interface AppointmentListProps {
   appointments: Appointment[];
   isLoading: boolean;
   onUpdate: () => void;

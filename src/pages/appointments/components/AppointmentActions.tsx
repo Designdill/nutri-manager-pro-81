@@ -3,7 +3,7 @@ import { useState } from "react";
 import { RescheduleDialog } from "./actions/RescheduleDialog";
 import { CancelDialog } from "./actions/CancelDialog";
 
-interface AppointmentActionsProps {
+export interface AppointmentActionsProps {
   appointment: {
     id: string;
     scheduled_at: string;
