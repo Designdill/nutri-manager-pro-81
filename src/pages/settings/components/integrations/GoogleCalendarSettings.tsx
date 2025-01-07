@@ -52,13 +52,8 @@ export function GoogleCalendarSettings() {
     },
     enabled: !!session?.user?.id,
     retry: 1,
-    onError: (error) => {
-      console.error("Query error:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível carregar as configurações do Google Calendar",
-        variant: "destructive",
-      });
+    meta: {
+      errorMessage: "Não foi possível carregar as configurações do Google Calendar"
     }
   });
 
@@ -78,11 +73,26 @@ export function GoogleCalendarSettings() {
       
       const { error } = await supabase
         .from("user_settings")
-        .upsert(settingsData)
-        .onConflict('user_id')
-        .merge();
+        .insert({
+          user_id: settingsData.user_id,
+          google_calendar_connected: settingsData.google_calendar_connected
+        })
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (error && error.code === '23505') { // Unique violation error code
+        // If record exists, update it
+        const { error: updateError } = await supabase
+          .from("user_settings")
+          .update({ google_calendar_connected: true })
+          .eq('user_id', settingsData.user_id)
+          .select()
+          .single();
+          
+        if (updateError) throw updateError;
+      } else if (error) {
+        throw error;
+      }
 
       queryClient.invalidateQueries({ queryKey: ["user-settings"] });
       
@@ -124,9 +134,10 @@ export function GoogleCalendarSettings() {
 
       const { error } = await supabase
         .from("user_settings")
-        .upsert(settingsData)
-        .onConflict('user_id')
-        .merge();
+        .update({ google_calendar_connected: false })
+        .eq('user_id', settingsData.user_id)
+        .select()
+        .single();
 
       if (error) throw error;
 
