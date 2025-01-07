@@ -84,7 +84,7 @@ export function useSettingsForm() {
       auto_dark_mode: userSettings?.auto_dark_mode || false,
       dark_mode_start: userSettings?.dark_mode_start || "18:00",
       dark_mode_end: userSettings?.dark_mode_end || "06:00",
-      custom_theme: parseThemeSettings(userSettings?.custom_theme),
+      custom_theme: parseThemeSettings(userSettings?.custom_theme as Json),
       email_notifications: userSettings?.email_notifications || false,
       push_notifications: userSettings?.push_notifications || true,
       notification_preferences: userSettings?.notification_preferences as {
@@ -105,17 +105,21 @@ export function useSettingsForm() {
       recipe_planning_connected: userSettings?.recipe_planning_connected || false,
       account_active: userSettings?.account_active || true,
       auto_backup: userSettings?.auto_backup || false,
-      backup_frequency: userSettings?.backup_frequency || "weekly",
+      backup_frequency: (userSettings?.backup_frequency as "daily" | "weekly" | "monthly") || "weekly",
       cloud_storage_provider: userSettings?.cloud_storage_provider || "",
-      cloud_storage_settings: userSettings?.cloud_storage_settings || undefined,
+      cloud_storage_settings: (userSettings?.cloud_storage_settings as {
+        provider?: string;
+        credentials?: { [key: string]: string };
+        bucket?: string;
+      }) || undefined,
       appointment_reminder_emails: userSettings?.appointment_reminder_emails || true,
       progress_report_emails: userSettings?.progress_report_emails || true,
       newsletter_emails: userSettings?.newsletter_emails || true,
-      email_frequency: userSettings?.email_frequency || "weekly",
+      email_frequency: (userSettings?.email_frequency as "daily" | "weekly" | "monthly") || "weekly",
       appointment_reminder_template: userSettings?.appointment_reminder_template || "",
       progress_report_template: userSettings?.progress_report_template || "",
       usda_fooddata_api_key: userSettings?.usda_fooddata_api_key || "",
-      email_service: userSettings?.email_service || "smtp",
+      email_service: (userSettings?.email_service as "resend" | "smtp") || "smtp",
       resend_api_key: userSettings?.resend_api_key || "",
       smtp_host: userSettings?.smtp_host || "",
       smtp_port: userSettings?.smtp_port || "",
