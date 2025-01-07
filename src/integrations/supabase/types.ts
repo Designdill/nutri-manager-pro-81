@@ -9,33 +9,92 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      appointment_changes: {
+        Row: {
+          appointment_id: string | null
+          change_type: string
+          changed_by: string | null
+          created_at: string | null
+          id: string
+          new_time: string | null
+          previous_time: string | null
+          reason: string | null
+        }
+        Insert: {
+          appointment_id?: string | null
+          change_type: string
+          changed_by?: string | null
+          created_at?: string | null
+          id?: string
+          new_time?: string | null
+          previous_time?: string | null
+          reason?: string | null
+        }
+        Update: {
+          appointment_id?: string | null
+          change_type?: string
+          changed_by?: string | null
+          created_at?: string | null
+          id?: string
+          new_time?: string | null
+          previous_time?: string | null
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointment_changes_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       appointments: {
         Row: {
+          cancellation_policy_accepted: boolean | null
+          cancellation_reason: string | null
+          cancellation_time: string | null
           created_at: string
+          feedback: string | null
           id: string
+          last_reminder_sent: string | null
           notes: string | null
           nutritionist_id: string
           patient_id: string
+          previous_scheduled_at: string | null
           scheduled_at: string
           status: Database["public"]["Enums"]["appointment_status"]
           updated_at: string
         }
         Insert: {
+          cancellation_policy_accepted?: boolean | null
+          cancellation_reason?: string | null
+          cancellation_time?: string | null
           created_at?: string
+          feedback?: string | null
           id?: string
+          last_reminder_sent?: string | null
           notes?: string | null
           nutritionist_id: string
           patient_id: string
+          previous_scheduled_at?: string | null
           scheduled_at: string
           status?: Database["public"]["Enums"]["appointment_status"]
           updated_at?: string
         }
         Update: {
+          cancellation_policy_accepted?: boolean | null
+          cancellation_reason?: string | null
+          cancellation_time?: string | null
           created_at?: string
+          feedback?: string | null
           id?: string
+          last_reminder_sent?: string | null
           notes?: string | null
           nutritionist_id?: string
           patient_id?: string
+          previous_scheduled_at?: string | null
           scheduled_at?: string
           status?: Database["public"]["Enums"]["appointment_status"]
           updated_at?: string

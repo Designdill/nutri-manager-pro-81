@@ -4,32 +4,15 @@ import { ptBR } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/components/ui/use-toast";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Calendar as CalendarIcon, Clock, User } from "lucide-react";
+import { Calendar as CalendarIcon } from "lucide-react";
 import { AppointmentList } from "./components/AppointmentList";
 import { CreateAppointmentDialog } from "./components/CreateAppointmentDialog";
 import { useGoogleCalendar } from "./hooks/useGoogleCalendar";
 
 export default function AppointmentsPage() {
   const [date, setDate] = useState<Date | undefined>(new Date());
-  const { toast } = useToast();
   const queryClient = useQueryClient();
   const { syncWithGoogleCalendar, isGoogleCalendarConnected } = useGoogleCalendar();
 
@@ -56,6 +39,10 @@ export default function AppointmentsPage() {
     },
   });
 
+  const handleAppointmentUpdate = () => {
+    queryClient.invalidateQueries({ queryKey: ["appointments"] });
+  };
+
   // Filter appointments for the selected date
   const todaysAppointments = appointments.filter((appointment) => {
     const appointmentDate = new Date(appointment.scheduled_at);
@@ -80,7 +67,7 @@ export default function AppointmentsPage() {
                 Sincronizar com Google Agenda
               </Button>
             )}
-            <CreateAppointmentDialog />
+            <CreateAppointmentDialog onSuccess={handleAppointmentUpdate} />
           </div>
         </div>
 
@@ -102,7 +89,8 @@ export default function AppointmentsPage() {
             </h2>
             <AppointmentList 
               appointments={todaysAppointments} 
-              isLoading={isLoadingAppointments} 
+              isLoading={isLoadingAppointments}
+              onUpdate={handleAppointmentUpdate}
             />
           </div>
         </div>
