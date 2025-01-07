@@ -14,28 +14,44 @@ export function GoogleCalendarSettings() {
   const { data: settings } = useQuery({
     queryKey: ["user-settings"],
     queryFn: async () => {
+      console.log("Fetching settings for user:", session?.user?.id);
+      
       const { data, error } = await supabase
         .from("user_settings")
         .select("google_calendar_connected")
         .eq("user_id", session?.user?.id)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Error fetching user settings:", error);
         return null;
       }
 
+      console.log("Fetched settings:", data);
+      
+      // Se não houver configurações, retorna valores padrão
+      if (!data) {
+        console.log("No settings found, using defaults");
+        return {
+          google_calendar_connected: false
+        };
+      }
+
       return data;
     },
+    enabled: !!session?.user?.id,
   });
 
   const handleConnect = async () => {
     try {
-      // Here we'll implement the Google OAuth flow
-      // For now, we'll just toggle the setting
+      console.log("Connecting Google Calendar for user:", session?.user?.id);
+      
       const { error } = await supabase
         .from("user_settings")
-        .update({ google_calendar_connected: true })
+        .upsert({ 
+          user_id: session?.user?.id,
+          google_calendar_connected: true 
+        })
         .eq("user_id", session?.user?.id);
 
       if (error) throw error;
@@ -58,9 +74,14 @@ export function GoogleCalendarSettings() {
 
   const handleDisconnect = async () => {
     try {
+      console.log("Disconnecting Google Calendar for user:", session?.user?.id);
+      
       const { error } = await supabase
         .from("user_settings")
-        .update({ google_calendar_connected: false })
+        .upsert({ 
+          user_id: session?.user?.id,
+          google_calendar_connected: false 
+        })
         .eq("user_id", session?.user?.id);
 
       if (error) throw error;
