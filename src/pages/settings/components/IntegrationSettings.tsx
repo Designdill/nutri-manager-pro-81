@@ -6,6 +6,7 @@ import { SettingsFormValues } from "../types";
 import { NutritionalAPIs } from "./integrations/NutritionalAPIs";
 import { HealthApps } from "./integrations/HealthApps";
 import { MealSystems } from "./integrations/MealSystems";
+import { GoogleCalendarSettings } from "./integrations/GoogleCalendarSettings";
 
 interface IntegrationSettingsProps {
   form: UseFormReturn<SettingsFormValues>;
@@ -33,6 +34,7 @@ export function IntegrationSettings({ form }: IntegrationSettingsProps) {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
+        <GoogleCalendarSettings />
         <NutritionalAPIs form={form} />
         <HealthApps form={form} />
         <MealSystems form={form} />
