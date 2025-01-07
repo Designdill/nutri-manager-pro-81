@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
 
-interface CreateAppointmentDialogProps {
+export interface CreateAppointmentDialogProps {
   onUpdate: () => void;
 }
 
