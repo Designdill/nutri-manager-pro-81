@@ -2,6 +2,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Clock, User } from "lucide-react";
 import { AppointmentActions } from "./AppointmentActions";
+import { cn } from "@/lib/utils";
 
 interface Appointment {
   id: string;
@@ -22,12 +23,18 @@ interface AppointmentListProps {
 
 export function AppointmentList({ appointments, isLoading, onUpdate }: AppointmentListProps) {
   if (isLoading) {
-    return <p>Carregando consultas...</p>;
+    return (
+      <div className="space-y-4 animate-pulse">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-24 bg-gray-100 rounded-lg" />
+        ))}
+      </div>
+    );
   }
 
   if (appointments.length === 0) {
     return (
-      <p className="text-muted-foreground">
+      <p className="text-muted-foreground text-center py-8">
         Nenhuma consulta agendada para este dia.
       </p>
     );
@@ -38,7 +45,11 @@ export function AppointmentList({ appointments, isLoading, onUpdate }: Appointme
       {appointments.map((appointment) => (
         <div
           key={appointment.id}
-          className="flex items-center justify-between p-4 rounded-lg border"
+          className={cn(
+            "flex items-center justify-between p-4 rounded-lg border transition-all",
+            "hover:shadow-md animate-in fade-in-50",
+            appointment.status === "cancelled" && "opacity-50 bg-gray-50"
+          )}
         >
           <div className="flex items-center space-x-4">
             <User className="h-5 w-5 text-muted-foreground" />
@@ -54,13 +65,14 @@ export function AppointmentList({ appointments, isLoading, onUpdate }: Appointme
           </div>
           <div className="flex items-center space-x-4">
             <div
-              className={`px-2 py-1 rounded-full text-xs font-medium ${
+              className={cn(
+                "px-2 py-1 rounded-full text-xs font-medium",
                 appointment.status === "confirmed"
                   ? "bg-green-100 text-green-800"
                   : appointment.status === "cancelled"
                   ? "bg-red-100 text-red-800"
                   : "bg-yellow-100 text-yellow-800"
-              }`}
+              )}
             >
               {appointment.status === "confirmed"
                 ? "Confirmado"

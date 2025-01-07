@@ -67,7 +67,7 @@ export default function AppointmentsPage() {
                 Sincronizar com Google Agenda
               </Button>
             )}
-            <CreateAppointmentDialog onSuccess={handleAppointmentUpdate} />
+            <CreateAppointmentDialog onUpdate={handleAppointmentUpdate} />
           </div>
         </div>
 
@@ -78,7 +78,7 @@ export default function AppointmentsPage() {
               selected={date}
               onSelect={setDate}
               locale={ptBR}
-              className="rounded-md border shadow"
+              className="rounded-md border shadow animate-in fade-in-50"
             />
           </div>
 
