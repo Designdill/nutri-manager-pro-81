@@ -21,8 +21,26 @@ export function useSettingsForm() {
         .maybeSingle();
 
       if (error) throw error;
-      return data as UserSettingsTable["Row"] | null;
+      
+      // If no settings exist, return default values
+      if (!data) {
+        return {
+          user_id: session?.user?.id,
+          theme: "system" as const,
+          language: "pt-BR" as const,
+          email_notifications: true,
+          custom_theme: {
+            primary: "#0ea5e9",
+            secondary: "#64748b",
+            accent: "#f59e0b"
+          },
+          // ... other default values
+        } as UserSettingsTable["Row"];
+      }
+
+      return data;
     },
+    enabled: !!session?.user?.id,
   });
 
   const { data: profile } = useQuery({
@@ -37,9 +55,11 @@ export function useSettingsForm() {
       if (error) throw error;
       return data;
     },
+    enabled: !!session?.user?.id,
   });
 
   const parseEmailFilters = (jsonFilters: Json | null): string[] => {
+    if (!jsonFilters) return [];
     if (Array.isArray(jsonFilters)) {
       return jsonFilters.map(filter => String(filter));
     }
@@ -95,6 +115,13 @@ export function useSettingsForm() {
       appointment_reminder_template: userSettings?.appointment_reminder_template || "",
       progress_report_template: userSettings?.progress_report_template || "",
       usda_fooddata_api_key: userSettings?.usda_fooddata_api_key || "",
+      email_service: userSettings?.email_service || "smtp",
+      resend_api_key: userSettings?.resend_api_key || "",
+      smtp_host: userSettings?.smtp_host || "",
+      smtp_port: userSettings?.smtp_port || "",
+      smtp_user: userSettings?.smtp_user || "",
+      smtp_password: userSettings?.smtp_password || "",
+      smtp_secure: userSettings?.smtp_secure ?? true,
     },
   });
 
