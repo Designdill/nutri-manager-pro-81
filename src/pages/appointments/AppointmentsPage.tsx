@@ -29,7 +29,9 @@ export default function AppointmentsPage() {
           status,
           notes,
           patients (
-            full_name
+            id,
+            full_name,
+            phone
           )
         `)
         .order("scheduled_at");

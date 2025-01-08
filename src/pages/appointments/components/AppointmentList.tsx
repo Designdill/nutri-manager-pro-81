@@ -5,9 +5,22 @@ import { ptBR } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AppointmentActions } from "./AppointmentActions";
 
-export function AppointmentList() {
-  const { data: appointments, isLoading, error } = useRealtimeAppointments();
+interface AppointmentListProps {
+  appointments: Array<{
+    id: string;
+    scheduled_at: string;
+    status: "confirmed" | "pending" | "cancelled";
+    patients: {
+      id: string;
+      full_name: string;
+      phone: string;
+    };
+  }>;
+  isLoading: boolean;
+  onUpdate: () => void;
+}
 
+export function AppointmentList({ appointments, isLoading, onUpdate }: AppointmentListProps) {
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -15,18 +28,6 @@ export function AppointmentList() {
           <Skeleton key={i} className="h-24 w-full" />
         ))}
       </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <Card>
-        <CardContent className="p-6">
-          <p className="text-destructive">
-            Erro ao carregar consultas. Por favor, tente novamente.
-          </p>
-        </CardContent>
-      </Card>
     );
   }
 
@@ -66,7 +67,10 @@ export function AppointmentList() {
                   Status: {appointment.status}
                 </p>
               </div>
-              <AppointmentActions appointment={appointment} />
+              <AppointmentActions 
+                appointment={appointment} 
+                onUpdate={onUpdate}
+              />
             </div>
           </CardContent>
         </Card>
