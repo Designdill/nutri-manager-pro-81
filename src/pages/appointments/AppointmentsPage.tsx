@@ -4,57 +4,21 @@ import { ptBR } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { AppointmentList } from "./components/AppointmentList";
 import { CreateAppointmentDialog } from "./components/CreateAppointmentDialog";
 import { useGoogleCalendar } from "./hooks/useGoogleCalendar";
+import { useRealtimeAppointments } from "@/hooks/use-realtime-appointments";
 
 export default function AppointmentsPage() {
-  const [date, setDate] = useState<Date | undefined>(new Date());
-  const queryClient = useQueryClient();
+  const [date, setDate] = useState<Date>(new Date());
   const { syncWithGoogleCalendar, isGoogleCalendarConnected } = useGoogleCalendar();
-
-  // Fetch appointments
-  const { data: appointments = [], isLoading: isLoadingAppointments } = useQuery({
-    queryKey: ["appointments"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("appointments")
-        .select(`
-          id,
-          patient_id,
-          scheduled_at,
-          status,
-          notes,
-          patients (
-            id,
-            full_name,
-            phone
-          )
-        `)
-        .order("scheduled_at");
-
-      if (error) throw error;
-      return data;
-    },
-  });
+  const { data: appointments = [], isLoading, error, refetch } = useRealtimeAppointments(date);
 
   const handleAppointmentUpdate = () => {
-    queryClient.invalidateQueries({ queryKey: ["appointments"] });
+    console.log("Manually refreshing appointments after update");
+    refetch();
   };
-
-  // Filter appointments for the selected date
-  const todaysAppointments = appointments.filter((appointment) => {
-    const appointmentDate = new Date(appointment.scheduled_at);
-    return (
-      date &&
-      appointmentDate.getDate() === date.getDate() &&
-      appointmentDate.getMonth() === date.getMonth() &&
-      appointmentDate.getFullYear() === date.getFullYear()
-    );
-  });
 
   return (
     <div className="flex min-h-screen">
@@ -78,7 +42,7 @@ export default function AppointmentsPage() {
             <Calendar
               mode="single"
               selected={date}
-              onSelect={setDate}
+              onSelect={(newDate) => newDate && setDate(newDate)}
               locale={ptBR}
               className="rounded-md border shadow animate-in fade-in-50"
             />
@@ -86,12 +50,12 @@ export default function AppointmentsPage() {
 
           <div>
             <h2 className="text-lg font-semibold mb-4">
-              Consultas do dia{" "}
-              {date && format(date, "dd 'de' MMMM", { locale: ptBR })}
+              Consultas do dia {format(date, "dd 'de' MMMM", { locale: ptBR })}
             </h2>
             <AppointmentList 
-              appointments={todaysAppointments} 
-              isLoading={isLoadingAppointments}
+              appointments={appointments}
+              isLoading={isLoading}
+              error={error as Error}
               onUpdate={handleAppointmentUpdate}
             />
           </div>

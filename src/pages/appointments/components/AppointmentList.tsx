@@ -1,9 +1,8 @@
-import { useRealtimeAppointments } from "@/hooks/use-realtime-appointments";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AppointmentActions } from "./AppointmentActions";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 interface AppointmentListProps {
   appointments: Array<{
@@ -17,13 +16,19 @@ interface AppointmentListProps {
     };
   }>;
   isLoading: boolean;
+  error?: Error | null;
   onUpdate: () => void;
 }
 
-export function AppointmentList({ appointments, isLoading, onUpdate }: AppointmentListProps) {
+export function AppointmentList({ 
+  appointments = [], 
+  isLoading, 
+  error,
+  onUpdate 
+}: AppointmentListProps) {
   if (isLoading) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-4" aria-busy="true" role="progressbar">
         {[1, 2, 3].map((i) => (
           <Skeleton key={i} className="h-24 w-full" />
         ))}
@@ -31,7 +36,22 @@ export function AppointmentList({ appointments, isLoading, onUpdate }: Appointme
     );
   }
 
-  if (!appointments?.length) {
+  if (error) {
+    return (
+      <Card className="border-destructive">
+        <CardContent className="p-6">
+          <p className="text-destructive font-medium">
+            Erro ao carregar consultas
+          </p>
+          <p className="text-sm text-muted-foreground mt-1">
+            {error.message || "Por favor, tente novamente mais tarde."}
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!appointments.length) {
     return (
       <Card>
         <CardContent className="p-6">
@@ -47,19 +67,13 @@ export function AppointmentList({ appointments, isLoading, onUpdate }: Appointme
     <div className="space-y-4">
       {appointments.map((appointment) => (
         <Card key={appointment.id}>
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>{appointment.patients?.full_name}</span>
-              <span className="text-sm font-normal text-muted-foreground">
-                {format(new Date(appointment.scheduled_at), "HH:mm", {
-                  locale: ptBR,
-                })}
-              </span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+          <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
+                <h3 className="font-medium">{appointment.patients?.full_name}</h3>
+                <p className="text-sm text-muted-foreground">
+                  Horário: {format(new Date(appointment.scheduled_at), "HH:mm", { locale: ptBR })}
+                </p>
                 <p className="text-sm text-muted-foreground">
                   Telefone: {appointment.patients?.phone || "Não informado"}
                 </p>
