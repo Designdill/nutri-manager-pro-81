@@ -16,10 +16,14 @@ import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
+import { Database } from "@/integrations/supabase/types";
+
+type QuestionnaireStatus = Database["public"]["Enums"]["questionnaire_status"];
+type StatusFilter = QuestionnaireStatus | "all";
 
 export function QuestionnairesList() {
   const { toast } = useToast();
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
 
   const { data: questionnaires, isLoading } = useQuery({
     queryKey: ["questionnaires", statusFilter],
@@ -75,7 +79,7 @@ export function QuestionnairesList() {
       <div className="flex justify-end">
         <Select
           value={statusFilter}
-          onValueChange={(value) => setStatusFilter(value)}
+          onValueChange={(value: StatusFilter) => setStatusFilter(value)}
         >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Filtrar por status" />
