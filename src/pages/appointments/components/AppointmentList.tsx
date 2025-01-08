@@ -1,91 +1,75 @@
+import { useRealtimeAppointments } from "@/hooks/use-realtime-appointments";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Clock, User } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { AppointmentActions } from "./AppointmentActions";
-import { cn } from "@/lib/utils";
 
-interface Appointment {
-  id: string;
-  patient_id: string;
-  scheduled_at: string;
-  status: "confirmed" | "pending" | "cancelled";
-  notes: string | null;
-  patients: {
-    full_name: string;
-  };
-}
+export function AppointmentList() {
+  const { data: appointments, isLoading, error } = useRealtimeAppointments();
 
-export interface AppointmentListProps {
-  appointments: Appointment[];
-  isLoading: boolean;
-  onUpdate: () => void;
-}
-
-export function AppointmentList({ appointments, isLoading, onUpdate }: AppointmentListProps) {
   if (isLoading) {
     return (
-      <div className="space-y-4 animate-pulse">
+      <div className="space-y-4">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-24 bg-gray-100 rounded-lg" />
+          <Skeleton key={i} className="h-24 w-full" />
         ))}
       </div>
     );
   }
 
-  if (appointments.length === 0) {
+  if (error) {
     return (
-      <p className="text-muted-foreground text-center py-8">
-        Nenhuma consulta agendada para este dia.
-      </p>
+      <Card>
+        <CardContent className="p-6">
+          <p className="text-destructive">
+            Erro ao carregar consultas. Por favor, tente novamente.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!appointments?.length) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <p className="text-muted-foreground">
+            Nenhuma consulta encontrada para hoje.
+          </p>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
     <div className="space-y-4">
       {appointments.map((appointment) => (
-        <div
-          key={appointment.id}
-          className={cn(
-            "flex items-center justify-between p-4 rounded-lg border transition-all",
-            "hover:shadow-md animate-in fade-in-50",
-            appointment.status === "cancelled" && "opacity-50 bg-gray-50"
-          )}
-        >
-          <div className="flex items-center space-x-4">
-            <User className="h-5 w-5 text-muted-foreground" />
-            <div>
-              <p className="font-medium">{appointment.patients.full_name}</p>
-              <div className="flex items-center text-sm text-muted-foreground">
-                <Clock className="mr-2 h-4 w-4" />
+        <Card key={appointment.id}>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span>{appointment.patients?.full_name}</span>
+              <span className="text-sm font-normal text-muted-foreground">
                 {format(new Date(appointment.scheduled_at), "HH:mm", {
                   locale: ptBR,
                 })}
+              </span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">
+                  Telefone: {appointment.patients?.phone || "Não informado"}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Status: {appointment.status}
+                </p>
               </div>
+              <AppointmentActions appointment={appointment} />
             </div>
-          </div>
-          <div className="flex items-center space-x-4">
-            <div
-              className={cn(
-                "px-2 py-1 rounded-full text-xs font-medium",
-                appointment.status === "confirmed"
-                  ? "bg-green-100 text-green-800"
-                  : appointment.status === "cancelled"
-                  ? "bg-red-100 text-red-800"
-                  : "bg-yellow-100 text-yellow-800"
-              )}
-            >
-              {appointment.status === "confirmed"
-                ? "Confirmado"
-                : appointment.status === "cancelled"
-                ? "Cancelado"
-                : "Pendente"}
-            </div>
-            <AppointmentActions 
-              appointment={appointment} 
-              onUpdate={onUpdate}
-            />
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       ))}
     </div>
   );
