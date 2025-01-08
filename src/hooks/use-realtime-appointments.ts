@@ -50,7 +50,7 @@ export function useRealtimeAppointments(date?: Date) {
       }
     },
     staleTime: 1000 * 60 * 5, // Data considered fresh for 5 minutes
-    cacheTime: 1000 * 60 * 30, // Cache persists for 30 minutes
+    gcTime: 1000 * 60 * 30, // Cache persists for 30 minutes (renamed from cacheTime)
     retry: 3, // Retry failed requests 3 times
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
   });
