@@ -28,12 +28,16 @@ export function PersonalInfoForm({ form }: PersonalInfoFormProps) {
         />
         <FormField
           control={form.control}
-          name="cpf"
+          name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>CPF</FormLabel>
+              <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="000.000.000-00" {...field} />
+                <Input 
+                  type="email" 
+                  placeholder="email@exemplo.com" 
+                  {...field} 
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -41,12 +45,12 @@ export function PersonalInfoForm({ form }: PersonalInfoFormProps) {
         />
         <FormField
           control={form.control}
-          name="email"
+          name="cpf"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>CPF</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="email@exemplo.com" {...field} />
+                <Input placeholder="000.000.000-00" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
