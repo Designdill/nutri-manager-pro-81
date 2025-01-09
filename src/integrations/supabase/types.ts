@@ -116,6 +116,39 @@ export type Database = {
           },
         ]
       }
+      backup_history: {
+        Row: {
+          backup_time: string | null
+          created_at: string | null
+          error_message: string | null
+          file_path: string | null
+          file_size: number | null
+          id: string
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          backup_time?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          id?: string
+          status: string
+          user_id?: string | null
+        }
+        Update: {
+          backup_time?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          id?: string
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       compound_formulas: {
         Row: {
           created_at: string | null
@@ -830,6 +863,8 @@ export type Database = {
           auto_backup: boolean | null
           auto_dark_mode: boolean | null
           backup_frequency: string | null
+          backup_retention_days: number | null
+          backup_schedule: string | null
           cloud_storage_provider: string | null
           cloud_storage_settings: Json | null
           created_at: string
@@ -843,8 +878,10 @@ export type Database = {
           email_signature: string | null
           google_calendar_connected: boolean | null
           language: string | null
+          last_backup_at: string | null
           meal_delivery_connected: boolean | null
           newsletter_emails: boolean | null
+          next_backup_at: string | null
           notification_preferences: Json | null
           open_food_facts_api_key: string | null
           progress_report_emails: boolean | null
@@ -872,6 +909,8 @@ export type Database = {
           auto_backup?: boolean | null
           auto_dark_mode?: boolean | null
           backup_frequency?: string | null
+          backup_retention_days?: number | null
+          backup_schedule?: string | null
           cloud_storage_provider?: string | null
           cloud_storage_settings?: Json | null
           created_at?: string
@@ -885,8 +924,10 @@ export type Database = {
           email_signature?: string | null
           google_calendar_connected?: boolean | null
           language?: string | null
+          last_backup_at?: string | null
           meal_delivery_connected?: boolean | null
           newsletter_emails?: boolean | null
+          next_backup_at?: string | null
           notification_preferences?: Json | null
           open_food_facts_api_key?: string | null
           progress_report_emails?: boolean | null
@@ -914,6 +955,8 @@ export type Database = {
           auto_backup?: boolean | null
           auto_dark_mode?: boolean | null
           backup_frequency?: string | null
+          backup_retention_days?: number | null
+          backup_schedule?: string | null
           cloud_storage_provider?: string | null
           cloud_storage_settings?: Json | null
           created_at?: string
@@ -927,8 +970,10 @@ export type Database = {
           email_signature?: string | null
           google_calendar_connected?: boolean | null
           language?: string | null
+          last_backup_at?: string | null
           meal_delivery_connected?: boolean | null
           newsletter_emails?: boolean | null
+          next_backup_at?: string | null
           notification_preferences?: Json | null
           open_food_facts_api_key?: string | null
           progress_report_emails?: boolean | null
@@ -954,7 +999,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      calculate_next_backup_time: {
+        Args: {
+          schedule: string
+          last_backup: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       appointment_status: "confirmed" | "pending" | "cancelled"
