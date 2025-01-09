@@ -8,6 +8,14 @@ import { SettingsForm } from "./components/SettingsForm";
 import { useSettingsForm } from "./hooks/useSettingsForm";
 import { SettingsFormValues } from "./types";
 import { useAuth } from "@/App";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ProfileSettings } from "./components/ProfileSettings";
+import { AppearanceSettings } from "./components/AppearanceSettings";
+import { NotificationSettings } from "./components/NotificationSettings";
+import { EmailSettings } from "./components/EmailSettings";
+import { IntegrationSettings } from "./components/IntegrationSettings";
+import { AccountSettings } from "./components/AccountSettings";
+import { BackupSettings } from "./components/BackupSettings";
 
 export default function SettingsPage() {
   const { toast } = useToast();
@@ -166,12 +174,55 @@ export default function SettingsPage() {
       <div className="flex-1 space-y-8 p-8">
         <SettingsHeader onReset={resetSettings} resetForm={form.reset} />
         <SearchBar onSearch={filterComponents} />
-        <SettingsForm
-          form={form}
-          onSubmit={onSubmit}
-          isLoading={isLoading}
-          searchQuery={searchQuery}
-        />
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <Tabs defaultValue="profile" className="w-full">
+              <TabsList className="grid w-full grid-cols-7">
+                <TabsTrigger value="profile">Perfil</TabsTrigger>
+                <TabsTrigger value="appearance">Aparência</TabsTrigger>
+                <TabsTrigger value="notifications">Notificações</TabsTrigger>
+                <TabsTrigger value="email">Email</TabsTrigger>
+                <TabsTrigger value="integrations">Integrações</TabsTrigger>
+                <TabsTrigger value="account">Conta</TabsTrigger>
+                <TabsTrigger value="backup">Backup</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="profile">
+                <ProfileSettings form={form} />
+              </TabsContent>
+
+              <TabsContent value="appearance">
+                <AppearanceSettings form={form} />
+              </TabsContent>
+
+              <TabsContent value="notifications">
+                <NotificationSettings form={form} />
+              </TabsContent>
+
+              <TabsContent value="email">
+                <EmailSettings form={form} />
+              </TabsContent>
+
+              <TabsContent value="integrations">
+                <IntegrationSettings form={form} />
+              </TabsContent>
+
+              <TabsContent value="account">
+                <AccountSettings form={form} />
+              </TabsContent>
+
+              <TabsContent value="backup">
+                <BackupSettings />
+              </TabsContent>
+            </Tabs>
+
+            <div className="flex justify-end">
+              <Button type="submit" disabled={isLoading}>
+                Salvar Alterações
+              </Button>
+            </div>
+          </form>
+        </Form>
       </div>
     </div>
   );
