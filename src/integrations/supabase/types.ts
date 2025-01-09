@@ -124,7 +124,7 @@ export type Database = {
           file_path: string | null
           file_size: number | null
           id: string
-          status: string
+          status: Database["public"]["Enums"]["backup_status"]
           user_id: string | null
         }
         Insert: {
@@ -134,7 +134,7 @@ export type Database = {
           file_path?: string | null
           file_size?: number | null
           id?: string
-          status: string
+          status: Database["public"]["Enums"]["backup_status"]
           user_id?: string | null
         }
         Update: {
@@ -144,7 +144,7 @@ export type Database = {
           file_path?: string | null
           file_size?: number | null
           id?: string
-          status?: string
+          status?: Database["public"]["Enums"]["backup_status"]
           user_id?: string | null
         }
         Relationships: []
@@ -1009,6 +1009,7 @@ export type Database = {
     }
     Enums: {
       appointment_status: "confirmed" | "pending" | "cancelled"
+      backup_status: "success" | "failed" | "in_progress"
       dietary_type: "omnivoro" | "vegetariano" | "vegano" | "outro"
       exam_status: "normal" | "above_reference" | "below_reference"
       notification_type:
