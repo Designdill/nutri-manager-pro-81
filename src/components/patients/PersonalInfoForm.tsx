@@ -3,12 +3,21 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UseFormReturn } from "react-hook-form";
 import { PatientFormValues } from "./types";
+import { cn } from "@/lib/utils";
 
 interface PersonalInfoFormProps {
   form: UseFormReturn<PatientFormValues>;
 }
 
 export function PersonalInfoForm({ form }: PersonalInfoFormProps) {
+  const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+  
+  const validateEmail = (value: string) => {
+    if (!value) return "Email é obrigatório";
+    if (!emailRegex.test(value)) return "Por favor, insira um email válido";
+    return true;
+  };
+
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-medium">Informações Pessoais</h3>
@@ -29,14 +38,25 @@ export function PersonalInfoForm({ form }: PersonalInfoFormProps) {
         <FormField
           control={form.control}
           name="email"
-          render={({ field }) => (
+          render={({ field, fieldState }) => (
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
                 <Input 
                   type="email" 
                   placeholder="email@exemplo.com" 
+                  className={cn(
+                    fieldState.error && "border-red-500 focus-visible:ring-red-500",
+                    fieldState.isDirty && !fieldState.error && "border-green-500 focus-visible:ring-green-500"
+                  )}
                   {...field} 
+                  onBlur={(e) => {
+                    field.onBlur();
+                    const validationResult = validateEmail(e.target.value);
+                    if (validationResult !== true) {
+                      form.setError("email", { message: validationResult });
+                    }
+                  }}
                 />
               </FormControl>
               <FormMessage />
