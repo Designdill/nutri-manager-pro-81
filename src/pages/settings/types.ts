@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const settingsFormSchema = z.object({
   full_name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
+  email: z.string().email("Por favor, insira um email válido"),
   phone: z.string().optional(),
   address_street: z.string().optional(),
   address_number: z.string().optional(),

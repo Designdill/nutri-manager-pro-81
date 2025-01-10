@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { HelpCircle } from "lucide-react";
@@ -13,14 +13,6 @@ interface ProfileSettingsProps {
 }
 
 export function ProfileSettings({ form }: ProfileSettingsProps) {
-  const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-  
-  const validateEmail = (value: string) => {
-    if (!value) return "Email é obrigatório";
-    if (!emailRegex.test(value)) return "Por favor, insira um email válido";
-    return true;
-  };
-
   return (
     <Card>
       <CardHeader>
@@ -54,6 +46,7 @@ export function ProfileSettings({ form }: ProfileSettingsProps) {
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -61,24 +54,17 @@ export function ProfileSettings({ form }: ProfileSettingsProps) {
           <FormField
             control={form.control}
             name="email"
-            render={({ field, fieldState }) => (
+            render={({ field }) => (
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
                   <Input 
                     type="email" 
-                    placeholder="email@exemplo.com" 
-                    className={fieldState.error ? "border-red-500" : fieldState.isDirty ? "border-green-500" : ""}
-                    {...field} 
-                    onBlur={(e) => {
-                      field.onBlur();
-                      const validationResult = validateEmail(e.target.value);
-                      if (validationResult !== true) {
-                        form.setError("email", { message: validationResult });
-                      }
-                    }}
+                    placeholder="email@exemplo.com"
+                    {...field}
                   />
                 </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -92,6 +78,7 @@ export function ProfileSettings({ form }: ProfileSettingsProps) {
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
