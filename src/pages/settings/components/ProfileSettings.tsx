@@ -13,6 +13,14 @@ interface ProfileSettingsProps {
 }
 
 export function ProfileSettings({ form }: ProfileSettingsProps) {
+  const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+  
+  const validateEmail = (value: string) => {
+    if (!value) return "Email é obrigatório";
+    if (!emailRegex.test(value)) return "Por favor, insira um email válido";
+    return true;
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -45,6 +53,31 @@ export function ProfileSettings({ form }: ProfileSettingsProps) {
                 <FormLabel>Nome Completo</FormLabel>
                 <FormControl>
                   <Input {...field} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field, fieldState }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="email" 
+                    placeholder="email@exemplo.com" 
+                    className={fieldState.error ? "border-red-500" : fieldState.isDirty ? "border-green-500" : ""}
+                    {...field} 
+                    onBlur={(e) => {
+                      field.onBlur();
+                      const validationResult = validateEmail(e.target.value);
+                      if (validationResult !== true) {
+                        form.setError("email", { message: validationResult });
+                      }
+                    }}
+                  />
                 </FormControl>
               </FormItem>
             )}
