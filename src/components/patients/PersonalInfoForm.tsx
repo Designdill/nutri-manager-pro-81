@@ -1,26 +1,32 @@
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UseFormReturn } from "react-hook-form";
 import { PatientFormValues } from "./types";
 import { cn } from "@/lib/utils";
+import { AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface PersonalInfoFormProps {
   form: UseFormReturn<PatientFormValues>;
 }
 
 export function PersonalInfoForm({ form }: PersonalInfoFormProps) {
-  const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-  
-  const validateEmail = (value: string) => {
-    if (!value) return "Email é obrigatório";
-    if (!emailRegex.test(value)) return "Por favor, insira um email válido";
-    return true;
-  };
+  const { formState: { errors } } = form;
 
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-medium">Informações Pessoais</h3>
+      
+      {Object.keys(errors).length > 0 && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Por favor, corrija os erros abaixo antes de continuar.
+          </AlertDescription>
+        </Alert>
+      )}
+
       <div className="grid gap-4 md:grid-cols-2">
         <FormField
           control={form.control}
@@ -29,12 +35,22 @@ export function PersonalInfoForm({ form }: PersonalInfoFormProps) {
             <FormItem>
               <FormLabel>Nome Completo</FormLabel>
               <FormControl>
-                <Input placeholder="Nome do paciente" {...field} />
+                <Input 
+                  placeholder="Nome do paciente" 
+                  {...field} 
+                  aria-required="true"
+                  aria-invalid={!!errors.full_name}
+                  aria-describedby={errors.full_name ? "full_name-error" : "full_name-description"}
+                />
               </FormControl>
-              <FormMessage />
+              <FormDescription id="full_name-description">
+                Digite o nome completo do paciente
+              </FormDescription>
+              <FormMessage id="full_name-error" />
             </FormItem>
           )}
         />
+        
         <FormField
           control={form.control}
           name="email"
@@ -50,19 +66,19 @@ export function PersonalInfoForm({ form }: PersonalInfoFormProps) {
                     fieldState.isDirty && !fieldState.error && "border-green-500 focus-visible:ring-green-500"
                   )}
                   {...field} 
-                  onBlur={(e) => {
-                    field.onBlur();
-                    const validationResult = validateEmail(e.target.value);
-                    if (validationResult !== true) {
-                      form.setError("email", { message: validationResult });
-                    }
-                  }}
+                  aria-required="true"
+                  aria-invalid={!!errors.email}
+                  aria-describedby={errors.email ? "email-error" : "email-description"}
                 />
               </FormControl>
-              <FormMessage />
+              <FormDescription id="email-description">
+                Este email será usado para comunicações importantes
+              </FormDescription>
+              <FormMessage id="email-error" />
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="cpf"
@@ -70,12 +86,22 @@ export function PersonalInfoForm({ form }: PersonalInfoFormProps) {
             <FormItem>
               <FormLabel>CPF</FormLabel>
               <FormControl>
-                <Input placeholder="000.000.000-00" {...field} />
+                <Input 
+                  placeholder="000.000.000-00" 
+                  {...field}
+                  aria-required="true"
+                  aria-invalid={!!errors.cpf}
+                  aria-describedby={errors.cpf ? "cpf-error" : "cpf-description"}
+                />
               </FormControl>
-              <FormMessage />
+              <FormDescription id="cpf-description">
+                Digite apenas números
+              </FormDescription>
+              <FormMessage id="cpf-error" />
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="phone"
@@ -83,12 +109,21 @@ export function PersonalInfoForm({ form }: PersonalInfoFormProps) {
             <FormItem>
               <FormLabel>Telefone</FormLabel>
               <FormControl>
-                <Input placeholder="(00) 00000-0000" {...field} />
+                <Input 
+                  placeholder="(00) 00000-0000" 
+                  {...field}
+                  type="tel"
+                  aria-describedby="phone-description"
+                />
               </FormControl>
+              <FormDescription id="phone-description">
+                Formato: (00) 00000-0000
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="birth_date"
@@ -96,19 +131,31 @@ export function PersonalInfoForm({ form }: PersonalInfoFormProps) {
             <FormItem>
               <FormLabel>Data de Nascimento</FormLabel>
               <FormControl>
-                <Input type="date" {...field} />
+                <Input 
+                  type="date" 
+                  {...field}
+                  aria-describedby="birth-date-description"
+                />
               </FormControl>
+              <FormDescription id="birth-date-description">
+                Selecione a data de nascimento
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="gender"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Gênero</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select 
+                onValueChange={field.onChange} 
+                defaultValue={field.value}
+                aria-describedby="gender-description"
+              >
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione" />
@@ -120,10 +167,14 @@ export function PersonalInfoForm({ form }: PersonalInfoFormProps) {
                   <SelectItem value="outro">Outro</SelectItem>
                 </SelectContent>
               </Select>
+              <FormDescription id="gender-description">
+                Selecione o gênero do paciente
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="occupation"
@@ -131,8 +182,15 @@ export function PersonalInfoForm({ form }: PersonalInfoFormProps) {
             <FormItem>
               <FormLabel>Profissão</FormLabel>
               <FormControl>
-                <Input placeholder="Profissão" {...field} />
+                <Input 
+                  placeholder="Profissão" 
+                  {...field}
+                  aria-describedby="occupation-description"
+                />
               </FormControl>
+              <FormDescription id="occupation-description">
+                Digite a profissão atual do paciente
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}

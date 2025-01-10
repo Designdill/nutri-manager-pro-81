@@ -3,8 +3,13 @@ import { supabase } from "@/integrations/supabase/client";
 
 // Patient form schema
 export const patientFormSchema = z.object({
-  full_name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
-  email: z.string()
+  full_name: z.string().min(2, {
+    message: "Nome deve ter pelo menos 2 caracteres"
+  }),
+  email: z.string({
+    required_error: "Email é obrigatório",
+    invalid_type_error: "Email deve ser um texto"
+  })
     .min(1, "Email é obrigatório")
     .email("Por favor, insira um email válido")
     .refine(async (email) => {
@@ -16,7 +21,7 @@ export const patientFormSchema = z.object({
       
       return !data;
     }, "Este email já está em uso"),
-  cpf: z.string().min(11, "CPF inválido"),
+  cpf: z.string().min(11, "CPF deve ter 11 dígitos"),
   phone: z.string().optional(),
   birth_date: z.string().optional(),
   gender: z.string().optional(),
