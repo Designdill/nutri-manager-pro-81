@@ -56,6 +56,7 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
   }
   
   if (!session) {
+    console.log("No session found, redirecting to login");
     return <Navigate to="/login" />;
   }
   
@@ -69,30 +70,66 @@ function App() {
 
   useEffect(() => {
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setIsLoading(false);
-    });
+    const initializeAuth = async () => {
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error("Error getting session:", error);
+          throw error;
+        }
+        console.log("Initial session:", data?.session?.user?.id);
+        setSession(data.session);
+      } catch (error) {
+        console.error("Failed to initialize auth:", error);
+        toast({
+          title: "Authentication Error",
+          description: "There was a problem with authentication. Please try logging in again.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeAuth();
 
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log("Auth state changed:", _event, session?.user?.id);
-      setSession(session);
+    } = supabase.auth.onAuthStateChange(async (event, currentSession) => {
+      console.log("Auth state changed:", event, currentSession?.user?.id);
+      
+      if (event === 'TOKEN_REFRESHED') {
+        console.log('Token was refreshed successfully');
+      }
+      
+      if (event === 'SIGNED_OUT') {
+        // Clear any application state/cache
+        queryClient.clear();
+      }
+      
+      setSession(currentSession);
       setIsLoading(false);
     });
 
-    return () => subscription.unsubscribe();
-  }, []);
+    return () => {
+      console.log("Cleaning up auth subscriptions");
+      subscription.unsubscribe();
+    };
+  }, [toast]);
 
   const signOut = async () => {
     try {
-      await supabase.auth.signOut();
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
       toast({
         title: "Logged out successfully",
         description: "You have been logged out of your account",
       });
+      
+      // Clear any application state/cache
+      queryClient.clear();
     } catch (error) {
       console.error("Error signing out:", error);
       toast({
