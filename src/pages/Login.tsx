@@ -21,6 +21,7 @@ const Login = () => {
     }
   }, [session, isLoading, navigate]);
 
+  // Show loading state while checking authentication
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-primary-100">
@@ -86,6 +87,14 @@ const Login = () => {
               providers={[]}
               theme="light"
               redirectTo={window.location.origin}
+              onError={(error) => {
+                console.error("Auth error:", error);
+                toast({
+                  title: "Erro de autenticação",
+                  description: "Credenciais inválidas. Por favor, verifique seu email e senha.",
+                  variant: "destructive",
+                });
+              }}
               localization={{
                 variables: {
                   sign_in: {
