@@ -87,17 +87,6 @@ const Login = () => {
               providers={[]}
               theme="light"
               redirectTo={window.location.origin}
-              view="sign_in"
-              onViewChange={(view) => {
-                console.log("Auth view changed:", view);
-                if (view === "sign_in") {
-                  // Reset any previous error messages when switching to sign in
-                  toast({
-                    title: "Bem-vindo de volta",
-                    description: "Por favor, insira suas credenciais para entrar.",
-                  });
-                }
-              }}
               localization={{
                 variables: {
                   sign_in: {
