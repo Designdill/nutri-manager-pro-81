@@ -5,18 +5,14 @@ export const QuestionTypeEnum = z.enum(["text", "multiple_choice", "checkbox"]);
 export type QuestionType = z.infer<typeof QuestionTypeEnum>;
 
 // Define base question schema
-const BaseQuestionSchema = z.object({
+export const BaseQuestionSchema = z.object({
   question: z.string().min(1, "A pergunta é obrigatória"),
   type: QuestionTypeEnum,
   options: z.array(z.string()).optional(),
 });
 
 // Export the question schema type
-export type Question = {
-  question: string;
-  type: QuestionType;
-  options?: string[];
-};
+export type Question = z.infer<typeof BaseQuestionSchema>;
 
 // Define questionnaire schema
 export const QuestionnaireSchema = z.object({
@@ -25,7 +21,4 @@ export const QuestionnaireSchema = z.object({
 });
 
 // Export the form values type
-export type QuestionnaireFormValues = {
-  patient_id: string;
-  questions: Question[];
-};
+export type QuestionnaireFormValues = z.infer<typeof QuestionnaireSchema>;

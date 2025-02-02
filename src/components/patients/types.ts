@@ -59,7 +59,7 @@ export const patientFormSchema = z.object({
 
 export type PatientFormValues = z.infer<typeof patientFormSchema>;
 
-// Consultation form schema
+// Simplified consultation form schema
 export const consultationFormSchema = z.object({
   consultation_date: z.string(),
   weight: z.string(),
@@ -77,7 +77,7 @@ export const consultationFormSchema = z.object({
 
 export type ConsultationFormValues = z.infer<typeof consultationFormSchema>;
 
-// Photo types
+// Simplified photo type
 export type PhotoRecord = {
   id: string;
   patient_id: string;

@@ -31,7 +31,7 @@ export default function NewQuestionnairePage() {
     },
   });
 
-  // Fetch patient email for sending notification
+  // Simplified patient query
   const { data: patient } = useQuery({
     queryKey: ["patient", form.watch("patient_id")],
     queryFn: async () => {
@@ -39,7 +39,7 @@ export default function NewQuestionnairePage() {
       
       const { data, error } = await supabase
         .from("patients")
-        .select("*")
+        .select("id, email, full_name")
         .eq("id", form.watch("patient_id"))
         .single();
 
@@ -92,7 +92,6 @@ export default function NewQuestionnairePage() {
 
       if (error) throw error;
 
-      // Send email notification if patient has an email
       if (patient?.email) {
         await sendQuestionnaireEmail(questionnaire.id, patient.email);
       }
