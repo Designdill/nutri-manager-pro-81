@@ -11,7 +11,7 @@ import { useForm } from "react-hook-form";
 import { PatientFormValues, patientFormSchema } from "@/components/patients/types";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { MeasurementsForm } from "@/components/patients/MeasurementsForm";
 import { Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -26,7 +26,9 @@ export default function EditPatient() {
   const form = useForm<PatientFormValues>({
     resolver: zodResolver(patientFormSchema),
     context: {
-      patientId // Pass the current patient ID to the validation context
+      contextualErrorMap: {
+        patientId
+      }
     }
   });
 
