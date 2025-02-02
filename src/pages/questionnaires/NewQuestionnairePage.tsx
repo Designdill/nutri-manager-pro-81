@@ -12,15 +12,15 @@ import { QuestionnaireForm } from "./components/QuestionnaireForm";
 import { useAuth } from "@/App";
 import { useQuery } from "@tanstack/react-query";
 
+const questionSchema = z.object({
+  question: z.string().min(1, "A pergunta é obrigatória"),
+  type: z.enum(["text", "multiple_choice", "checkbox"]),
+  options: z.array(z.string()).optional(),
+});
+
 const questionnaireSchema = z.object({
   patient_id: z.string().min(1, "Selecione um paciente"),
-  questions: z.array(
-    z.object({
-      question: z.string().min(1, "A pergunta é obrigatória"),
-      type: z.enum(["text", "multiple_choice", "checkbox"]),
-      options: z.array(z.string()).optional(),
-    })
-  ),
+  questions: z.array(questionSchema),
 });
 
 type QuestionnaireFormValues = z.infer<typeof questionnaireSchema>;

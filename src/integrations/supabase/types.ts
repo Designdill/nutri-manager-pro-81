@@ -733,7 +733,7 @@ export type Database = {
           full_name: string | null
           id: string
           phone: string | null
-          role: string
+          role: Database["public"]["Enums"]["user_role"]
           updated_at: string
           username: string | null
         }
@@ -751,7 +751,7 @@ export type Database = {
           full_name?: string | null
           id: string
           phone?: string | null
-          role?: string
+          role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
           username?: string | null
         }
@@ -769,7 +769,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           phone?: string | null
-          role?: string
+          role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
           username?: string | null
         }
