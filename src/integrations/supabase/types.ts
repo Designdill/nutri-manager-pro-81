@@ -1022,6 +1022,7 @@ export type Database = {
         | "account_deactivation"
         | "integration_update"
       questionnaire_status: "pending" | "completed"
+      user_role: "admin" | "nutritionist" | "patient"
     }
     CompositeTypes: {
       [_ in never]: never
