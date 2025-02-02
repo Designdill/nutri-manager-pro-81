@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// Define question type enum separately
+// Define question type enum
 export const QuestionTypeEnum = z.enum(["text", "multiple_choice", "checkbox"]);
 export type QuestionType = z.infer<typeof QuestionTypeEnum>;
 
@@ -17,7 +17,7 @@ export const QuestionSchema = BaseQuestionSchema.extend({
 
 export type Question = z.infer<typeof QuestionSchema>;
 
-// Define questionnaire schema using the question schema
+// Define questionnaire schema
 export const QuestionnaireSchema = z.object({
   patient_id: z.string().min(1, "Selecione um paciente"),
   questions: z.array(QuestionSchema),
