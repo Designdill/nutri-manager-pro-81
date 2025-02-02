@@ -12,14 +12,24 @@ export const patientFormSchema = z.object({
   })
     .min(1, "Email é obrigatório")
     .email("Por favor, insira um email válido")
-    .refine(async (email) => {
+    .refine(async (email, ctx) => {
+      // Get the current patient ID from the form context
+      const currentPatientId = ctx.path[0] === 'email' ? ctx.contextualErrorMap?.patientId : undefined;
+      
       const { data, error } = await supabase
         .from('patients')
         .select('id')
         .eq('email', email)
         .single();
       
-      return !data;
+      // If no data found, email is available
+      if (!data) return true;
+      
+      // If editing, allow the same email for the current patient
+      if (currentPatientId && data.id === currentPatientId) return true;
+      
+      // Email exists and belongs to another patient
+      return false;
     }, "Este email já está em uso"),
   cpf: z.string().min(11, "CPF deve ter 11 dígitos"),
   phone: z.string().optional(),
