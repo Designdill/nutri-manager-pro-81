@@ -20,6 +20,7 @@ export default function NewQuestionnairePage() {
   const form = useForm<QuestionnaireFormValues>({
     resolver: zodResolver(QuestionnaireSchema),
     defaultValues: {
+      patient_id: "",
       questions: [
         {
           question: "",
