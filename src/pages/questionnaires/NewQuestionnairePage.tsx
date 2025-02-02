@@ -10,7 +10,11 @@ import { useForm } from "react-hook-form";
 import { QuestionnaireForm } from "./components/QuestionnaireForm";
 import { useAuth } from "@/App";
 import { useQuery } from "@tanstack/react-query";
-import { QuestionnaireSchema, type QuestionnaireFormValues } from "./types";
+import { 
+  QuestionnaireSchema, 
+  type QuestionnaireFormValues,
+  type QuestionnairePatient 
+} from "./types";
 
 export default function NewQuestionnairePage() {
   const { session } = useAuth();
@@ -31,8 +35,8 @@ export default function NewQuestionnairePage() {
     },
   });
 
-  // Simplified patient query
-  const { data: patient } = useQuery({
+  // Simplified patient query with explicit typing
+  const { data: patient } = useQuery<QuestionnairePatient | null>({
     queryKey: ["patient", form.watch("patient_id")],
     queryFn: async () => {
       if (!form.watch("patient_id")) return null;

@@ -14,6 +14,13 @@ export const BaseQuestionSchema = z.object({
 // Export the question schema type
 export type Question = z.infer<typeof BaseQuestionSchema>;
 
+// Define simplified patient type for the form
+export type QuestionnairePatient = {
+  id: string;
+  email: string | null;
+  full_name: string;
+};
+
 // Define questionnaire schema
 export const QuestionnaireSchema = z.object({
   patient_id: z.string().min(1, "Selecione um paciente"),
