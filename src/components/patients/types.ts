@@ -12,43 +12,45 @@ export const patientFormSchema = z.object({
   })
     .min(1, "Email é obrigatório")
     .email("Por favor, insira um email válido")
-    .refine(
-      async (email, ctx) => {
-        const contextMap = ctx.contextualErrorMap as { patientId?: string } | undefined;
-        const currentPatientId = contextMap?.patientId;
-        
-        console.log("Validating email:", email, "for patient:", currentPatientId);
-        
-        const { data, error } = await supabase
-          .from('patients')
-          .select('id')
-          .eq('email', email)
-          .single();
-        
-        if (error && error.code !== 'PGRST116') {
-          console.error("Error checking email:", error);
-          return false;
-        }
-        
-        // If no data found, email is available
-        if (!data) {
-          console.log("Email is available");
-          return true;
-        }
-        
-        // If editing, allow the same email for the current patient
-        if (currentPatientId && data.id === currentPatientId) {
-          console.log("Email belongs to current patient");
-          return true;
-        }
-        
-        console.log("Email belongs to another patient");
-        return false;
-      },
-      {
-        message: "Este email já está em uso"
+    .superRefine(async (email, ctx) => {
+      const contextMap = ctx.contextualErrorMap as { patientId?: string } | undefined;
+      const currentPatientId = contextMap?.patientId;
+      
+      console.log("Validating email:", email, "for patient:", currentPatientId);
+      
+      const { data, error } = await supabase
+        .from('patients')
+        .select('id')
+        .eq('email', email)
+        .single();
+      
+      if (error && error.code !== 'PGRST116') {
+        console.error("Error checking email:", error);
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Erro ao verificar email"
+        });
+        return;
       }
-    ),
+      
+      // If no data found, email is available
+      if (!data) {
+        console.log("Email is available");
+        return;
+      }
+      
+      // If editing, allow the same email for the current patient
+      if (currentPatientId && data.id === currentPatientId) {
+        console.log("Email belongs to current patient");
+        return;
+      }
+      
+      console.log("Email belongs to another patient");
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Este email já está em uso"
+      });
+    }),
   cpf: z.string().min(11, "CPF deve ter 11 dígitos"),
   phone: z.string().optional(),
   birth_date: z.string().optional(),
