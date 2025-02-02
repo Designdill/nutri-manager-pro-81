@@ -7,26 +7,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
 import { QuestionnaireForm } from "./components/QuestionnaireForm";
 import { useAuth } from "@/App";
 import { useQuery } from "@tanstack/react-query";
-
-// Define the question schema separately to avoid deep type instantiation
-const questionSchema = z.object({
-  question: z.string().min(1, "A pergunta é obrigatória"),
-  type: z.enum(["text", "multiple_choice", "checkbox"]),
-  options: z.array(z.string()).optional(),
-});
-
-// Use the question schema in the questionnaire schema
-const questionnaireSchema = z.object({
-  patient_id: z.string().min(1, "Selecione um paciente"),
-  questions: z.array(questionSchema),
-});
-
-// Define the form values type using z.infer
-type QuestionnaireFormValues = z.infer<typeof questionnaireSchema>;
+import { QuestionnaireSchema, type QuestionnaireFormValues } from "./types";
 
 export default function NewQuestionnairePage() {
   const { session } = useAuth();
@@ -34,7 +18,7 @@ export default function NewQuestionnairePage() {
   const navigate = useNavigate();
 
   const form = useForm<QuestionnaireFormValues>({
-    resolver: zodResolver(questionnaireSchema),
+    resolver: zodResolver(QuestionnaireSchema),
     defaultValues: {
       questions: [
         {
