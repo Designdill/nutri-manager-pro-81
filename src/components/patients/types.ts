@@ -13,7 +13,7 @@ export const patientFormSchema = z.object({
     .min(1, "Email é obrigatório")
     .email("Por favor, insira um email válido")
     .superRefine(async (email, ctx) => {
-      const patientId = ctx.meta?.patientId as string | undefined;
+      const patientId = ctx.path?.[0] === 'email' ? ctx.path[1] : undefined;
       
       console.log("Validating email:", email, "for patient:", patientId);
       
@@ -88,21 +88,23 @@ export const patientFormSchema = z.object({
 
 export type PatientFormValues = z.infer<typeof patientFormSchema>;
 
-// Simplified consultation form schema
-export type ConsultationFormValues = {
-  consultation_date: string;
-  weight: string;
-  bmi: string;
-  body_fat_percentage?: string;
-  waist_circumference?: string;
-  physical_activity_level?: string;
-  meal_plan_adherence?: string;
-  diet_related_symptoms?: string;
-  observations?: string;
-  meal_plan?: string;
-  long_term_goals?: string;
-  nutritional_interventions?: string;
-};
+// Consultation form schema
+export const consultationFormSchema = z.object({
+  consultation_date: z.string(),
+  weight: z.string(),
+  bmi: z.string(),
+  body_fat_percentage: z.string().optional(),
+  waist_circumference: z.string().optional(),
+  physical_activity_level: z.string().optional(),
+  meal_plan_adherence: z.string().optional(),
+  diet_related_symptoms: z.string().optional(),
+  observations: z.string().optional(),
+  meal_plan: z.string().optional(),
+  long_term_goals: z.string().optional(),
+  nutritional_interventions: z.string().optional(),
+});
+
+export type ConsultationFormValues = z.infer<typeof consultationFormSchema>;
 
 // Simplified photo type
 export type PhotoRecord = {
