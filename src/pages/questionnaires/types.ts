@@ -1,10 +1,11 @@
 import { z } from "zod";
+import { UseFormReturn } from "react-hook-form";
 
 // Define question type enum
 export const QuestionTypeEnum = z.enum(["text", "multiple_choice", "checkbox"]);
 export type QuestionType = z.infer<typeof QuestionTypeEnum>;
 
-// Define base question schema
+// Define base question schema with simpler structure
 export const BaseQuestionSchema = z.object({
   question: z.string().min(1, "A pergunta é obrigatória"),
   type: QuestionTypeEnum,
@@ -21,7 +22,7 @@ export type QuestionnairePatient = {
   full_name: string;
 };
 
-// Define questionnaire schema
+// Define questionnaire schema with explicit types
 export const QuestionnaireSchema = z.object({
   patient_id: z.string().min(1, "Selecione um paciente"),
   questions: z.array(BaseQuestionSchema).min(1, "Adicione pelo menos uma pergunta"),
@@ -30,9 +31,9 @@ export const QuestionnaireSchema = z.object({
 // Export the form values type
 export type QuestionnaireFormValues = z.infer<typeof QuestionnaireSchema>;
 
-// Export props interface for the form component
+// Export props interface with explicit form type
 export interface QuestionnaireFormProps {
-  form: any; // We'll type this properly in the component
+  form: UseFormReturn<QuestionnaireFormValues>;
   patients: QuestionnairePatient[];
   onSubmit: (data: QuestionnaireFormValues) => Promise<void>;
 }
