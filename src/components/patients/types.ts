@@ -89,22 +89,20 @@ export const patientFormSchema = z.object({
 export type PatientFormValues = z.infer<typeof patientFormSchema>;
 
 // Simplified consultation form schema
-export const consultationFormSchema = z.object({
-  consultation_date: z.string(),
-  weight: z.string(),
-  bmi: z.string(),
-  body_fat_percentage: z.string().optional(),
-  waist_circumference: z.string().optional(),
-  physical_activity_level: z.string().optional(),
-  meal_plan_adherence: z.string().optional(),
-  diet_related_symptoms: z.string().optional(),
-  observations: z.string().optional(),
-  meal_plan: z.string().optional(),
-  long_term_goals: z.string().optional(),
-  nutritional_interventions: z.string().optional(),
-});
-
-export type ConsultationFormValues = z.infer<typeof consultationFormSchema>;
+export type ConsultationFormValues = {
+  consultation_date: string;
+  weight: string;
+  bmi: string;
+  body_fat_percentage?: string;
+  waist_circumference?: string;
+  physical_activity_level?: string;
+  meal_plan_adherence?: string;
+  diet_related_symptoms?: string;
+  observations?: string;
+  meal_plan?: string;
+  long_term_goals?: string;
+  nutritional_interventions?: string;
+};
 
 // Simplified photo type
 export type PhotoRecord = {
