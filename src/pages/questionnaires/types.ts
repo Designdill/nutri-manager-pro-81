@@ -28,11 +28,10 @@ export const QuestionnaireSchema = z.object({
 });
 
 // Export the form values type
-export type QuestionnaireFormValues = {
-  patient_id: string;
-  questions: Array<{
-    question: string;
-    type: QuestionType;
-    options?: string[];
-  }>;
-};
+export type QuestionnaireFormValues = z.infer<typeof QuestionnaireSchema>;
+
+// Export props interface for the form component
+export interface QuestionnaireFormProps {
+  form: any; // We'll type this properly in the component
+  patients: QuestionnairePatient[];
+}

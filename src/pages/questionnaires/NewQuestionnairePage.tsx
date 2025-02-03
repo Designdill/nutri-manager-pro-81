@@ -3,7 +3,6 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { AppSidebar } from "@/components/AppSidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { QuestionnaireForm } from "./components/QuestionnaireForm";
@@ -23,6 +22,7 @@ export default function NewQuestionnairePage() {
         {
           question: "",
           type: "text",
+          options: [],
         },
       ],
     },
