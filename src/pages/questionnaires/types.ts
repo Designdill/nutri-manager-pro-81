@@ -24,8 +24,15 @@ export type QuestionnairePatient = {
 // Define questionnaire schema
 export const QuestionnaireSchema = z.object({
   patient_id: z.string().min(1, "Selecione um paciente"),
-  questions: z.array(BaseQuestionSchema),
+  questions: z.array(BaseQuestionSchema).min(1, "Adicione pelo menos uma pergunta"),
 });
 
 // Export the form values type
-export type QuestionnaireFormValues = z.infer<typeof QuestionnaireSchema>;
+export type QuestionnaireFormValues = {
+  patient_id: string;
+  questions: Array<{
+    question: string;
+    type: QuestionType;
+    options?: string[];
+  }>;
+};

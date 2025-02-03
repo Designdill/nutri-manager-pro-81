@@ -13,10 +13,9 @@ export const patientFormSchema = z.object({
     .min(1, "Email é obrigatório")
     .email("Por favor, insira um email válido")
     .superRefine(async (email, ctx) => {
-      const contextMap = ctx.contextualErrorMap as { patientId?: string } | undefined;
-      const currentPatientId = contextMap?.patientId;
+      const patientId = ctx.meta?.patientId as string | undefined;
       
-      console.log("Validating email:", email, "for patient:", currentPatientId);
+      console.log("Validating email:", email, "for patient:", patientId);
       
       const { data, error } = await supabase
         .from('patients')
@@ -40,7 +39,7 @@ export const patientFormSchema = z.object({
       }
       
       // If editing, allow the same email for the current patient
-      if (currentPatientId && data.id === currentPatientId) {
+      if (patientId && data.id === patientId) {
         console.log("Email belongs to current patient");
         return;
       }

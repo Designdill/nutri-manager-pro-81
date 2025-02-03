@@ -26,7 +26,7 @@ export default function EditPatient() {
   const form = useForm<PatientFormValues>({
     resolver: zodResolver(patientFormSchema),
     context: {
-      contextualErrorMap: {
+      meta: {
         patientId
       }
     }
