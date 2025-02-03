@@ -10,11 +10,7 @@ import { useForm } from "react-hook-form";
 import { QuestionnaireForm } from "./components/QuestionnaireForm";
 import { useAuth } from "@/App";
 import { useQuery } from "@tanstack/react-query";
-import { 
-  QuestionnaireSchema, 
-  type QuestionnaireFormValues,
-  type QuestionnairePatient 
-} from "./types";
+import { QuestionnaireSchema, type QuestionnaireFormValues } from "./types";
 
 export default function NewQuestionnairePage() {
   const { session } = useAuth();
@@ -35,8 +31,7 @@ export default function NewQuestionnairePage() {
     },
   });
 
-  // Simplified patient query with explicit typing
-  const { data: patient } = useQuery<QuestionnairePatient | null>({
+  const { data: patient } = useQuery({
     queryKey: ["patient", form.watch("patient_id")],
     queryFn: async () => {
       if (!form.watch("patient_id")) return null;
@@ -52,34 +47,6 @@ export default function NewQuestionnairePage() {
     },
     enabled: !!form.watch("patient_id"),
   });
-
-  const sendQuestionnaireEmail = async (questionnaireId: string, patientEmail: string) => {
-    try {
-      const response = await supabase.functions.invoke("send-email", {
-        body: {
-          to: [patientEmail],
-          subject: "Novo Questionário Disponível",
-          html: `
-            <h2>Olá!</h2>
-            <p>Um novo questionário foi criado para você.</p>
-            <p>Você pode acessá-lo através do link abaixo:</p>
-            <p><a href="${window.location.origin}/questionnaires/${questionnaireId}/respond">Responder Questionário</a></p>
-            <p>Por favor, responda assim que possível.</p>
-          `,
-          from: "Sistema Nutricional <onboarding@resend.dev>",
-        },
-      });
-
-      if (response.error) {
-        throw response.error;
-      }
-
-      console.log("Email sent successfully");
-    } catch (error) {
-      console.error("Error sending email:", error);
-      throw error;
-    }
-  };
 
   const onSubmit = async (data: QuestionnaireFormValues) => {
     try {
@@ -113,6 +80,34 @@ export default function NewQuestionnairePage() {
         description: "Ocorreu um erro ao criar o questionário",
         variant: "destructive",
       });
+    }
+  };
+
+  const sendQuestionnaireEmail = async (questionnaireId: string, patientEmail: string) => {
+    try {
+      const response = await supabase.functions.invoke("send-email", {
+        body: {
+          to: [patientEmail],
+          subject: "Novo Questionário Disponível",
+          html: `
+            <h2>Olá!</h2>
+            <p>Um novo questionário foi criado para você.</p>
+            <p>Você pode acessá-lo através do link abaixo:</p>
+            <p><a href="${window.location.origin}/questionnaires/${questionnaireId}/respond">Responder Questionário</a></p>
+            <p>Por favor, responda assim que possível.</p>
+          `,
+          from: "Sistema Nutricional <onboarding@resend.dev>",
+        },
+      });
+
+      if (response.error) {
+        throw response.error;
+      }
+
+      console.log("Email sent successfully");
+    } catch (error) {
+      console.error("Error sending email:", error);
+      throw error;
     }
   };
 
