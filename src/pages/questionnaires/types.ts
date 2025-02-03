@@ -8,7 +8,7 @@ export type QuestionType = z.infer<typeof QuestionTypeEnum>;
 export const BaseQuestionSchema = z.object({
   question: z.string().min(1, "A pergunta é obrigatória"),
   type: QuestionTypeEnum,
-  options: z.array(z.string()).optional(),
+  options: z.array(z.string()),
 });
 
 // Export the question schema type
@@ -34,4 +34,5 @@ export type QuestionnaireFormValues = z.infer<typeof QuestionnaireSchema>;
 export interface QuestionnaireFormProps {
   form: any; // We'll type this properly in the component
   patients: QuestionnairePatient[];
+  onSubmit: (data: QuestionnaireFormValues) => Promise<void>;
 }
