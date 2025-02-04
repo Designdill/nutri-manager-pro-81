@@ -70,7 +70,7 @@ export default function NewQuestionnairePage() {
         .insert({
           patient_id: data.patient_id,
           nutritionist_id: session.user.id,
-          questions: data.questions,
+          responses: data.questions,
         })
         .select()
         .single();
