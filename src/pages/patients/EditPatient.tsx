@@ -25,11 +25,7 @@ export default function EditPatient() {
   
   const form = useForm<PatientFormValues>({
     resolver: zodResolver(patientFormSchema),
-    context: {
-      meta: {
-        patientId
-      }
-    }
+    context: patientId // Pass the patient ID in the form context
   });
 
   const { data: patient, isLoading, error } = useQuery({

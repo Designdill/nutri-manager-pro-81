@@ -13,6 +13,7 @@ export const patientFormSchema = z.object({
     .min(1, "Email é obrigatório")
     .email("Por favor, insira um email válido")
     .superRefine(async (email, ctx) => {
+      // Get the current patient ID from the form context
       const patientId = ctx.path?.[0] === 'email' ? ctx.path[1] : undefined;
       
       console.log("Validating email:", email, "for patient:", patientId);
