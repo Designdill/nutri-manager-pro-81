@@ -1,20 +1,19 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { AppSidebar } from "@/components/AppSidebar";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { PatientFormValues, patientFormSchema } from "@/components/patients/types";
+import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
 import { PersonalInfoForm } from "@/components/patients/PersonalInfoForm";
 import { AddressForm } from "@/components/patients/AddressForm";
+import { MeasurementsForm } from "@/components/patients/MeasurementsForm";
 import { HealthHistoryForm } from "@/components/patients/HealthHistoryForm";
 import { LifestyleForm } from "@/components/patients/LifestyleForm";
 import { GoalsForm } from "@/components/patients/GoalsForm";
-import { useForm } from "react-hook-form";
-import { PatientFormValues, patientFormSchema } from "@/components/patients/types";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent } from "@/components/ui/card";
-import { MeasurementsForm } from "@/components/patients/MeasurementsForm";
-import { Form } from "@/components/ui/form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Save } from "lucide-react";
 
@@ -47,7 +46,7 @@ export default function EditPatient() {
       }
 
       console.log("Patient data fetched:", data);
-      const formData = {
+      const formData: PatientFormValues = {
         ...data,
         current_weight: data.current_weight?.toString() || "",
         target_weight: data.target_weight?.toString() || "",
@@ -57,12 +56,11 @@ export default function EditPatient() {
         water_intake: data.water_intake?.toString() || "",
         status: statusOptions.includes(data.status as StatusType) 
           ? (data.status as StatusType) 
-          : "created" as StatusType,
+          : "created",
       };
       form.reset(formData);
       return data;
     },
-    retry: 2,
   });
 
   const onSubmit = async (data: PatientFormValues) => {
@@ -79,7 +77,7 @@ export default function EditPatient() {
         updated_at: new Date().toISOString(),
         status: statusOptions.includes(data.status as StatusType) 
           ? data.status 
-          : "created" as StatusType,
+          : "created",
       };
 
       const { error } = await supabase
@@ -108,7 +106,6 @@ export default function EditPatient() {
   if (isLoading) {
     return (
       <div className="flex min-h-screen w-full">
-        <AppSidebar />
         <div className="flex-1 p-8">
           <div className="flex items-center justify-center h-full">
             <div className="animate-pulse text-lg">Carregando...</div>
@@ -121,7 +118,6 @@ export default function EditPatient() {
   if (error) {
     return (
       <div className="flex min-h-screen w-full">
-        <AppSidebar />
         <div className="flex-1 p-8">
           <div className="text-red-500 flex items-center justify-center h-full">
             Erro ao carregar dados do paciente. Por favor, tente novamente.
@@ -133,7 +129,6 @@ export default function EditPatient() {
 
   return (
     <div className="flex min-h-screen w-full">
-      <AppSidebar />
       <div className="flex-1 p-8 bg-gray-50">
         <div className="max-w-7xl mx-auto">
           <div className="mb-8 flex items-center justify-between">
