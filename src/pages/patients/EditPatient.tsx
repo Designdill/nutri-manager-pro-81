@@ -70,6 +70,7 @@ export default function EditPatient() {
         meals_per_day: data.meals_per_day ? parseInt(data.meals_per_day) : null,
         sleep_hours: data.sleep_hours ? parseInt(data.sleep_hours) : null,
         water_intake: data.water_intake ? parseFloat(data.water_intake) : null,
+        updated_at: new Date().toISOString(),
       };
 
       const { error } = await supabase

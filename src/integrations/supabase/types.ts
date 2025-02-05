@@ -583,6 +583,7 @@ export type Database = {
       }
       patients: {
         Row: {
+          activation_sent_at: string | null
           additional_notes: string | null
           allergies: string | null
           birth_date: string | null
@@ -604,6 +605,7 @@ export type Database = {
           gender: string | null
           height: number | null
           id: string
+          last_login: string | null
           meals_per_day: number | null
           medical_conditions: string | null
           medications: string | null
@@ -617,6 +619,7 @@ export type Database = {
           sleep_hours: number | null
           sleep_quality: string | null
           state: string | null
+          status: string
           street: string | null
           surgery_history: string | null
           target_weight: number | null
@@ -625,6 +628,7 @@ export type Database = {
           water_intake: number | null
         }
         Insert: {
+          activation_sent_at?: string | null
           additional_notes?: string | null
           allergies?: string | null
           birth_date?: string | null
@@ -646,6 +650,7 @@ export type Database = {
           gender?: string | null
           height?: number | null
           id?: string
+          last_login?: string | null
           meals_per_day?: number | null
           medical_conditions?: string | null
           medications?: string | null
@@ -659,6 +664,7 @@ export type Database = {
           sleep_hours?: number | null
           sleep_quality?: string | null
           state?: string | null
+          status?: string
           street?: string | null
           surgery_history?: string | null
           target_weight?: number | null
@@ -667,6 +673,7 @@ export type Database = {
           water_intake?: number | null
         }
         Update: {
+          activation_sent_at?: string | null
           additional_notes?: string | null
           allergies?: string | null
           birth_date?: string | null
@@ -688,6 +695,7 @@ export type Database = {
           gender?: string | null
           height?: number | null
           id?: string
+          last_login?: string | null
           meals_per_day?: number | null
           medical_conditions?: string | null
           medications?: string | null
@@ -701,6 +709,7 @@ export type Database = {
           sleep_hours?: number | null
           sleep_quality?: string | null
           state?: string | null
+          status?: string
           street?: string | null
           surgery_history?: string | null
           target_weight?: number | null

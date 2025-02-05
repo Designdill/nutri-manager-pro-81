@@ -20,7 +20,7 @@ export const patientFormSchema = z.object({
       
       const { data, error } = await supabase
         .from('patients')
-        .select('id')
+        .select('id, status')
         .eq('email', email)
         .single();
       
@@ -45,7 +45,7 @@ export const patientFormSchema = z.object({
         return;
       }
       
-      console.log("Email belongs to another patient");
+      console.log("Email belongs to another patient with status:", data.status);
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Este email já está em uso"
@@ -85,6 +85,7 @@ export const patientFormSchema = z.object({
   nutritional_goals: z.string().optional(),
   treatment_expectations: z.string().optional(),
   additional_notes: z.string().optional(),
+  status: z.enum(['created', 'active', 'inactive']).default('created'),
 });
 
 export type PatientFormValues = z.infer<typeof patientFormSchema>;
