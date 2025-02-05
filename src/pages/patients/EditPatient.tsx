@@ -52,6 +52,7 @@ export default function EditPatient() {
         meals_per_day: data.meals_per_day?.toString() || "",
         sleep_hours: data.sleep_hours?.toString() || "",
         water_intake: data.water_intake?.toString() || "",
+        status: data.status as "created" | "active" | "inactive",
       };
       form.reset(formData);
       return data;

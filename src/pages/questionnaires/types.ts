@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { UseFormReturn } from "react-hook-form";
 
 // Define simple question type enum
 export const QuestionTypeEnum = z.enum(["text", "multiple_choice", "checkbox"]);
@@ -6,7 +7,9 @@ export type QuestionType = z.infer<typeof QuestionTypeEnum>;
 
 // Define base question schema without recursive types
 export const QuestionSchema = z.object({
-  question: z.string().min(1, "A pergunta é obrigatória"),
+  question: z.string().min(1, {
+    message: "A pergunta é obrigatória"
+  }),
   type: QuestionTypeEnum,
   options: z.array(z.string()).optional(),
 });
