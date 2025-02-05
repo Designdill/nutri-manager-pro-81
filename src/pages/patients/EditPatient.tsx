@@ -18,6 +18,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Save } from "lucide-react";
 
+const statusOptions = ["active", "inactive", "created"] as const;
+type StatusType = (typeof statusOptions)[number];
+
 export default function EditPatient() {
   const { patientId } = useParams();
   const navigate = useNavigate();
@@ -25,7 +28,7 @@ export default function EditPatient() {
   
   const form = useForm<PatientFormValues>({
     resolver: zodResolver(patientFormSchema),
-    context: patientId // Pass the patient ID in the form context
+    context: patientId
   });
 
   const { data: patient, isLoading, error } = useQuery({
@@ -52,7 +55,9 @@ export default function EditPatient() {
         meals_per_day: data.meals_per_day?.toString() || "",
         sleep_hours: data.sleep_hours?.toString() || "",
         water_intake: data.water_intake?.toString() || "",
-        status: data.status as "created" | "active" | "inactive",
+        status: statusOptions.includes(data.status as StatusType) 
+          ? (data.status as StatusType) 
+          : "created" as StatusType,
       };
       form.reset(formData);
       return data;
@@ -72,6 +77,9 @@ export default function EditPatient() {
         sleep_hours: data.sleep_hours ? parseInt(data.sleep_hours) : null,
         water_intake: data.water_intake ? parseFloat(data.water_intake) : null,
         updated_at: new Date().toISOString(),
+        status: statusOptions.includes(data.status as StatusType) 
+          ? data.status 
+          : "created" as StatusType,
       };
 
       const { error } = await supabase
