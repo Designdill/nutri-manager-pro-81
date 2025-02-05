@@ -22,9 +22,9 @@ export const patientFormSchema = z.object({
         .from('patients')
         .select('id, status')
         .eq('email', email)
-        .single();
+        .maybeSingle();
       
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         console.error("Error checking email:", error);
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
