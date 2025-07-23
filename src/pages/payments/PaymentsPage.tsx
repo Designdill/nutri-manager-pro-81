@@ -27,13 +27,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-type PatientWithProfile = Tables<'patients'> & {
-  profiles: Pick<Tables<'profiles'>, 'id' | 'full_name' | 'avatar_url'>;
-};
+type PatientData = Tables<'patients'>;
 
 export default function PaymentsPage() {
   const { toast } = useToast();
-  const [patients, setPatients] = useState<PatientWithProfile[]>([]);
+  const [patients, setPatients] = useState<PatientData[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newPayment, setNewPayment] = useState({
     patientName: '',
@@ -47,21 +45,14 @@ export default function PaymentsPage() {
       console.log('Fetching patients data...');
       const { data, error } = await supabase
         .from('patients')
-        .select(`
-          *,
-          profiles:nutritionist_id (
-            id,
-            full_name,
-            avatar_url
-          )
-        `);
+        .select('*');
 
       if (error) {
         console.error('Error fetching patients:', error);
         throw error;
       }
       console.log('Patients data fetched:', data);
-      return data as PatientWithProfile[];
+      return data;
     },
   });
 
