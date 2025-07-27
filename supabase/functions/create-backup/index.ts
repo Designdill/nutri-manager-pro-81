@@ -12,7 +12,7 @@ const corsHeaders = {
 };
 
 interface BackupRequest {
-  userId: string;
+  userId?: string; // Made optional since we get it from JWT
 }
 
 serve(async (req: Request) => {
@@ -23,11 +23,23 @@ serve(async (req: Request) => {
 
   try {
     const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
-    const { userId }: BackupRequest = await req.json();
-
-    if (!userId) {
-      throw new Error("User ID is required");
+    
+    // Get user from JWT token for security
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      throw new Error("Missing authorization header");
     }
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
+    if (authError || !user) {
+      throw new Error("Invalid or expired token");
+    }
+
+    const userId = user.id;
+
+    // User ID is now guaranteed from JWT token
 
     console.log(`Starting backup process for user ${userId}`);
 
