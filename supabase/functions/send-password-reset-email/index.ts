@@ -22,6 +22,20 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Verify JWT token for security
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      throw new Error("Missing authorization header");
+    }
+
+    const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
+    if (authError || !user) {
+      throw new Error("Invalid or expired token");
+    }
+
     const { email, resetLink }: EmailData = await req.json();
 
     console.log("Sending password reset email to:", email);
@@ -52,13 +66,12 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("Failed to send email");
     }
 
-    // Create notification record
-    const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
+    // Create notification record - supabase client already created above
     
     const { error: notificationError } = await supabase
       .from("notifications")
       .insert({
-        user_id: email, // Using email as identifier since we don't have user_id yet
+        user_id: user.id, // Use actual user UUID instead of email for security
         type: "password_reset",
         title: "Solicitação de Redefinição de Senha",
         message: `Email de redefinição de senha enviado para ${email}`,

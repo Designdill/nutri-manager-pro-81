@@ -83,6 +83,20 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Verify JWT token for security
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      throw new Error("Missing authorization header");
+    }
+
+    const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
+    if (authError || !user) {
+      throw new Error("Invalid or expired token");
+    }
+
     const { to, type, data }: EmailData = await req.json();
 
     if (!to || !type || !data) {
@@ -112,8 +126,7 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("Failed to send email");
     }
 
-    // Create notification record
-    const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
+    // Create notification record - supabase client already created above
     
     const { error: notificationError } = await supabase
       .from("notifications")

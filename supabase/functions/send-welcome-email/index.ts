@@ -28,6 +28,20 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Verify JWT token for security
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      throw new Error("Missing authorization header");
+    }
+
+    const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
+    if (authError || !user) {
+      throw new Error("Invalid or expired token");
+    }
+
     const { patientData } = await req.json();
     const { full_name, email } = patientData;
 
@@ -35,11 +49,7 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("Email is required");
     }
 
-    // Create Supabase client with service role key
-    const supabase = createClient(
-      SUPABASE_URL!,
-      SUPABASE_SERVICE_ROLE_KEY!
-    );
+    // Supabase client already created above for auth verification
 
     // Generate temporary password
     const temporaryPassword = generateTemporaryPassword();
