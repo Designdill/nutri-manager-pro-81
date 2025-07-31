@@ -1166,6 +1166,10 @@ export type Database = {
         Args: { schedule: string; last_backup: string }
         Returns: string
       }
+      cleanup_old_rate_limits: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -1173,6 +1177,10 @@ export type Database = {
       update_overdue_payments: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      validate_email: {
+        Args: { email_input: string }
+        Returns: boolean
       }
     }
     Enums: {
