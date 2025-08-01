@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      api_rate_limits: {
+        Row: {
+          created_at: string
+          endpoint: string
+          id: string
+          request_count: number
+          user_id: string
+          window_start: string
+        }
+        Insert: {
+          created_at?: string
+          endpoint: string
+          id?: string
+          request_count?: number
+          user_id: string
+          window_start?: string
+        }
+        Update: {
+          created_at?: string
+          endpoint?: string
+          id?: string
+          request_count?: number
+          user_id?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       appointment_changes: {
         Row: {
           appointment_id: string | null
@@ -1166,20 +1193,52 @@ export type Database = {
         Args: { schedule: string; last_backup: string }
         Returns: string
       }
+      check_rate_limit: {
+        Args: {
+          endpoint_name: string
+          max_requests?: number
+          window_minutes?: number
+        }
+        Returns: boolean
+      }
       cleanup_old_rate_limits: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      decrypt_sensitive_data: {
+        Args: { encrypted_data: string; encryption_key?: string }
+        Returns: string
+      }
+      encrypt_sensitive_data: {
+        Args: { input_data: string; encryption_key?: string }
+        Returns: string
+      }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      sanitize_html: {
+        Args: { input_text: string }
         Returns: string
       }
       update_overdue_payments: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      validate_cpf: {
+        Args: { cpf_input: string }
+        Returns: boolean
+      }
       validate_email: {
         Args: { email_input: string }
+        Returns: boolean
+      }
+      validate_email_format: {
+        Args: { email_input: string }
+        Returns: boolean
+      }
+      validate_phone: {
+        Args: { phone_input: string }
         Returns: boolean
       }
     }
