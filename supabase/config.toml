@@ -1,1 +1,59 @@
 project_id = "rthwkkiddqvcignwrofj"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+
+[studio]
+enabled = true
+port = 54323
+
+[inbucket]
+enabled = true
+port = 54324
+smtp_port = 54325
+pop3_port = 54326
+
+[storage]
+enabled = true
+port = 54325
+file_size_limit = "50MiB"
+
+[auth]
+enabled = true
+port = 54326
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["https://rthwkkiddqvcignwrofj.supabase.co"]
+jwt_expiry = 3600
+refresh_token_rotation_enabled = true
+security_update_password_require_reauthentication = true
+
+[functions.send-welcome-email]
+verify_jwt = false
+
+[functions.send-email]
+verify_jwt = false
+
+[functions.send-password-reset-email]
+verify_jwt = true
+
+[functions.send-notification-email]
+verify_jwt = false
+
+[functions.sync-google-calendar]
+verify_jwt = true
+
+[functions.create-backup]
+verify_jwt = true
+
+[functions.secure-backup-scheduler]
+verify_jwt = false
+
+[functions.secure-password-reset]
+verify_jwt = false
