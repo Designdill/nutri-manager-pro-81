@@ -42,12 +42,50 @@ export function PatientActions({ patientId, onDelete }: PatientActionsProps) {
   const handleDeletePatient = async () => {
     try {
       console.log("Deleting patient:", patientId);
-      const { error } = await supabase
+      
+      // First, delete all related meal plans
+      const { error: mealPlansError } = await supabase
+        .from("meal_plans")
+        .delete()
+        .eq("patient_id", patientId);
+
+      if (mealPlansError) {
+        console.error("Error deleting meal plans:", mealPlansError);
+        throw mealPlansError;
+      }
+
+      // Then, delete all related appointments
+      const { error: appointmentsError } = await supabase
+        .from("appointments")
+        .delete()
+        .eq("patient_id", patientId);
+
+      if (appointmentsError) {
+        console.error("Error deleting appointments:", appointmentsError);
+        throw appointmentsError;
+      }
+
+      // Next, delete all related consultations
+      const { error: consultationsError } = await supabase
+        .from("consultations")
+        .delete()
+        .eq("patient_id", patientId);
+
+      if (consultationsError) {
+        console.error("Error deleting consultations:", consultationsError);
+        throw consultationsError;
+      }
+
+      // Finally, delete the patient
+      const { error: patientError } = await supabase
         .from("patients")
         .delete()
         .eq("id", patientId);
 
-      if (error) throw error;
+      if (patientError) {
+        console.error("Error deleting patient:", patientError);
+        throw patientError;
+      }
 
       toast({
         title: "Paciente excluído",

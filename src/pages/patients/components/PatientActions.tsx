@@ -38,7 +38,18 @@ export function PatientActions({ patientId, onDelete }: PatientActionsProps) {
     try {
       console.log("Deleting patient:", patientId);
       
-      // First, delete all related appointments
+      // First, delete all related meal plans
+      const { error: mealPlansError } = await supabase
+        .from("meal_plans")
+        .delete()
+        .eq("patient_id", patientId);
+
+      if (mealPlansError) {
+        console.error("Error deleting meal plans:", mealPlansError);
+        throw mealPlansError;
+      }
+
+      // Then, delete all related appointments
       const { error: appointmentsError } = await supabase
         .from("appointments")
         .delete()
@@ -49,7 +60,7 @@ export function PatientActions({ patientId, onDelete }: PatientActionsProps) {
         throw appointmentsError;
       }
 
-      // Then, delete all related consultations
+      // Next, delete all related consultations
       const { error: consultationsError } = await supabase
         .from("consultations")
         .delete()
