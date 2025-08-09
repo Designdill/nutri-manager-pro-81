@@ -6,50 +6,11 @@ export const patientFormSchema = z.object({
   full_name: z.string().min(2, {
     message: "Nome deve ter pelo menos 2 caracteres"
   }),
-  email: z.string({
-    required_error: "Email é obrigatório",
-    invalid_type_error: "Email deve ser um texto"
-  })
-    .min(1, "Email é obrigatório")
-    .email("Por favor, insira um email válido")
-    .superRefine(async (email, ctx) => {
-      // Get the current patient ID from the form context
-      const patientId = ctx.path?.[0] === 'email' ? ctx.path[1] : undefined;
-      
-      console.log("Validating email:", email, "for patient:", patientId);
-      
-      const { data, error } = await supabase
-        .from('patients')
-        .select('id, status')
-        .eq('email', email)
-        .maybeSingle();
-      
-      if (error) {
-        console.error("Error checking email:", error);
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Erro ao verificar email"
-        });
-        return;
-      }
-      
-      // If no data found, email is available
-      if (!data) {
-        console.log("Email is available");
-        return;
-      }
-      
-      // If editing, allow the same email for the current patient
-      if (patientId && data.id === patientId) {
-        console.log("Email belongs to current patient");
-        return;
-      }
-      
-      console.log("Email belongs to another patient with status:", data.status);
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Este email já está em uso"
-      });
+  email: z.string()
+    .optional()
+    .or(z.literal(""))
+    .refine((email) => !email || z.string().email().safeParse(email).success, {
+      message: "Por favor, insira um email válido"
     }),
   cpf: z.string().min(11, "CPF deve ter 11 dígitos"),
   phone: z.string().optional(),

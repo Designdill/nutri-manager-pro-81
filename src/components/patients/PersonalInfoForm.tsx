@@ -66,13 +66,12 @@ export function PersonalInfoForm({ form }: PersonalInfoFormProps) {
                     fieldState.isDirty && !fieldState.error && "border-green-500 focus-visible:ring-green-500"
                   )}
                   {...field} 
-                  aria-required="true"
                   aria-invalid={!!errors.email}
                   aria-describedby={errors.email ? "email-error" : "email-description"}
                 />
               </FormControl>
               <FormDescription id="email-description">
-                Este email será usado para comunicações importantes
+                Email opcional para comunicações importantes
               </FormDescription>
               <FormMessage id="email-error" />
             </FormItem>
