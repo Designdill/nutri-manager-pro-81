@@ -20,7 +20,7 @@ export default function NewPatient() {
     defaultValues: {
       full_name: "",
       cpf: "",
-      email: "",
+      email: undefined,
       phone: "",
     },
   });
@@ -67,6 +67,8 @@ export default function NewPatient() {
         full_name: values.full_name,
         cpf: values.cpf,
         nutritionist_id: session.user.id,
+        // Handle empty email properly - convert empty string to null
+        email: values.email && values.email.trim() !== "" ? values.email.trim() : null,
         current_weight: values.current_weight ? parseFloat(values.current_weight) : null,
         target_weight: values.target_weight ? parseFloat(values.target_weight) : null,
         height: values.height ? parseFloat(values.height) : null,
@@ -86,8 +88,8 @@ export default function NewPatient() {
         throw error;
       }
 
-      // Send welcome email if email is provided
-      if (values.email) {
+      // Send welcome email if email is provided and not empty
+      if (values.email && values.email.trim() !== "") {
         try {
           const { error: emailError } = await supabase.functions.invoke('send-email', {
             body: {

@@ -6,12 +6,11 @@ export const patientFormSchema = z.object({
   full_name: z.string().min(2, {
     message: "Nome deve ter pelo menos 2 caracteres"
   }),
-  email: z.string()
-    .optional()
-    .or(z.literal(""))
-    .refine((email) => !email || z.string().email().safeParse(email).success, {
-      message: "Por favor, insira um email válido"
-    }),
+  email: z.union([
+    z.string().email("Por favor, insira um email válido"),
+    z.literal(""),
+    z.undefined()
+  ]).optional(),
   cpf: z.string().min(11, "CPF deve ter 11 dígitos"),
   phone: z.string().optional(),
   birth_date: z.string().optional(),

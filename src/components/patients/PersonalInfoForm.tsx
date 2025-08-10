@@ -71,7 +71,7 @@ export function PersonalInfoForm({ form }: PersonalInfoFormProps) {
                 />
               </FormControl>
               <FormDescription id="email-description">
-                Email opcional para comunicações importantes
+                📧 Email opcional para comunicações importantes e notificações
               </FormDescription>
               <FormMessage id="email-error" />
             </FormItem>
