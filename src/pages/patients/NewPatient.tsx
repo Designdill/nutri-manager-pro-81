@@ -91,21 +91,17 @@ export default function NewPatient() {
       // Send welcome email if email is provided and not empty
       if (values.email && values.email.trim() !== "") {
         try {
-          const { error: emailError } = await supabase.functions.invoke('send-email', {
+          const { data: welcomeData, error: welcomeError } = await supabase.functions.invoke('send-welcome-email', {
             body: {
-              to: values.email,
-              subject: "Bem-vindo ao Sistema Nutricional",
-              html: `
-                <h2>Olá, ${values.full_name}!</h2>
-                <p>Bem-vindo ao nosso sistema de nutrição. Estamos felizes em tê-lo(a) conosco.</p>
-                <p>Sua nutricionista cadastrou você em nosso sistema. Em breve você receberá instruções para acessar sua área exclusiva.</p>
-                <p>Atenciosamente,<br>Equipe do Sistema Nutricional</p>
-              `
+              patientData: {
+                full_name: values.full_name,
+                email: values.email.trim(),
+              }
             }
           });
 
-          if (emailError) {
-            console.error("Error sending welcome email:", emailError);
+          if (welcomeError || (welcomeData as any)?.error) {
+            console.error("Error sending welcome email:", welcomeError || (welcomeData as any)?.error);
             toast.error("Paciente cadastrado, mas houve um erro ao enviar o email de boas-vindas");
           } else {
             toast.success("Paciente cadastrado e email de boas-vindas enviado com sucesso!");

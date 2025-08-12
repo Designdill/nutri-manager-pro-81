@@ -6,7 +6,7 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "https://rthwkkiddqvcignwrofj.supabase.co",
+  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -92,16 +92,16 @@ const handler = async (req: Request): Promise<Response> => {
     const sanitizedName = sanitizeHtml(full_name);
     
     // Generate secure token for password reset instead of plaintext password
-    const resetToken = generateSecureToken();
+    const tempPassword = generateSecureToken().slice(0, 12);
 
-    // Create auth user without password - they'll set it via secure link
+    // Create auth user with a temporary password
     const { data: authData, error: createError } = await supabase.auth.admin.createUser({
       email,
       email_confirm: true,
+      password: tempPassword,
       user_metadata: {
         full_name: sanitizedName,
-        reset_token: resetToken,
-        token_expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours
+        must_change_password: true
       }
     });
 
@@ -110,10 +110,7 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error(`Error creating auth user: ${createError.message}`);
     }
 
-    // Generate secure password setup link
-    const setupLink = `${SUPABASE_URL}/auth/reset-password?token=${resetToken}&email=${encodeURIComponent(email)}&type=signup`;
-
-    // Send secure welcome email using Resend
+    // Send welcome email with provisional password using Resend
     const emailResponse = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -123,32 +120,19 @@ const handler = async (req: Request): Promise<Response> => {
       body: JSON.stringify({
         from: "Sistema Nutricional <onboarding@resend.dev>",
         to: [email],
-        subject: "Bem-vindo ao Sistema Nutricional - Configure sua senha",
+        subject: "Bem-vindo ao Sistema Nutricional - Sua senha provisória",
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h2 style="color: #007bff;">Olá, ${sanitizedName}!</h2>
-            <p>Sua nutricionista cadastrou você no Sistema Nutricional. Para começar a usar, você precisa configurar sua senha de acesso.</p>
-            
+            <p>Sua nutricionista cadastrou você no Sistema Nutricional.</p>
             <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #007bff;">
-              <h3 style="margin-top: 0; color: #007bff;">Como configurar sua conta:</h3>
-              <ol>
-                <li>Clique no botão abaixo</li>
-                <li>Crie uma senha segura (mínimo 8 caracteres)</li>
-                <li>Faça login no sistema</li>
-              </ol>
+              <h3 style="margin-top: 0; color: #007bff;">Acesse com a senha provisória e altere no primeiro acesso:</h3>
+              <ul>
+                <li><strong>Email:</strong> ${email}</li>
+                <li><strong>Senha provisória:</strong> ${tempPassword}</li>
+              </ul>
             </div>
-
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${setupLink}" style="display: inline-block; background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Configurar Senha</a>
-            </div>
-
-            <div style="background-color: #fff3cd; padding: 15px; border-radius: 6px; margin: 20px 0; border: 1px solid #ffeaa7;">
-              <p style="margin: 0;"><strong>⚠️ Importante:</strong> Este link é válido por 24 horas por segurança.</p>
-            </div>
-
-            <p><strong>Seu email de acesso:</strong> ${email}</p>
-            
-            <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+            <p>Por segurança, recomendamos alterar a senha imediatamente após entrar no sistema.</p>
             <p style="color: #666; font-size: 12px;">
               Se você não solicitou esta conta, pode ignorar este email com segurança.<br>
               Atenciosamente,<br>Equipe do Sistema Nutricional
@@ -166,7 +150,6 @@ const handler = async (req: Request): Promise<Response> => {
 
     const emailResult = await emailResponse.json();
     console.log('Welcome email sent successfully:', emailResult);
-
     return new Response(JSON.stringify({ 
       success: true,
       user_id: authData.user?.id,
