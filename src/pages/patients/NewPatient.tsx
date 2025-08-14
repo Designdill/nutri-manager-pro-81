@@ -20,7 +20,7 @@ export default function NewPatient() {
     defaultValues: {
       full_name: "",
       cpf: "",
-      email: undefined,
+      email: "",
       phone: "",
     },
   });
@@ -67,8 +67,8 @@ export default function NewPatient() {
         full_name: values.full_name,
         cpf: values.cpf,
         nutritionist_id: session.user.id,
-        // Handle empty email properly - convert empty string to null
-        email: values.email && values.email.trim() !== "" ? values.email.trim() : null,
+        // Email is now required, so use it directly
+        email: values.email.trim(),
         current_weight: values.current_weight ? parseFloat(values.current_weight) : null,
         target_weight: values.target_weight ? parseFloat(values.target_weight) : null,
         height: values.height ? parseFloat(values.height) : null,
@@ -88,30 +88,26 @@ export default function NewPatient() {
         throw error;
       }
 
-      // Send welcome email if email is provided and not empty
-      if (values.email && values.email.trim() !== "") {
-        try {
-          const { data: welcomeData, error: welcomeError } = await supabase.functions.invoke('send-welcome-email', {
-            body: {
-              patientData: {
-                full_name: values.full_name,
-                email: values.email.trim(),
-              }
+      // Send welcome email since email is now required
+      try {
+        const { data: welcomeData, error: welcomeError } = await supabase.functions.invoke('send-welcome-email', {
+          body: {
+            patientData: {
+              full_name: values.full_name,
+              email: values.email.trim(),
             }
-          });
-
-          if (welcomeError || (welcomeData as any)?.error) {
-            console.error("Error sending welcome email:", welcomeError || (welcomeData as any)?.error);
-            toast.error("Paciente cadastrado, mas houve um erro ao enviar o email de boas-vindas");
-          } else {
-            toast.success("Paciente cadastrado e email de boas-vindas enviado com sucesso!");
           }
-        } catch (emailError) {
-          console.error("Error invoking send-email function:", emailError);
+        });
+
+        if (welcomeError || (welcomeData as any)?.error) {
+          console.error("Error sending welcome email:", welcomeError || (welcomeData as any)?.error);
           toast.error("Paciente cadastrado, mas houve um erro ao enviar o email de boas-vindas");
+        } else {
+          toast.success("Paciente cadastrado e email de boas-vindas enviado com sucesso!");
         }
-      } else {
-        toast.success("Paciente cadastrado com sucesso!");
+      } catch (emailError) {
+        console.error("Error invoking send-email function:", emailError);
+        toast.error("Paciente cadastrado, mas houve um erro ao enviar o email de boas-vindas");
       }
 
       navigate("/patients");

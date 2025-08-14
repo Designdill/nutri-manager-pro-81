@@ -56,22 +56,19 @@ export function PersonalInfoForm({ form }: PersonalInfoFormProps) {
           name="email"
           render={({ field, fieldState }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>Email *</FormLabel>
               <FormControl>
                 <Input 
                   type="email" 
                   placeholder="email@exemplo.com" 
-                  className={cn(
-                    fieldState.error && "border-red-500 focus-visible:ring-red-500",
-                    fieldState.isDirty && !fieldState.error && "border-green-500 focus-visible:ring-green-500"
-                  )}
                   {...field} 
+                  aria-required="true"
                   aria-invalid={!!errors.email}
                   aria-describedby={errors.email ? "email-error" : "email-description"}
                 />
               </FormControl>
               <FormDescription id="email-description">
-                📧 Email opcional para comunicações importantes e notificações
+                Email obrigatório para comunicações e envio da senha de acesso
               </FormDescription>
               <FormMessage id="email-error" />
             </FormItem>
@@ -88,13 +85,12 @@ export function PersonalInfoForm({ form }: PersonalInfoFormProps) {
                 <Input 
                   placeholder="000.000.000-00" 
                   {...field}
-                  aria-required="true"
                   aria-invalid={!!errors.cpf}
                   aria-describedby={errors.cpf ? "cpf-error" : "cpf-description"}
                 />
               </FormControl>
               <FormDescription id="cpf-description">
-                Digite apenas números
+                Digite apenas números (opcional)
               </FormDescription>
               <FormMessage id="cpf-error" />
             </FormItem>
@@ -106,17 +102,19 @@ export function PersonalInfoForm({ form }: PersonalInfoFormProps) {
           name="phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Telefone</FormLabel>
+              <FormLabel>Telefone *</FormLabel>
               <FormControl>
                 <Input 
                   placeholder="(00) 00000-0000" 
                   {...field}
                   type="tel"
-                  aria-describedby="phone-description"
+                  aria-required="true"
+                  aria-invalid={!!errors.phone}
+                  aria-describedby={errors.phone ? "phone-error" : "phone-description"}
                 />
               </FormControl>
               <FormDescription id="phone-description">
-                Formato: (00) 00000-0000
+                Telefone obrigatório para contato
               </FormDescription>
               <FormMessage />
             </FormItem>

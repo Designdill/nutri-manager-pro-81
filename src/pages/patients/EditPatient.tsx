@@ -63,6 +63,10 @@ export default function EditPatient() {
   const updatePatient = useCallback(async (data: PatientFormValues) => {
     const patientData = {
       ...data,
+      // Handle nullable email and phone conversion
+      email: data.email?.trim() || null,
+      phone: data.phone?.trim() || null,
+      cpf: data.cpf?.trim() || null,
       current_weight: data.current_weight ? parseFloat(data.current_weight) : null,
       target_weight: data.target_weight ? parseFloat(data.target_weight) : null,
       height: data.height ? parseFloat(data.height) : null,

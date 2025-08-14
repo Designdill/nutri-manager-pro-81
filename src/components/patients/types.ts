@@ -6,13 +6,9 @@ export const patientFormSchema = z.object({
   full_name: z.string().min(2, {
     message: "Nome deve ter pelo menos 2 caracteres"
   }),
-  email: z.union([
-    z.string().email("Por favor, insira um email válido"),
-    z.literal(""),
-    z.undefined()
-  ]).optional(),
-  cpf: z.string().min(11, "CPF deve ter 11 dígitos"),
-  phone: z.string().optional(),
+  email: z.string().email("Por favor, insira um email válido").min(1, "Email é obrigatório"),
+  cpf: z.string().optional(),
+  phone: z.string().min(1, "Telefone é obrigatório"),
   birth_date: z.string().optional(),
   gender: z.string().optional(),
   occupation: z.string().optional(),
