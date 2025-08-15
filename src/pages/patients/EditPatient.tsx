@@ -24,7 +24,8 @@ export default function EditPatient() {
   
   const form = useForm<PatientFormValues>({
     resolver: zodResolver(patientFormSchema),
-    context: patientId
+    context: patientId,
+    shouldFocusError: false
   });
 
   const { data: patient, isLoading, error } = useQuery({
@@ -45,6 +46,7 @@ export default function EditPatient() {
       console.log("Patient data fetched:", data);
       const formData: PatientFormValues = {
         ...data,
+        birth_date: data.birth_date || "",
         current_weight: data.current_weight?.toString() || "",
         target_weight: data.target_weight?.toString() || "",
         height: data.height?.toString() || "",
@@ -67,6 +69,7 @@ export default function EditPatient() {
       email: data.email?.trim() || null,
       phone: data.phone?.trim() || null,
       cpf: data.cpf?.trim() || null,
+      birth_date: data.birth_date?.trim() || null,
       current_weight: data.current_weight ? parseFloat(data.current_weight) : null,
       target_weight: data.target_weight ? parseFloat(data.target_weight) : null,
       height: data.height ? parseFloat(data.height) : null,
@@ -97,6 +100,12 @@ export default function EditPatient() {
     try {
       console.log("Manually saving patient with data:", data);
       await updatePatient(data);
+
+      // Clear any form errors and remove focus
+      form.clearErrors();
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
 
       toast({
         title: "Paciente atualizado",
