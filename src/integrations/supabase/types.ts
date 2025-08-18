@@ -658,7 +658,7 @@ export type Database = {
           blood_type: string | null
           city: string | null
           complement: string | null
-          cpf: string
+          cpf: string | null
           created_at: string
           current_weight: number | null
           dietary_restrictions: string | null
@@ -703,7 +703,7 @@ export type Database = {
           blood_type?: string | null
           city?: string | null
           complement?: string | null
-          cpf: string
+          cpf?: string | null
           created_at?: string
           current_weight?: number | null
           dietary_restrictions?: string | null
@@ -748,7 +748,7 @@ export type Database = {
           blood_type?: string | null
           city?: string | null
           complement?: string | null
-          cpf?: string
+          cpf?: string | null
           created_at?: string
           current_weight?: number | null
           dietary_restrictions?: string | null
