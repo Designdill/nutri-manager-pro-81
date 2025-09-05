@@ -23,6 +23,7 @@ export function useRealtimeAppointments(date?: Date) {
             id,
             scheduled_at,
             status,
+            notes,
             patients (
               id,
               full_name,
