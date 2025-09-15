@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { Resend } from "npm:resend@2.0.0";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
@@ -15,8 +16,9 @@ const corsHeaders = {
 
 interface EmailData {
   to: string;
-  type: "welcome" | "registration" | "appointment_reminder" | "appointment_confirmation" | "profile_update" | "exam_results" | "follow_up_reminder" | "account_deactivation" | "integration_update";
+  type: "welcome" | "registration" | "appointment_reminder" | "appointment_confirmation" | "profile_update" | "exam_results" | "follow_up_reminder" | "account_deactivation" | "integration_update" | "test_email";
   data: Record<string, string>;
+  from?: string;
 }
 
 const emailTemplates = {
@@ -103,6 +105,17 @@ const emailTemplates = {
       <p>Suas consultas serão sincronizadas automaticamente.</p>
     `,
   },
+  test_email: {
+    subject: "Email de Teste - Sistema Funcionando",
+    html: (data: Record<string, string>) => `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #0ea5e9;">Email de Teste</h2>
+        <p>Este é um email de teste para verificar se o sistema está funcionando corretamente.</p>
+        <p>Enviado em: ${new Date().toLocaleString('pt-BR')}</p>
+        <p>Status: ✅ Sucesso</p>
+      </div>
+    `,
+  },
 };
 
 const handler = async (req: Request): Promise<Response> => {
@@ -111,73 +124,78 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
-    
-    // For external calls or service functions, we can optionally verify auth
-    const authHeader = req.headers.get('Authorization');
-    if (authHeader) {
-      const token = authHeader.replace('Bearer ', '');
-      const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-      if (authError) {
-        console.log("Auth verification failed, proceeding without user context");
-      }
+    if (!RESEND_API_KEY) {
+      throw new Error("RESEND_API_KEY não configurada");
     }
 
-    const { to, type, data }: EmailData = await req.json();
+    const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
+    const resend = new Resend(RESEND_API_KEY);
+    
+    console.log("Processando requisição de email...");
+
+    const { to, type, data, from }: EmailData = await req.json();
+    console.log("Dados recebidos:", { to, type, dataKeys: Object.keys(data || {}) });
 
     if (!to || !type || !data) {
-      throw new Error("Missing required fields");
+      throw new Error("Campos obrigatórios: to, type, data");
     }
 
     const template = emailTemplates[type];
     if (!template) {
-      throw new Error("Invalid email type");
+      throw new Error(`Tipo de email inválido: ${type}`);
     }
 
-    const emailResponse = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-      },
-      body: JSON.stringify({
-        from: "Sistema Nutricional <onboarding@resend.dev>",
-        to: [to],
-        subject: template.subject,
-        html: template.html(data),
-      }),
+    const emailFrom = from || "Sistema Nutricional <onboarding@resend.dev>";
+    console.log("Enviando email de:", emailFrom, "para:", to);
+
+    const emailResponse = await resend.emails.send({
+      from: emailFrom,
+      to: [to],
+      subject: template.subject,
+      html: template.html(data),
     });
 
-    if (!emailResponse.ok) {
-      throw new Error("Failed to send email");
+    console.log("Resposta do Resend:", emailResponse);
+
+    if (emailResponse.error) {
+      console.error("Erro do Resend:", emailResponse.error);
+      throw new Error(`Erro do Resend: ${emailResponse.error.message}`);
     }
 
-    // Create notification record - supabase client already created above
-    
+    // Create notification record
     const { error: notificationError } = await supabase
       .from("notifications")
       .insert({
-        user_id: data.userId,
+        user_id: data.userId || data.nutritionist_id,
         type,
         title: template.subject,
         message: `Email enviado para ${to}`,
       });
 
     if (notificationError) {
-      console.error("Error creating notification:", notificationError);
+      console.error("Erro ao criar notificação:", notificationError);
     }
 
+    console.log("Email enviado com sucesso! ID:", emailResponse.data?.id);
+
     return new Response(
-      JSON.stringify({ success: true }),
+      JSON.stringify({ 
+        success: true, 
+        emailId: emailResponse.data?.id,
+        message: "Email enviado com sucesso" 
+      }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
       }
     );
   } catch (error: any) {
-    console.error("Error in send-notification-email function:", error);
+    console.error("Erro detalhado na função send-notification-email:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: error.stack || "Stack não disponível"
+      }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 500,

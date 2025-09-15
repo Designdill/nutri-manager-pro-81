@@ -87,35 +87,53 @@ export function AppointmentForm({ onSuccess, onCancel }: AppointmentFormProps) {
           const formattedDate = format(appointmentDate, "dd/MM/yyyy", { locale: ptBR });
           const formattedTime = format(appointmentDate, "HH:mm");
           
-          const { error: emailError } = await supabase.functions.invoke('send-notification-email', {
-            body: {
-              to: patient.email,
-              type: 'appointment_confirmation',
-              data: {
-                name: patient.full_name,
-                date: formattedDate,
-                time: formattedTime,
-                appointmentType: data.appointment_type,
-                notes: data.notes || '',
-                userId: patient.id
-              }
+          console.log("Enviando email de confirmação para:", patient.email);
+          const { data: emailResult, error: emailError } = await supabase.functions.invoke(
+            "send-notification-email",
+            {
+              body: {
+                to: patient.email,
+                type: "appointment_confirmation",
+                data: {
+                  name: patient.full_name,
+                  date: formattedDate,
+                  time: formattedTime,
+                  appointmentType: data.appointment_type,
+                  notes: data.notes || "",
+                  userId: patient.id,
+                  nutritionist_id: session.user.id,
+                },
+              },
             }
-          });
+          );
 
           if (emailError) {
-            console.error('Error sending email:', emailError);
-            // Don't fail the appointment creation if email fails
+            console.error("Erro ao enviar email de confirmação:", emailError);
+            toast({
+              title: "Consulta agendada",
+              description: `Consulta criada, mas erro no email: ${emailError.message || "Erro desconhecido"}`,
+              variant: "destructive",
+            });
+          } else {
+            console.log("Email enviado com sucesso:", emailResult);
+            toast({
+              title: "Sucesso",
+              description: "Consulta agendada e email de confirmação enviado!",
+            });
           }
-        } catch (emailError) {
-          console.error('Error sending confirmation email:', emailError);
-          // Don't fail the appointment creation if email fails
+        } catch (emailError: any) {
+          console.error("Erro inesperado ao enviar email:", emailError);
+          toast({
+            title: "Consulta agendada",
+            description: `Consulta criada, mas erro no email: ${emailError.message || "Erro de conexão"}`,
+          });
         }
+      } else {
+        toast({
+          title: "Consulta agendada",
+          description: "Consulta agendada com sucesso! (Email não cadastrado para o paciente)",
+        });
       }
-
-      toast({
-        title: "Consulta agendada",
-        description: "A consulta foi agendada com sucesso.",
-      });
 
       onSuccess();
     } catch (error: any) {
