@@ -46,7 +46,7 @@ export function AppointmentForm({ onSuccess, onCancel }: AppointmentFormProps) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("patients")
-        .select("id, full_name, phone")
+        .select("id, full_name, phone, email")
         .eq("nutritionist_id", session?.user.id)
         .order("full_name");
 
@@ -76,6 +76,41 @@ export function AppointmentForm({ onSuccess, onCancel }: AppointmentFormProps) {
       });
 
       if (error) throw error;
+
+      // Find patient to send email
+      const patient = patients.find(p => p.id === data.patient_id);
+      
+      // Send confirmation email if patient has email
+      if (patient?.email) {
+        try {
+          const appointmentDate = new Date(data.scheduled_at);
+          const formattedDate = format(appointmentDate, "dd/MM/yyyy", { locale: ptBR });
+          const formattedTime = format(appointmentDate, "HH:mm");
+          
+          const { error: emailError } = await supabase.functions.invoke('send-notification-email', {
+            body: {
+              to: patient.email,
+              type: 'appointment_confirmation',
+              data: {
+                name: patient.full_name,
+                date: formattedDate,
+                time: formattedTime,
+                appointmentType: data.appointment_type,
+                notes: data.notes || '',
+                userId: patient.id
+              }
+            }
+          });
+
+          if (emailError) {
+            console.error('Error sending email:', emailError);
+            // Don't fail the appointment creation if email fails
+          }
+        } catch (emailError) {
+          console.error('Error sending confirmation email:', emailError);
+          // Don't fail the appointment creation if email fails
+        }
+      }
 
       toast({
         title: "Consulta agendada",

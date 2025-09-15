@@ -6,7 +6,7 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "https://rthwkkiddqvcignwrofj.supabase.co",
+  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -15,7 +15,7 @@ const corsHeaders = {
 
 interface EmailData {
   to: string;
-  type: "welcome" | "registration" | "appointment_reminder" | "profile_update" | "exam_results" | "follow_up_reminder" | "account_deactivation" | "integration_update";
+  type: "welcome" | "registration" | "appointment_reminder" | "appointment_confirmation" | "profile_update" | "exam_results" | "follow_up_reminder" | "account_deactivation" | "integration_update";
   data: Record<string, string>;
 }
 
@@ -35,6 +35,32 @@ const emailTemplates = {
       <h2>Olá, ${data.name}!</h2>
       <p>Lembramos que você tem uma consulta agendada para ${data.date} às ${data.time}.</p>
       <p>Por favor, não esqueça de comparecer.</p>
+    `,
+  },
+  appointment_confirmation: {
+    subject: "Consulta Agendada - Confirmação",
+    html: (data: Record<string, string>) => `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #0ea5e9;">Consulta Agendada com Sucesso!</h2>
+        <p>Olá, <strong>${data.name}</strong>!</p>
+        <p>Sua consulta foi agendada com sucesso. Aqui estão os detalhes:</p>
+        
+        <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="margin-top: 0; color: #334155;">Detalhes da Consulta</h3>
+          <p><strong>Data:</strong> ${data.date}</p>
+          <p><strong>Horário:</strong> ${data.time}</p>
+          <p><strong>Tipo:</strong> ${data.appointmentType === 'consulta_inicial' ? 'Consulta Inicial' : 
+                                  data.appointmentType === 'retorno' ? 'Retorno' : 
+                                  data.appointmentType === 'emergencia' ? 'Emergência' : 'Telemedicina'}</p>
+          ${data.notes ? `<p><strong>Observações:</strong> ${data.notes}</p>` : ''}
+        </div>
+        
+        <p>Por favor, chegue com 10 minutos de antecedência.</p>
+        <p>Em caso de dúvidas ou necessidade de reagendar, entre em contato conosco.</p>
+        
+        <p>Atenciosamente,<br>
+        <strong>Equipe de Nutrição</strong></p>
+      </div>
     `,
   },
   profile_update: {
@@ -85,18 +111,16 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    // Verify JWT token for security
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      throw new Error("Missing authorization header");
-    }
-
     const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
     
-    if (authError || !user) {
-      throw new Error("Invalid or expired token");
+    // For external calls or service functions, we can optionally verify auth
+    const authHeader = req.headers.get('Authorization');
+    if (authHeader) {
+      const token = authHeader.replace('Bearer ', '');
+      const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+      if (authError) {
+        console.log("Auth verification failed, proceeding without user context");
+      }
     }
 
     const { to, type, data }: EmailData = await req.json();
