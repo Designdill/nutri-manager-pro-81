@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { AppSidebar } from "@/components/AppSidebar";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { SearchBar } from "./components/SearchBar";
 import { SettingsHeader } from "./components/SettingsHeader";
+import { SettingsTour } from "./components/SettingsTour";
 import { useSettingsForm } from "./hooks/useSettingsForm";
+import { useSettingsKeyboard } from "./hooks/useSettingsKeyboard";
 import { SettingsFormValues } from "./types";
 import { useAuth } from "@/App";
 import { SettingsContent } from "./components/SettingsContent";
@@ -14,7 +16,10 @@ export default function SettingsPage() {
   const { session } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState<"compact" | "detailed">("detailed");
+  const [showFavorites, setShowFavorites] = useState(false);
   const { form, userSettings } = useSettingsForm();
+  const searchRef = useRef<HTMLInputElement>(null);
 
   const onSubmit = async (data: SettingsFormValues) => {
     setIsLoading(true);
@@ -160,16 +165,58 @@ export default function SettingsPage() {
     setSearchQuery(query.toLowerCase());
   };
 
+  const handleToggleSearch = () => {
+    searchRef.current?.focus();
+  };
+
+  const handleNavigateTab = (direction: "next" | "prev") => {
+    const tabs = ["profile", "appearance", "notifications", "email", "integrations", "account", "backup"];
+    const currentIndex = tabs.findIndex(tab => 
+      document.querySelector(`[value="${tab}"][data-state="active"]`)
+    );
+    
+    let newIndex;
+    if (direction === "next") {
+      newIndex = currentIndex < tabs.length - 1 ? currentIndex + 1 : 0;
+    } else {
+      newIndex = currentIndex > 0 ? currentIndex - 1 : tabs.length - 1;
+    }
+    
+    const tabElement = document.querySelector(`[value="${tabs[newIndex]}"]`) as HTMLElement;
+    tabElement?.click();
+  };
+
+  const handleSave = () => {
+    form.handleSubmit(onSubmit)();
+  };
+
+  useSettingsKeyboard({
+    onNavigateTab: handleNavigateTab,
+    onToggleSearch: handleToggleSearch,
+    onSave: handleSave,
+    onReset: resetSettings,
+  });
+
   return (
     <div className="flex min-h-screen">
       <AppSidebar />
       <div className="flex-1 space-y-8 p-8">
-        <SettingsHeader onReset={resetSettings} resetForm={form.reset} />
-        <SearchBar onSearch={filterComponents} />
+        <SettingsTour />
+        <SettingsHeader 
+          onReset={resetSettings} 
+          resetForm={form.reset}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+          showFavorites={showFavorites}
+          onToggleFavorites={() => setShowFavorites(!showFavorites)}
+        />
+        <SearchBar ref={searchRef} onSearch={filterComponents} />
         <SettingsContent 
           form={form}
           onSubmit={onSubmit}
           isLoading={isLoading}
+          viewMode={viewMode}
+          showFavorites={showFavorites}
         />
       </div>
     </div>

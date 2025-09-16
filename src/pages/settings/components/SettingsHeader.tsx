@@ -3,13 +3,25 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { RotateCcw } from "lucide-react";
 import { SettingsFormValues } from "../types";
 import { UseFormReset } from "react-hook-form";
+import { SettingsViewToggle } from "./SettingsViewToggle";
 
 interface SettingsHeaderProps {
   onReset: () => Promise<void>;
   resetForm: UseFormReset<SettingsFormValues>;
+  viewMode: "compact" | "detailed";
+  onViewModeChange: (mode: "compact" | "detailed") => void;
+  showFavorites: boolean;
+  onToggleFavorites: () => void;
 }
 
-export function SettingsHeader({ onReset, resetForm }: SettingsHeaderProps) {
+export function SettingsHeader({ 
+  onReset, 
+  resetForm, 
+  viewMode, 
+  onViewModeChange, 
+  showFavorites, 
+  onToggleFavorites 
+}: SettingsHeaderProps) {
   const handleReset = async () => {
     await onReset();
     const defaultSettings: SettingsFormValues = {
@@ -61,7 +73,18 @@ export function SettingsHeader({ onReset, resetForm }: SettingsHeaderProps) {
           Gerencie suas preferências e configurações da conta
         </p>
       </div>
-      <AlertDialog>
+      
+      <div className="flex items-center gap-4">
+        <div data-tour="view-toggle">
+          <SettingsViewToggle
+            viewMode={viewMode}
+            onViewModeChange={onViewModeChange}
+            showFavorites={showFavorites}
+            onToggleFavorites={onToggleFavorites}
+          />
+        </div>
+        
+        <AlertDialog>
         <AlertDialogTrigger asChild>
           <Button variant="outline" className="gap-2">
             <RotateCcw className="h-4 w-4" />
@@ -84,6 +107,7 @@ export function SettingsHeader({ onReset, resetForm }: SettingsHeaderProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      </div>
     </div>
   );
 }
