@@ -19,4 +19,9 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  // Temporarily disable sourcemaps to fix esbuild crash
+  build: {
+    sourcemap: false,
+    minify: false,
+  },
 }));
