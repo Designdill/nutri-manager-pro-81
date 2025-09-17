@@ -53,31 +53,29 @@ export function APISettings() {
   }, []);
 
   const loadApiKeys = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('api_keys')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setApiKeys(data || []);
-    } catch (error) {
-      console.error('Error loading API keys:', error);
-    }
+    // Mock data for now - replace with actual Supabase calls after migration
+    const mockKeys: APIKey[] = [
+      {
+        id: '1',
+        name: 'Dashboard API',
+        key: 'sk_test_abc123456789...',
+        permissions: ['patients.read', 'appointments.read'],
+        active: true,
+        created_at: new Date().toISOString(),
+        last_used: new Date().toISOString(),
+        requests_count: 1250
+      }
+    ];
+    setApiKeys(mockKeys);
   };
 
   const loadApiStats = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('api_usage_stats')
-        .select('*')
-        .single();
-
-      if (error) throw error;
-      setApiStats(data || { total_requests: 0, requests_today: 0, active_keys: 0 });
-    } catch (error) {
-      console.error('Error loading API stats:', error);
-    }
+    // Mock stats for now
+    setApiStats({
+      total_requests: 5420,
+      requests_today: 148,
+      active_keys: 3
+    });
   };
 
   const generateApiKey = () => {
@@ -98,87 +96,47 @@ export function APISettings() {
       return;
     }
 
-    try {
-      const generatedKey = generateApiKey();
-      
-      const { data, error } = await supabase
-        .from('api_keys')
-        .insert({
-          name: newApiKey.name,
-          key: generatedKey,
-          permissions: newApiKey.permissions,
-          active: newApiKey.active,
-          requests_count: 0
-        })
-        .select()
-        .single();
+    // Mock implementation - replace with actual Supabase calls after migration
+    const generatedKey = generateApiKey();
+    const newKey: APIKey = {
+      id: Date.now().toString(),
+      name: newApiKey.name,
+      key: generatedKey,
+      permissions: newApiKey.permissions,
+      active: newApiKey.active,
+      requests_count: 0,
+      created_at: new Date().toISOString()
+    };
 
-      if (error) throw error;
-
-      setApiKeys([data, ...apiKeys]);
-      setNewApiKey({ name: '', permissions: [], active: true });
-      setShowForm(false);
-      
-      toast({
-        title: "API Key criada",
-        description: "Nova API Key gerada com sucesso. Copie e guarde em local seguro."
-      });
-    } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Erro ao criar API Key",
-        variant: "destructive"
-      });
-    }
+    setApiKeys([newKey, ...apiKeys]);
+    setNewApiKey({ name: '', permissions: [], active: true });
+    setShowForm(false);
+    
+    toast({
+      title: "API Key criada",
+      description: "Nova API Key gerada com sucesso. Copie e guarde em local seguro."
+    });
   };
 
   const revokeApiKey = async (id: string) => {
-    try {
-      const { error } = await supabase
-        .from('api_keys')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-
-      setApiKeys(apiKeys.filter(k => k.id !== id));
-      toast({
-        title: "API Key revogada",
-        description: "API Key removida com sucesso"
-      });
-    } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Erro ao revogar API Key",
-        variant: "destructive"
-      });
-    }
+    // Mock implementation - replace with actual Supabase calls after migration
+    setApiKeys(apiKeys.filter(k => k.id !== id));
+    toast({
+      title: "API Key revogada",
+      description: "API Key removida com sucesso"
+    });
   };
 
   const toggleApiKey = async (id: string, active: boolean) => {
-    try {
-      const { error } = await supabase
-        .from('api_keys')
-        .update({ active })
-        .eq('id', id);
-
-      if (error) throw error;
-
-      setApiKeys(apiKeys.map(k => 
-        k.id === id ? { ...k, active } : k
-      ));
-      
-      toast({
-        title: active ? "API Key ativada" : "API Key desativada",
-        description: `API Key ${active ? 'ativada' : 'desativada'} com sucesso`
-      });
-    } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Erro ao atualizar API Key",
-        variant: "destructive"
-      });
-    }
+    // Mock implementation - replace with actual Supabase calls after migration
+    setApiKeys(apiKeys.map(k => 
+      k.id === id ? { ...k, active } : k
+    ));
+    
+    toast({
+      title: active ? "API Key ativada" : "API Key desativada",
+      description: `API Key ${active ? 'ativada' : 'desativada'} com sucesso`
+    });
   };
 
   const copyApiKey = (key: string) => {
@@ -198,31 +156,17 @@ export function APISettings() {
   };
 
   const regenerateKey = async (id: string) => {
-    try {
-      const newKey = generateApiKey();
-      
-      const { error } = await supabase
-        .from('api_keys')
-        .update({ key: newKey })
-        .eq('id', id);
-
-      if (error) throw error;
-
-      setApiKeys(apiKeys.map(k => 
-        k.id === id ? { ...k, key: newKey } : k
-      ));
-      
-      toast({
-        title: "API Key regenerada",
-        description: "Nova chave gerada. Atualize suas integrações."
-      });
-    } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Erro ao regenerar API Key",
-        variant: "destructive"
-      });
-    }
+    // Mock implementation - replace with actual Supabase calls after migration
+    const newKey = generateApiKey();
+    
+    setApiKeys(apiKeys.map(k => 
+      k.id === id ? { ...k, key: newKey } : k
+    ));
+    
+    toast({
+      title: "API Key regenerada",
+      description: "Nova chave gerada. Atualize suas integrações."
+    });
   };
 
   return (

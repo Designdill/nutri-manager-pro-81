@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { Cloud, RefreshCw, CheckCircle, XCircle, Settings } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
 interface ExternalConnector {
   id: string;
@@ -22,25 +21,25 @@ interface ExternalConnector {
 
 const CONNECTOR_TYPES = [
   { 
-    id: 'google_drive', 
+    id: 'google_drive' as const, 
     name: 'Google Drive', 
     icon: '📁',
     description: 'Sincronize backups com Google Drive'
   },
   { 
-    id: 'dropbox', 
+    id: 'dropbox' as const, 
     name: 'Dropbox', 
     icon: '📦',
     description: 'Armazene backups no Dropbox'
   },
   { 
-    id: 'onedrive', 
+    id: 'onedrive' as const, 
     name: 'OneDrive', 
     icon: '☁️',
     description: 'Integração com Microsoft OneDrive'
   },
   { 
-    id: 'aws_s3', 
+    id: 'aws_s3' as const, 
     name: 'AWS S3', 
     icon: '🪣',
     description: 'Armazenamento em bucket S3'
@@ -58,17 +57,20 @@ export function ExternalConnectors() {
   }, []);
 
   const loadConnectors = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('external_connectors')
-        .select('*')
-        .order('name');
-
-      if (error) throw error;
-      setConnectors(data || []);
-    } catch (error) {
-      console.error('Error loading connectors:', error);
-    }
+    // Mock data for now - replace with actual Supabase calls after migration
+    const mockConnectors: ExternalConnector[] = [
+      {
+        id: '1',
+        name: 'Google Drive',
+        type: 'google_drive',
+        status: 'connected',
+        config: { account: 'user@gmail.com' },
+        last_sync: new Date().toISOString(),
+        sync_enabled: true,
+        auto_backup: true
+      }
+    ];
+    setConnectors(mockConnectors);
   };
 
   const connectService = async (type: string) => {
@@ -79,178 +81,85 @@ export function ExternalConnectors() {
   const saveConnector = async () => {
     if (!showConfig) return;
 
-    try {
-      const connectorType = CONNECTOR_TYPES.find(c => c.id === showConfig);
-      if (!connectorType) return;
+    // Mock implementation - replace with actual Supabase calls after migration
+    const connectorType = CONNECTOR_TYPES.find(c => c.id === showConfig);
+    if (!connectorType) return;
 
-      const { data, error } = await supabase
-        .from('external_connectors')
-        .insert({
-          name: connectorType.name,
-          type: showConfig,
-          status: 'disconnected',
-          config: configData,
-          sync_enabled: true,
-          auto_backup: false
-        })
-        .select()
-        .single();
+    const newConnector: ExternalConnector = {
+      id: Date.now().toString(),
+      name: connectorType.name,
+      type: showConfig as any,
+      status: 'disconnected',
+      config: configData,
+      sync_enabled: true,
+      auto_backup: false
+    };
 
-      if (error) throw error;
-
-      // Test connection
-      await testConnection(data.id);
-      
-      setConnectors([...connectors, data]);
-      setShowConfig(null);
-      setConfigData({});
-      
-      toast({
-        title: "Conector configurado",
-        description: `${connectorType.name} configurado com sucesso`
-      });
-    } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Erro ao configurar conector",
-        variant: "destructive"
-      });
-    }
+    setConnectors([...connectors, newConnector]);
+    setShowConfig(null);
+    setConfigData({});
+    
+    toast({
+      title: "Conector configurado",
+      description: `${connectorType.name} configurado com sucesso`
+    });
   };
 
-  const testConnection = async (id: string) => {
-    try {
-      const { data, error } = await supabase.functions.invoke('test-external-connector', {
-        body: { connector_id: id }
-      });
-
-      if (error) throw error;
-
-      const status = data.success ? 'connected' : 'error';
-      
-      await supabase
-        .from('external_connectors')
-        .update({ status })
-        .eq('id', id);
-
-      setConnectors(connectors.map(c => 
-        c.id === id ? { ...c, status } : c
-      ));
-
-      toast({
-        title: status === 'connected' ? "Conexão bem-sucedida" : "Erro na conexão",
-        description: data.message || (status === 'connected' ? "Conector conectado" : "Falha na conexão"),
-        variant: status === 'connected' ? "default" : "destructive"
-      });
-    } catch (error) {
-      toast({
-        title: "Erro no teste",
-        description: "Erro ao testar conexão",
-        variant: "destructive"
-      });
-    }
+  const disconnectService = async (id: string) => {
+    // Mock implementation - replace with actual Supabase calls after migration
+    setConnectors(connectors.filter(c => c.id !== id));
+    toast({
+      title: "Serviço desconectado",
+      description: "Conector removido com sucesso"
+    });
   };
 
-  const syncNow = async (id: string) => {
-    try {
-      toast({
-        title: "Sincronização iniciada",
-        description: "Sincronização em andamento..."
-      });
-
-      const { data, error } = await supabase.functions.invoke('sync-external-connector', {
-        body: { connector_id: id }
-      });
-
-      if (error) throw error;
-
-      await supabase
-        .from('external_connectors')
-        .update({ last_sync: new Date().toISOString() })
-        .eq('id', id);
-
-      setConnectors(connectors.map(c => 
-        c.id === id ? { ...c, last_sync: new Date().toISOString() } : c
-      ));
-
-      toast({
-        title: "Sincronização concluída",
-        description: "Dados sincronizados com sucesso"
-      });
-    } catch (error) {
-      toast({
-        title: "Erro na sincronização",
-        description: "Erro ao sincronizar dados",
-        variant: "destructive"
-      });
-    }
+  const syncNow = async (connector: ExternalConnector) => {
+    // Mock implementation - replace with actual sync logic
+    setConnectors(connectors.map(c => 
+      c.id === connector.id 
+        ? { ...c, last_sync: new Date().toISOString(), status: 'connected' }
+        : c
+    ));
+    
+    toast({
+      title: "Sincronização concluída",
+      description: `${connector.name} sincronizado com sucesso`
+    });
   };
 
-  const toggleSync = async (id: string, enabled: boolean) => {
-    try {
-      await supabase
-        .from('external_connectors')
-        .update({ sync_enabled: enabled })
-        .eq('id', id);
-
-      setConnectors(connectors.map(c => 
-        c.id === id ? { ...c, sync_enabled: enabled } : c
-      ));
-    } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Erro ao atualizar configuração",
-        variant: "destructive"
-      });
-    }
+  const toggleAutoBackup = async (id: string, auto_backup: boolean) => {
+    // Mock implementation - replace with actual Supabase calls after migration
+    setConnectors(connectors.map(c => 
+      c.id === id ? { ...c, auto_backup } : c
+    ));
+    
+    toast({
+      title: auto_backup ? "Backup automático ativado" : "Backup automático desativado",
+      description: "Configuração atualizada com sucesso"
+    });
   };
 
-  const toggleAutoBackup = async (id: string, enabled: boolean) => {
-    try {
-      await supabase
-        .from('external_connectors')
-        .update({ auto_backup: enabled })
-        .eq('id', id);
-
-      setConnectors(connectors.map(c => 
-        c.id === id ? { ...c, auto_backup: enabled } : c
-      ));
-    } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Erro ao atualizar configuração",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const removeConnector = async (id: string) => {
-    try {
-      await supabase
-        .from('external_connectors')
-        .delete()
-        .eq('id', id);
-
-      setConnectors(connectors.filter(c => c.id !== id));
-      
-      toast({
-        title: "Conector removido",
-        description: "Conector removido com sucesso"
-      });
-    } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Erro ao remover conector",
-        variant: "destructive"
-      });
-    }
+  const toggleSync = async (id: string, sync_enabled: boolean) => {
+    // Mock implementation - replace with actual Supabase calls after migration
+    setConnectors(connectors.map(c => 
+      c.id === id ? { ...c, sync_enabled } : c
+    ));
+    
+    toast({
+      title: sync_enabled ? "Sincronização ativada" : "Sincronização desativada",
+      description: "Configuração atualizada com sucesso"
+    });
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'connected': return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case 'error': return <XCircle className="h-4 w-4 text-red-500" />;
-      default: return <XCircle className="h-4 w-4 text-gray-400" />;
+      case 'connected':
+        return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case 'error':
+        return <XCircle className="h-4 w-4 text-red-500" />;
+      default:
+        return <XCircle className="h-4 w-4 text-gray-500" />;
     }
   };
 
@@ -262,135 +171,46 @@ export function ExternalConnectors() {
     }
   };
 
-  const renderConfigForm = (type: string) => {
-    switch (type) {
-      case 'google_drive':
-        return (
-          <div className="space-y-4">
-            <div>
-              <Label>Client ID</Label>
-              <Input
-                value={configData.client_id || ''}
-                onChange={(e) => setConfigData({ ...configData, client_id: e.target.value })}
-                placeholder="Google Drive Client ID"
-              />
-            </div>
-            <div>
-              <Label>Client Secret</Label>
-              <Input
-                type="password"
-                value={configData.client_secret || ''}
-                onChange={(e) => setConfigData({ ...configData, client_secret: e.target.value })}
-                placeholder="Google Drive Client Secret"
-              />
-            </div>
-            <div>
-              <Label>Pasta de Backup</Label>
-              <Input
-                value={configData.backup_folder || ''}
-                onChange={(e) => setConfigData({ ...configData, backup_folder: e.target.value })}
-                placeholder="Nome da pasta (ex: Backups Sistema)"
-              />
-            </div>
-          </div>
-        );
-      case 'aws_s3':
-        return (
-          <div className="space-y-4">
-            <div>
-              <Label>Access Key ID</Label>
-              <Input
-                value={configData.access_key_id || ''}
-                onChange={(e) => setConfigData({ ...configData, access_key_id: e.target.value })}
-                placeholder="AWS Access Key ID"
-              />
-            </div>
-            <div>
-              <Label>Secret Access Key</Label>
-              <Input
-                type="password"
-                value={configData.secret_access_key || ''}
-                onChange={(e) => setConfigData({ ...configData, secret_access_key: e.target.value })}
-                placeholder="AWS Secret Access Key"
-              />
-            </div>
-            <div>
-              <Label>Bucket Name</Label>
-              <Input
-                value={configData.bucket_name || ''}
-                onChange={(e) => setConfigData({ ...configData, bucket_name: e.target.value })}
-                placeholder="Nome do bucket S3"
-              />
-            </div>
-            <div>
-              <Label>Region</Label>
-              <Input
-                value={configData.region || ''}
-                onChange={(e) => setConfigData({ ...configData, region: e.target.value })}
-                placeholder="us-east-1"
-              />
-            </div>
-          </div>
-        );
-      default:
-        return (
-          <div className="space-y-4">
-            <div>
-              <Label>API Key</Label>
-              <Input
-                type="password"
-                value={configData.api_key || ''}
-                onChange={(e) => setConfigData({ ...configData, api_key: e.target.value })}
-                placeholder="API Key do serviço"
-              />
-            </div>
-          </div>
-        );
-    }
-  };
-
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Conectores Externos</CardTitle>
-        <CardDescription>
-          Configure integrações com serviços de nuvem para backup e sincronização
-        </CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Conectores Externos</CardTitle>
+            <CardDescription>
+              Configure integrações com serviços de armazenamento em nuvem
+            </CardDescription>
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Available Services */}
-        <div>
-          <h3 className="text-lg font-medium mb-4">Serviços Disponíveis</h3>
-          <div className="grid grid-cols-2 gap-4">
-            {CONNECTOR_TYPES.map((type) => {
-              const isConnected = connectors.some(c => c.type === type.id);
-              return (
-                <Card key={type.id} className={isConnected ? "opacity-50" : ""}>
-                  <CardContent className="pt-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl">{type.icon}</span>
-                        <div>
-                          <h4 className="font-medium">{type.name}</h4>
-                          <p className="text-sm text-muted-foreground">{type.description}</p>
-                        </div>
-                      </div>
-                      <Button
-                        size="sm"
-                        onClick={() => connectService(type.id)}
-                        disabled={isConnected}
-                      >
-                        {isConnected ? 'Conectado' : 'Conectar'}
-                      </Button>
+        <div className="grid grid-cols-2 gap-4">
+          {CONNECTOR_TYPES.map((service) => (
+            <Card key={service.id} className="cursor-pointer hover:bg-muted/50">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <span className="text-2xl">{service.icon}</span>
+                    <div>
+                      <h3 className="font-medium">{service.name}</h3>
+                      <p className="text-sm text-muted-foreground">{service.description}</p>
                     </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    onClick={() => connectService(service.id)}
+                    disabled={connectors.some(c => c.type === service.id)}
+                  >
+                    {connectors.some(c => c.type === service.id) ? 'Conectado' : 'Conectar'}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
 
-        {/* Configuration Form */}
+        {/* Configuration Modal */}
         {showConfig && (
           <Card>
             <CardHeader>
@@ -399,9 +219,97 @@ export function ExternalConnectors() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {renderConfigForm(showConfig)}
+              {showConfig === 'google_drive' && (
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="google-account">Conta Google</Label>
+                    <Input
+                      id="google-account"
+                      placeholder="seu-email@gmail.com"
+                      value={configData.account || ''}
+                      onChange={(e) => setConfigData({ ...configData, account: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="google-folder">Pasta de Destino</Label>
+                    <Input
+                      id="google-folder"
+                      placeholder="Backups/Sistema"
+                      value={configData.folder || ''}
+                      onChange={(e) => setConfigData({ ...configData, folder: e.target.value })}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {showConfig === 'aws_s3' && (
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="aws-key">Access Key ID</Label>
+                    <Input
+                      id="aws-key"
+                      placeholder="AKIA..."
+                      value={configData.access_key || ''}
+                      onChange={(e) => setConfigData({ ...configData, access_key: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="aws-secret">Secret Access Key</Label>
+                    <Input
+                      id="aws-secret"
+                      type="password"
+                      placeholder="••••••••"
+                      value={configData.secret_key || ''}
+                      onChange={(e) => setConfigData({ ...configData, secret_key: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="aws-bucket">Bucket Name</Label>
+                    <Input
+                      id="aws-bucket"
+                      placeholder="meu-bucket-backups"
+                      value={configData.bucket || ''}
+                      onChange={(e) => setConfigData({ ...configData, bucket: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="aws-region">Região</Label>
+                    <Input
+                      id="aws-region"
+                      placeholder="us-east-1"
+                      value={configData.region || ''}
+                      onChange={(e) => setConfigData({ ...configData, region: e.target.value })}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {(showConfig === 'dropbox' || showConfig === 'onedrive') && (
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="oauth-token">Token de Acesso</Label>
+                    <Input
+                      id="oauth-token"
+                      type="password"
+                      placeholder="••••••••"
+                      value={configData.token || ''}
+                      onChange={(e) => setConfigData({ ...configData, token: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="service-folder">Pasta de Destino</Label>
+                    <Input
+                      id="service-folder"
+                      placeholder="/Backups/Sistema"
+                      value={configData.folder || ''}
+                      onChange={(e) => setConfigData({ ...configData, folder: e.target.value })}
+                    />
+                  </div>
+                </div>
+              )}
+
               <div className="flex gap-2">
-                <Button onClick={saveConnector}>Conectar</Button>
+                <Button onClick={saveConnector}>Salvar Configuração</Button>
                 <Button variant="outline" onClick={() => setShowConfig(null)}>
                   Cancelar
                 </Button>
@@ -411,87 +319,83 @@ export function ExternalConnectors() {
         )}
 
         {/* Connected Services */}
-        {connectors.length > 0 && (
-          <div>
-            <h3 className="text-lg font-medium mb-4">Serviços Conectados</h3>
-            <div className="space-y-4">
-              {connectors.map((connector) => (
-                <Card key={connector.id}>
-                  <CardContent className="pt-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <Cloud className="h-8 w-8 text-muted-foreground" />
-                        <div>
-                          <div className="flex items-center gap-2 mb-1">
-                            <h4 className="font-medium">{connector.name}</h4>
-                            {getStatusIcon(connector.status)}
-                            <Badge variant={getStatusColor(connector.status) as any}>
-                              {connector.status === 'connected' ? 'Conectado' : 
-                               connector.status === 'error' ? 'Erro' : 'Desconectado'}
-                            </Badge>
-                          </div>
-                          <div className="text-sm text-muted-foreground">
-                            {connector.last_sync && (
-                              <p>Última sincronização: {new Date(connector.last_sync).toLocaleString()}</p>
-                            )}
-                          </div>
-                        </div>
+        <div className="space-y-4">
+          {connectors.map((connector) => (
+            <Card key={connector.id}>
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <Cloud className="h-8 w-8 text-muted-foreground" />
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-medium">{connector.name}</h3>
+                        {getStatusIcon(connector.status)}
+                        <Badge variant={getStatusColor(connector.status) as any}>
+                          {connector.status === 'connected' ? 'Conectado' : 
+                           connector.status === 'error' ? 'Erro' : 'Desconectado'}
+                        </Badge>
                       </div>
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2">
-                          <Label className="text-sm">Sincronização</Label>
-                          <Switch
-                            checked={connector.sync_enabled}
-                            onCheckedChange={(enabled) => toggleSync(connector.id, enabled)}
-                          />
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Label className="text-sm">Auto Backup</Label>
-                          <Switch
-                            checked={connector.auto_backup}
-                            onCheckedChange={(enabled) => toggleAutoBackup(connector.id, enabled)}
-                          />
-                        </div>
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => testConnection(connector.id)}
-                          >
-                            <Settings className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => syncNow(connector.id)}
-                            disabled={connector.status !== 'connected'}
-                          >
-                            <RefreshCw className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => removeConnector(connector.id)}
-                          >
-                            Remover
-                          </Button>
+                      
+                      <div className="text-sm text-muted-foreground">
+                        {connector.last_sync && (
+                          <p>Última sincronização: {new Date(connector.last_sync).toLocaleString()}</p>
+                        )}
+                        <div className="flex items-center gap-4 mt-2">
+                          <div className="flex items-center space-x-2">
+                            <Switch
+                              checked={connector.sync_enabled}
+                              onCheckedChange={(enabled) => toggleSync(connector.id, enabled)}
+                            />
+                            <Label className="text-xs">Sincronização</Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Switch
+                              checked={connector.auto_backup}
+                              onCheckedChange={(enabled) => toggleAutoBackup(connector.id, enabled)}
+                            />
+                            <Label className="text-xs">Backup Automático</Label>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => syncNow(connector)}
+                      disabled={connector.status !== 'connected'}
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setShowConfig(connector.type)}
+                    >
+                      <Settings className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => disconnectService(connector.id)}
+                    >
+                      Desconectar
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
 
-        {connectors.length === 0 && !showConfig && (
-          <div className="text-center py-8 text-muted-foreground">
-            <Cloud className="h-12 w-12 mx-auto mb-4" />
-            <p>Nenhum conector configurado</p>
-            <p className="text-sm">Conecte serviços de nuvem para backup automático</p>
-          </div>
-        )}
+          {connectors.length === 0 && (
+            <div className="text-center py-8 text-muted-foreground">
+              <Cloud className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>Nenhum serviço externo conectado</p>
+              <p className="text-sm">Conecte serviços de armazenamento para sincronizar backups</p>
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
   );

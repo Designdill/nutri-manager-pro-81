@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, Plus, Test, Copy, Eye, EyeOff } from "lucide-react";
+import { Trash2, Plus, Send, Copy, Eye, EyeOff } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -46,17 +46,20 @@ export function WebhookSettings() {
   }, []);
 
   const loadWebhooks = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('webhooks')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setWebhooks(data || []);
-    } catch (error) {
-      console.error('Error loading webhooks:', error);
-    }
+    // Mock data for now - replace with actual Supabase calls after migration
+    const mockWebhooks: Webhook[] = [
+      {
+        id: '1',
+        name: 'Sistema CRM',
+        url: 'https://api.crm.com/webhook',
+        events: ['settings.updated', 'user.profile.changed'],
+        active: true,
+        secret: 'whsec_abc123...',
+        last_triggered: new Date().toISOString(),
+        status: 'active'
+      }
+    ];
+    setWebhooks(mockWebhooks);
   };
 
   const saveWebhook = async () => {
@@ -69,81 +72,39 @@ export function WebhookSettings() {
       return;
     }
 
-    try {
-      const { data, error } = await supabase
-        .from('webhooks')
-        .insert({
-          name: newWebhook.name,
-          url: newWebhook.url,
-          events: newWebhook.events,
-          active: newWebhook.active,
-          secret: generateSecret(),
-          status: 'pending'
-        })
-        .select()
-        .single();
+    // Mock implementation - replace with actual Supabase calls after migration
+    const webhook: Webhook = {
+      id: Date.now().toString(),
+      name: newWebhook.name,
+      url: newWebhook.url,
+      events: newWebhook.events,
+      active: newWebhook.active,
+      secret: generateSecret(),
+      status: 'pending'
+    };
 
-      if (error) throw error;
-
-      setWebhooks([data, ...webhooks]);
-      setNewWebhook({ name: '', url: '', events: [], active: true });
-      setShowForm(false);
-      
-      toast({
-        title: "Webhook criado",
-        description: "Webhook configurado com sucesso"
-      });
-    } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Erro ao criar webhook",
-        variant: "destructive"
-      });
-    }
+    setWebhooks([webhook, ...webhooks]);
+    setNewWebhook({ name: '', url: '', events: [], active: true });
+    setShowForm(false);
+    
+    toast({
+      title: "Webhook criado",
+      description: "Webhook configurado com sucesso"
+    });
   };
 
   const deleteWebhook = async (id: string) => {
-    try {
-      const { error } = await supabase
-        .from('webhooks')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-
-      setWebhooks(webhooks.filter(w => w.id !== id));
-      toast({
-        title: "Webhook removido",
-        description: "Webhook removido com sucesso"
-      });
-    } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Erro ao remover webhook",
-        variant: "destructive"
-      });
-    }
+    setWebhooks(webhooks.filter(w => w.id !== id));
+    toast({
+      title: "Webhook removido",
+      description: "Webhook removido com sucesso"
+    });
   };
 
   const toggleWebhook = async (id: string, active: boolean) => {
-    try {
-      const { error } = await supabase
-        .from('webhooks')
-        .update({ active })
-        .eq('id', id);
-
-      if (error) throw error;
-
-      setWebhooks(webhooks.map(w => 
-        w.id === id ? { ...w, active } : w
-      ));
-    } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Erro ao atualizar webhook",
-        variant: "destructive"
-      });
-    }
+    setWebhooks(webhooks.map(w => 
+      w.id === id ? { ...w, active } : w
+    ));
   };
 
   const testWebhook = async (webhook: Webhook) => {
@@ -339,7 +300,7 @@ export function WebhookSettings() {
                       variant="outline"
                       onClick={() => testWebhook(webhook)}
                     >
-                      <Test className="h-4 w-4" />
+                      <Send className="h-4 w-4" />
                     </Button>
                     <Button
                       size="sm"
