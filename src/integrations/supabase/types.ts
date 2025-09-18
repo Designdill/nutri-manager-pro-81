@@ -277,6 +277,39 @@ export type Database = {
           },
         ]
       }
+      configuration_profiles: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          settings_data: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          settings_data: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          settings_data?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       consultations: {
         Row: {
           bmi: number
@@ -372,6 +405,36 @@ export type Database = {
           name?: string
           unit?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      export_history: {
+        Row: {
+          categories_exported: string[]
+          created_at: string
+          export_type: string
+          file_format: string
+          file_size: number | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          categories_exported?: string[]
+          created_at?: string
+          export_type?: string
+          file_format?: string
+          file_size?: number | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          categories_exported?: string[]
+          created_at?: string
+          export_type?: string
+          file_format?: string
+          file_size?: number | null
+          id?: string
+          user_id?: string
         }
         Relationships: []
       }

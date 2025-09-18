@@ -9,6 +9,7 @@ import { IntegrationSettings } from "./IntegrationSettings";
 import { EmailSettings } from "./EmailSettings";
 import { AccountSettings } from "./AccountSettings";
 import { BackupSettings } from "./BackupSettings";
+import { ProfileManager } from "./profiles/ProfileManager";
 
 interface SettingsFormProps {
   form: UseFormReturn<SettingsFormValues>;
@@ -19,13 +20,14 @@ interface SettingsFormProps {
 
 export function SettingsForm({ form, onSubmit, isLoading, searchQuery }: SettingsFormProps) {
   const components = [
+    { id: "profiles", component: <ProfileManager form={form} />, keywords: ["perfis", "configuração", "trabalho", "pessoal"] },
     { id: "profile", component: <ProfileSettings form={form} />, keywords: ["perfil", "nome", "telefone", "endereço", "foto"] },
     { id: "appearance", component: <AppearanceSettings form={form} />, keywords: ["aparência", "tema", "idioma", "modo noturno", "cores"] },
     { id: "notifications", component: <NotificationSettings form={form} />, keywords: ["notificações", "email", "push"] },
     { id: "email", component: <EmailSettings form={form} />, keywords: ["email", "templates", "mensagens", "assinatura", "filtros"] },
     { id: "integrations", component: <IntegrationSettings form={form} />, keywords: ["integrações", "api", "calendar", "saúde"] },
     { id: "account", component: <AccountSettings form={form} />, keywords: ["conta", "ativo"] },
-    { id: "backup", component: <BackupSettings />, keywords: ["backup", "restauração", "exportar", "importar", "nuvem"] },
+    { id: "backup", component: <BackupSettings form={form} />, keywords: ["backup", "restauração", "exportar", "importar", "nuvem"] },
   ];
 
   const filteredComponents = components.filter(({ keywords }) =>
