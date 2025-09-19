@@ -8,7 +8,7 @@ import { NotificationSettings } from "./NotificationSettings";
 import { IntegrationSettings } from "./IntegrationSettings";
 import { EmailSettings } from "./EmailSettings";
 import { AccountSettings } from "./AccountSettings";
-import { BackupSettings } from "./BackupSettings";
+import { BackupSettings } from "./backup/BackupSettings";
 import { ProfileManager } from "./profiles/ProfileManager";
 
 interface SettingsFormProps {

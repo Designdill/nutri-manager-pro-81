@@ -7,13 +7,13 @@ import { UseFormReturn } from "react-hook-form";
 import { SettingsFormValues } from "../../types/settings-form";
 
 interface BackupSettingsProps {
-  form?: UseFormReturn<SettingsFormValues>;
+  form: UseFormReturn<SettingsFormValues>;
 }
 
 export function BackupSettings({ form }: BackupSettingsProps) {
   return (
     <div className="space-y-6">
-      {form && <EnhancedImportExport form={form} />}
+      <EnhancedImportExport form={form} />
       
       <Card>
         <CardHeader>
