@@ -3,14 +3,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { HelpCircle } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 import { SettingsFormValues } from "../types";
-import { NutritionalAPIs } from "./integrations/NutritionalAPIs";
-import { HealthApps } from "./integrations/HealthApps";
-import { MealSystems } from "./integrations/MealSystems";
-import { GoogleCalendarSettings } from "./integrations/GoogleCalendarSettings";
-import { WebhookSettings } from "./integrations/WebhookSettings";
-import { APISettings } from "./integrations/APISettings";
-import { ExternalConnectors } from "./integrations/ExternalConnectors";
-import { AutomationRules } from "./integrations/AutomationRules";
+import { FunctionalGoogleCalendar } from "./integrations/FunctionalGoogleCalendar";
+import { FunctionalNutritionalAPIs } from "./integrations/FunctionalNutritionalAPIs";
 
 interface IntegrationSettingsProps {
   form: UseFormReturn<SettingsFormValues>;
@@ -38,14 +32,8 @@ export function IntegrationSettings({ form }: IntegrationSettingsProps) {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <GoogleCalendarSettings />
-        <WebhookSettings />
-        <APISettings />
-        <AutomationRules />
-        <ExternalConnectors />
-        <NutritionalAPIs form={form} />
-        <HealthApps form={form} />
-        <MealSystems form={form} />
+        <FunctionalGoogleCalendar />
+        <FunctionalNutritionalAPIs form={form} />
       </CardContent>
     </Card>
   );
