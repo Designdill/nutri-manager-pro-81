@@ -59,19 +59,8 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Verify JWT token for security
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      throw new Error("Missing authorization header");
-    }
-
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    console.log("send-welcome-email: Processing request");
     
-    if (authError || !user) {
-      throw new Error("Invalid or expired token");
-    }
-
     const { patientData } = await req.json();
     const { full_name, email } = patientData;
 
@@ -108,6 +97,13 @@ const handler = async (req: Request): Promise<Response> => {
     if (createError) {
       console.error('Error creating user:', createError);
       throw new Error(`Error creating auth user: ${createError.message}`);
+    }
+
+    console.log("send-welcome-email: Sending email via Resend to:", email);
+    
+    if (!RESEND_API_KEY) {
+      console.error("send-welcome-email: RESEND_API_KEY not configured");
+      throw new Error("RESEND_API_KEY not configured");
     }
 
     // Send welcome email with provisional password using Resend
