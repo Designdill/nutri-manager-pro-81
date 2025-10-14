@@ -16,7 +16,7 @@ const corsHeaders = {
 
 interface EmailData {
   to: string;
-  type: "welcome" | "registration" | "appointment_reminder" | "appointment_confirmation" | "profile_update" | "exam_results" | "follow_up_reminder" | "account_deactivation" | "integration_update" | "test_email";
+  type: "welcome" | "registration" | "appointment_reminder" | "appointment_confirmation" | "appointment_reschedule" | "appointment_cancellation" | "questionnaire_sent" | "profile_update" | "exam_results" | "follow_up_reminder" | "account_deactivation" | "integration_update" | "test_email";
   data: Record<string, string>;
   from?: string;
 }
@@ -37,6 +37,67 @@ const emailTemplates = {
       <h2>Olá, ${data.name}!</h2>
       <p>Lembramos que você tem uma consulta agendada para ${data.date} às ${data.time}.</p>
       <p>Por favor, não esqueça de comparecer.</p>
+    `,
+  },
+  appointment_reschedule: {
+    subject: "Consulta Reagendada",
+    html: (data: Record<string, string>) => `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #0ea5e9;">Consulta Reagendada</h2>
+        <p>Olá, <strong>${data.name}</strong>!</p>
+        <p>Sua consulta foi reagendada com sucesso.</p>
+        
+        <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="margin-top: 0; color: #334155;">Nova Data e Horário</h3>
+          <p><strong>Data Anterior:</strong> ${data.date_old} às ${data.time_old}</p>
+          <p><strong>Nova Data:</strong> ${data.date_new} às ${data.time_new}</p>
+        </div>
+        
+        <p>Por favor, chegue com 10 minutos de antecedência.</p>
+        <p>Em caso de dúvidas, entre em contato conosco.</p>
+        
+        <p>Atenciosamente,<br>
+        <strong>Equipe de Nutrição</strong></p>
+      </div>
+    `,
+  },
+  appointment_cancellation: {
+    subject: "Consulta Cancelada",
+    html: (data: Record<string, string>) => `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #ef4444;">Consulta Cancelada</h2>
+        <p>Olá, <strong>${data.name}</strong>!</p>
+        <p>Sua consulta foi cancelada.</p>
+        
+        <div style="background-color: #fef2f2; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ef4444;">
+          <h3 style="margin-top: 0; color: #991b1b;">Detalhes</h3>
+          <p><strong>Data:</strong> ${data.date} às ${data.time}</p>
+          ${data.reason ? `<p><strong>Motivo:</strong> ${data.reason}</p>` : ''}
+        </div>
+        
+        <p>Para reagendar sua consulta, entre em contato conosco.</p>
+        
+        <p>Atenciosamente,<br>
+        <strong>Equipe de Nutrição</strong></p>
+      </div>
+    `,
+  },
+  questionnaire_sent: {
+    subject: "Novo Questionário Disponível",
+    html: (data: Record<string, string>) => `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #0ea5e9;">Novo Questionário</h2>
+        <p>Olá, <strong>${data.name}</strong>!</p>
+        <p>Enviamos um questionário para você responder.</p>
+        
+        <div style="background-color: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #0ea5e9;">
+          <p>Por favor, responda o questionário o mais breve possível para que possamos continuar seu acompanhamento nutricional.</p>
+          <p>Acesse o sistema para visualizar e responder o questionário.</p>
+        </div>
+        
+        <p>Atenciosamente,<br>
+        <strong>Equipe de Nutrição</strong></p>
+      </div>
     `,
   },
   appointment_confirmation: {

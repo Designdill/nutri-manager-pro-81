@@ -63,7 +63,7 @@ export function EmailTemplates({ form }: EmailTemplatesProps) {
 
       <FormField
         control={form.control}
-        name="reschedule_template"
+        name={"reschedule_template" as any}
         render={({ field }) => (
           <FormItem>
             <FormLabel>Template de Reagendamento de Consulta</FormLabel>
@@ -83,7 +83,7 @@ export function EmailTemplates({ form }: EmailTemplatesProps) {
                 placeholder="Olá {nome}, sua consulta foi reagendada de {data_anterior} às {hora_anterior} para {data_nova} às {hora_nova}."
                 className="min-h-[100px]"
                 {...field}
-                value={field.value || ""}
+                value={(field.value as string) || ""}
               />
             </FormControl>
             <FormDescription>
@@ -95,7 +95,7 @@ export function EmailTemplates({ form }: EmailTemplatesProps) {
 
       <FormField
         control={form.control}
-        name="cancellation_template"
+        name={"cancellation_template" as any}
         render={({ field }) => (
           <FormItem>
             <FormLabel>Template de Cancelamento de Consulta</FormLabel>
@@ -115,7 +115,7 @@ export function EmailTemplates({ form }: EmailTemplatesProps) {
                 placeholder="Olá {nome}, sua consulta de {data} às {hora} foi cancelada. Motivo: {motivo}"
                 className="min-h-[100px]"
                 {...field}
-                value={field.value || ""}
+                value={(field.value as string) || ""}
               />
             </FormControl>
             <FormDescription>
@@ -127,7 +127,7 @@ export function EmailTemplates({ form }: EmailTemplatesProps) {
 
       <FormField
         control={form.control}
-        name="questionnaire_template"
+        name={"questionnaire_template" as any}
         render={({ field }) => (
           <FormItem>
             <FormLabel>Template de Envio de Questionário</FormLabel>
@@ -141,7 +141,7 @@ export function EmailTemplates({ form }: EmailTemplatesProps) {
                 placeholder="Olá {nome}, enviamos um questionário para você. Por favor, responda o mais breve possível."
                 className="min-h-[100px]"
                 {...field}
-                value={field.value || ""}
+                value={(field.value as string) || ""}
               />
             </FormControl>
             <FormDescription>

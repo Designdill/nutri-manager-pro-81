@@ -34,6 +34,9 @@ export interface UserSettingsTable {
     email_frequency: "daily" | "weekly" | "monthly";
     appointment_reminder_template: string | null;
     progress_report_template: string | null;
+    reschedule_template: string | null;
+    cancellation_template: string | null;
+    questionnaire_template: string | null;
     usda_fooddata_api_key: string | null;
     email_service: "resend" | "smtp";
     resend_api_key: string | null;

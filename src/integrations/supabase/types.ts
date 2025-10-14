@@ -1092,6 +1092,7 @@ export type Database = {
           backup_frequency: string | null
           backup_retention_days: number | null
           backup_schedule: string | null
+          cancellation_template: string | null
           cloud_storage_provider: string | null
           cloud_storage_settings: Json | null
           created_at: string
@@ -1115,7 +1116,9 @@ export type Database = {
           progress_report_emails: boolean | null
           progress_report_template: string | null
           push_notifications: boolean | null
+          questionnaire_template: string | null
           recipe_planning_connected: boolean | null
+          reschedule_template: string | null
           resend_api_key: string | null
           security_settings: Json | null
           sender_email: string | null
@@ -1141,6 +1144,7 @@ export type Database = {
           backup_frequency?: string | null
           backup_retention_days?: number | null
           backup_schedule?: string | null
+          cancellation_template?: string | null
           cloud_storage_provider?: string | null
           cloud_storage_settings?: Json | null
           created_at?: string
@@ -1164,7 +1168,9 @@ export type Database = {
           progress_report_emails?: boolean | null
           progress_report_template?: string | null
           push_notifications?: boolean | null
+          questionnaire_template?: string | null
           recipe_planning_connected?: boolean | null
+          reschedule_template?: string | null
           resend_api_key?: string | null
           security_settings?: Json | null
           sender_email?: string | null
@@ -1190,6 +1196,7 @@ export type Database = {
           backup_frequency?: string | null
           backup_retention_days?: number | null
           backup_schedule?: string | null
+          cancellation_template?: string | null
           cloud_storage_provider?: string | null
           cloud_storage_settings?: Json | null
           created_at?: string
@@ -1213,7 +1220,9 @@ export type Database = {
           progress_report_emails?: boolean | null
           progress_report_template?: string | null
           push_notifications?: boolean | null
+          questionnaire_template?: string | null
           recipe_planning_connected?: boolean | null
+          reschedule_template?: string | null
           resend_api_key?: string | null
           security_settings?: Json | null
           sender_email?: string | null
