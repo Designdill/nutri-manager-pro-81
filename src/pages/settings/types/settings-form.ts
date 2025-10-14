@@ -63,6 +63,9 @@ export const settingsFormSchema = z.object({
   email_frequency: z.enum(["daily", "weekly", "monthly"]),
   appointment_reminder_template: z.string().optional(),
   progress_report_template: z.string().optional(),
+  reschedule_template: z.string().optional(),
+  cancellation_template: z.string().optional(),
+  questionnaire_template: z.string().optional(),
   usda_fooddata_api_key: z.string().optional(),
 });
 

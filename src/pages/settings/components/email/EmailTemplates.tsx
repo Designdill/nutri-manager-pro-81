@@ -60,6 +60,96 @@ export function EmailTemplates({ form }: EmailTemplatesProps) {
           </FormItem>
         )}
       />
+
+      <FormField
+        control={form.control}
+        name="reschedule_template"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Template de Reagendamento de Consulta</FormLabel>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+              <span className="flex items-center gap-1">
+                <User className="h-4 w-4" /> {'{nome}'}
+              </span>
+              <span className="flex items-center gap-1">
+                <Calendar className="h-4 w-4" /> {'{data_anterior}'}, {'{data_nova}'}
+              </span>
+              <span className="flex items-center gap-1">
+                <Clock className="h-4 w-4" /> {'{hora_anterior}'}, {'{hora_nova}'}
+              </span>
+            </div>
+            <FormControl>
+              <Textarea
+                placeholder="Olá {nome}, sua consulta foi reagendada de {data_anterior} às {hora_anterior} para {data_nova} às {hora_nova}."
+                className="min-h-[100px]"
+                {...field}
+                value={field.value || ""}
+              />
+            </FormControl>
+            <FormDescription>
+              Use {'{nome}'}, {'{data_anterior}'}, {'{hora_anterior}'}, {'{data_nova}'}, {'{hora_nova}'} como variáveis
+            </FormDescription>
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="cancellation_template"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Template de Cancelamento de Consulta</FormLabel>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+              <span className="flex items-center gap-1">
+                <User className="h-4 w-4" /> {'{nome}'}
+              </span>
+              <span className="flex items-center gap-1">
+                <Calendar className="h-4 w-4" /> {'{data}'}
+              </span>
+              <span className="flex items-center gap-1">
+                <Clock className="h-4 w-4" /> {'{hora}'}
+              </span>
+            </div>
+            <FormControl>
+              <Textarea
+                placeholder="Olá {nome}, sua consulta de {data} às {hora} foi cancelada. Motivo: {motivo}"
+                className="min-h-[100px]"
+                {...field}
+                value={field.value || ""}
+              />
+            </FormControl>
+            <FormDescription>
+              Use {'{nome}'}, {'{data}'}, {'{hora}'}, {'{motivo}'} como variáveis
+            </FormDescription>
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="questionnaire_template"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Template de Envio de Questionário</FormLabel>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+              <span className="flex items-center gap-1">
+                <User className="h-4 w-4" /> {'{nome}'}
+              </span>
+            </div>
+            <FormControl>
+              <Textarea
+                placeholder="Olá {nome}, enviamos um questionário para você. Por favor, responda o mais breve possível."
+                className="min-h-[100px]"
+                {...field}
+                value={field.value || ""}
+              />
+            </FormControl>
+            <FormDescription>
+              Use {'{nome}'} como variável
+            </FormDescription>
+          </FormItem>
+        )}
+      />
     </div>
   );
 }
