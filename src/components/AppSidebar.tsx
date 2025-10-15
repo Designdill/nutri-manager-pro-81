@@ -122,6 +122,10 @@ export function AppSidebar() {
 
   const menuItems = role === "nutritionist" ? nutritionistMenuItems : patientMenuItems;
 
+  if (isLoading) {
+    return null;
+  }
+
   return (
     <Sidebar className="border-r bg-card">
       <SidebarContent>
