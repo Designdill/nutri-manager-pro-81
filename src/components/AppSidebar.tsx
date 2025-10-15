@@ -27,6 +27,7 @@ import { useAuth } from "@/App";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
+import { useUserRole } from "@/hooks/useUserRole";
 
 const nutritionistMenuItems = [
   {
@@ -117,9 +118,9 @@ const patientMenuItems = [
 export function AppSidebar() {
   const { session } = useAuth();
   const location = useLocation();
-  const userRole = "nutritionist"; // TODO: Get this from user profile
+  const { role, isLoading } = useUserRole();
 
-  const menuItems = userRole === "nutritionist" ? nutritionistMenuItems : patientMenuItems;
+  const menuItems = role === "nutritionist" ? nutritionistMenuItems : patientMenuItems;
 
   return (
     <Sidebar className="border-r bg-card">
@@ -132,7 +133,7 @@ export function AppSidebar() {
         </div>
         <SidebarGroup>
           <SidebarGroupLabel className="text-muted-foreground">
-            {userRole === "nutritionist" ? "Gestão Nutricional" : "Minha Nutrição"}
+            {role === "nutritionist" ? "Gestão Nutricional" : "Minha Nutrição"}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>

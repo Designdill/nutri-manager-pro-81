@@ -1310,11 +1310,19 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_patient_id_from_auth: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_patient_owner: {
+        Args: { _patient_id: string }
         Returns: boolean
       }
       sanitize_html: {
