@@ -5,24 +5,34 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/App";
 import { useToast } from "@/hooks/use-toast";
+import { useUserRole } from "@/hooks/useUserRole";
 
 const Login = () => {
   const navigate = useNavigate();
   const { session, isLoading } = useAuth();
+  const { role, isLoading: roleLoading } = useUserRole();
   const { toast } = useToast();
 
   useEffect(() => {
     console.log("Login page - session state:", session?.user?.id, "isLoading:", isLoading);
     console.log("Current origin:", window.location.origin);
     
-    if (session && !isLoading) {
-      console.log("Redirecting to home - user is authenticated");
-      navigate("/");
+    if (session && !isLoading && !roleLoading) {
+      console.log("User role:", role);
+      
+      // Redirect based on role
+      if (role === 'patient') {
+        console.log("Redirecting to patient portal");
+        navigate("/patient");
+      } else {
+        console.log("Redirecting to nutritionist dashboard");
+        navigate("/");
+      }
     }
-  }, [session, isLoading, navigate]);
+  }, [session, isLoading, roleLoading, role, navigate]);
 
   // Show loading state while checking authentication
-  if (isLoading) {
+  if (isLoading || roleLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-primary-100">
         <div className="animate-pulse text-primary-600 text-lg">Carregando...</div>

@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useUserRole } from "@/hooks/useUserRole";
 
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -24,6 +25,10 @@ import NotificationsPage from "./pages/notifications/NotificationsPage";
 import QuestionnairesPage from "./pages/questionnaires/QuestionnairesPage";
 import NewQuestionnairePage from "./pages/questionnaires/NewQuestionnairePage";
 import { QuestionnaireResponseViewer } from "./pages/questionnaires/components/QuestionnaireResponseViewer";
+import PatientDashboard from "./pages/patient-portal/PatientDashboard";
+import PatientAppointments from "./pages/patient-portal/PatientAppointments";
+import PatientMealPlans from "./pages/patient-portal/PatientMealPlans";
+import PatientQuestionnaires from "./pages/patient-portal/PatientQuestionnaires";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -48,19 +53,43 @@ const AuthContext = createContext<AuthContextType>({
 
 export const useAuth = () => useContext(AuthContext);
 
-function PrivateRoute({ children }: { children: React.ReactNode }) {
+function PrivateRoute({ children, requireRole }: { children: React.ReactNode; requireRole?: 'nutritionist' | 'patient' }) {
   const { session, isLoading } = useAuth();
+  const { role, isLoading: roleLoading } = useUserRole();
   
-  if (isLoading) {
-    return <div>Loading...</div>;
+  if (isLoading || roleLoading) {
+    return <div className="min-h-screen flex items-center justify-center">Carregando...</div>;
   }
   
   if (!session) {
     console.log("No session found, redirecting to login");
     return <Navigate to="/login" />;
   }
+
+  if (requireRole && role !== requireRole) {
+    // Redirect to appropriate dashboard based on role
+    if (role === 'patient') {
+      return <Navigate to="/patient" />;
+    } else if (role === 'nutritionist') {
+      return <Navigate to="/" />;
+    }
+  }
   
   return <>{children}</>;
+}
+
+function RoleBasedRedirect() {
+  const { role, isLoading } = useUserRole();
+  
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center">Carregando...</div>;
+  }
+  
+  if (role === 'patient') {
+    return <Navigate to="/patient" />;
+  }
+  
+  return <Navigate to="/" />;
 }
 
 function App() {
@@ -148,10 +177,12 @@ function App() {
             <BrowserRouter>
               <Routes>
                 <Route path="/login" element={<Login />} />
+                
+                {/* Nutritionist Routes */}
                 <Route
                   path="/"
                   element={
-                    <PrivateRoute>
+                    <PrivateRoute requireRole="nutritionist">
                       <Index />
                     </PrivateRoute>
                   }
@@ -159,7 +190,7 @@ function App() {
                 <Route
                   path="/patients"
                   element={
-                    <PrivateRoute>
+                    <PrivateRoute requireRole="nutritionist">
                       <PatientsPage />
                     </PrivateRoute>
                   }
@@ -271,8 +302,50 @@ function App() {
                 <Route
                   path="/questionnaires/:id/responses"
                   element={
-                    <PrivateRoute>
+                    <PrivateRoute requireRole="nutritionist">
                       <QuestionnaireResponseViewer />
+                    </PrivateRoute>
+                  }
+                />
+
+                {/* Patient Portal Routes */}
+                <Route
+                  path="/patient"
+                  element={
+                    <PrivateRoute requireRole="patient">
+                      <PatientDashboard />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/patient/appointments"
+                  element={
+                    <PrivateRoute requireRole="patient">
+                      <PatientAppointments />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/patient/meal-plans"
+                  element={
+                    <PrivateRoute requireRole="patient">
+                      <PatientMealPlans />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/patient/questionnaires"
+                  element={
+                    <PrivateRoute requireRole="patient">
+                      <PatientQuestionnaires />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/patient/messages"
+                  element={
+                    <PrivateRoute requireRole="patient">
+                      <MessagesPage />
                     </PrivateRoute>
                   }
                 />
