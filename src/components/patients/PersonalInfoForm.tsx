@@ -147,14 +147,17 @@ export function PersonalInfoForm({ form }: PersonalInfoFormProps) {
           name="gender"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Gênero</FormLabel>
+              <FormLabel id="gender-label">Gênero</FormLabel>
               <Select 
                 onValueChange={field.onChange} 
                 defaultValue={field.value}
-                aria-describedby="gender-description"
               >
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger 
+                    aria-labelledby="gender-label"
+                    aria-describedby="gender-description"
+                    aria-invalid={!!errors.gender}
+                  >
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
                 </FormControl>
