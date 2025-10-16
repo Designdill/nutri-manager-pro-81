@@ -15,9 +15,10 @@ interface PatientRegistrationFormProps {
   form: UseFormReturn<PatientFormValues>;
   onSubmit: (values: PatientFormValues) => Promise<void>;
   onCancel: () => void;
+  isSubmitting?: boolean;
 }
 
-export function PatientRegistrationForm({ form, onSubmit, onCancel }: PatientRegistrationFormProps) {
+export function PatientRegistrationForm({ form, onSubmit, onCancel, isSubmitting = false }: PatientRegistrationFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -57,11 +58,12 @@ export function PatientRegistrationForm({ form, onSubmit, onCancel }: PatientReg
         </Tabs>
 
         <div className="flex justify-end space-x-4">
-          <Button type="button" variant="outline" onClick={onCancel}>
+          <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
             Cancelar
           </Button>
-          <Button type="submit">
-            <User className="mr-2 h-4 w-4" /> Cadastrar Paciente
+          <Button type="submit" disabled={isSubmitting}>
+            <User className="mr-2 h-4 w-4" /> 
+            {isSubmitting ? "Cadastrando..." : "Cadastrar Paciente"}
           </Button>
         </div>
       </form>

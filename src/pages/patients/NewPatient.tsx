@@ -1,3 +1,4 @@
+import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -15,6 +16,7 @@ type PatientInsert = TablesInsert<"patients">;
 export default function NewPatient() {
   const navigate = useNavigate();
   const { session } = useAuth();
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
   const form = useForm<PatientFormValues>({
     resolver: zodResolver(patientFormSchema),
     shouldFocusError: false,
@@ -60,7 +62,11 @@ export default function NewPatient() {
   });
 
   const onSubmit = async (values: PatientFormValues) => {
+    if (isSubmitting) return; // Prevent double submission
+    
     try {
+      setIsSubmitting(true);
+      
       if (!session?.user.id) {
         toast.error("Você precisa estar logado para cadastrar um paciente");
         return;
@@ -175,6 +181,8 @@ export default function NewPatient() {
     } catch (error) {
       console.error("Error:", error);
       toast.error("Erro ao cadastrar paciente");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -209,6 +217,7 @@ export default function NewPatient() {
             form={form} 
             onSubmit={onSubmit}
             onCancel={() => navigate("/patients")}
+            isSubmitting={isSubmitting}
           />
         </CardContent>
       </Card>

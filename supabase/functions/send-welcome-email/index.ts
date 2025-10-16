@@ -40,6 +40,13 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    console.log("send-welcome-email: Starting function execution");
+    
+    if (!RESEND_API_KEY) {
+      console.error("send-welcome-email: RESEND_API_KEY not configured");
+      throw new Error("RESEND_API_KEY not configured");
+    }
+    
     const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
 
     // Check rate limit for security
@@ -100,11 +107,6 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     console.log("send-welcome-email: Sending email via Resend to:", email);
-    
-    if (!RESEND_API_KEY) {
-      console.error("send-welcome-email: RESEND_API_KEY not configured");
-      throw new Error("RESEND_API_KEY not configured");
-    }
 
     // Send welcome email with provisional password using Resend
     const emailResponse = await fetch("https://api.resend.com/emails", {
