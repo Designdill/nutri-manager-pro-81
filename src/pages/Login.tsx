@@ -232,6 +232,7 @@ const Login = () => {
                       button: 'w-full font-medium h-11 transition-all',
                       input: 'w-full h-11',
                       label: 'text-sm font-medium text-foreground',
+                      anchor: 'hidden', // Hide the built-in forgot password link
                     },
                   }}
                   providers={[]}
