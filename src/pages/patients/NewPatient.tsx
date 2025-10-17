@@ -162,7 +162,8 @@ export default function NewPatient() {
             patientData: {
               full_name: values.full_name,
               email: values.email.trim(),
-            }
+            },
+            redirectTo: `${window.location.origin}/patient-portal`
           }
         });
 

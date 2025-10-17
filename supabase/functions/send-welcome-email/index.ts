@@ -68,7 +68,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("send-welcome-email: Processing request");
     
-    const { patientData } = await req.json();
+    const { patientData, redirectTo } = await req.json();
     const { full_name, email } = patientData;
 
     if (!email || !full_name) {
@@ -106,9 +106,32 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error(`Error creating auth user: ${createError.message}`);
     }
 
-    console.log("send-welcome-email: Sending email via Resend to:", email);
+    console.log("send-welcome-email: Generating magic link for:", email);
 
-    // Send welcome email with provisional password using Resend
+    // Generate a Magic Link for first access
+    const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
+      type: 'magiclink',
+      email,
+      options: {
+        redirectTo: redirectTo || undefined
+      }
+    } as any);
+
+    if (linkError) {
+      console.error('Error generating magic link:', linkError);
+      throw new Error('Failed to generate magic link');
+    }
+
+    const magicLink = (linkData as any)?.properties?.action_link;
+
+    if (!magicLink) {
+      console.error('Magic link not available:', linkData);
+      throw new Error('Magic link not available');
+    }
+
+    console.log("send-welcome-email: Sending magic link via Resend to:", email);
+
+    // Send welcome email with Magic Link using Resend
     const emailResponse = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -118,19 +141,21 @@ const handler = async (req: Request): Promise<Response> => {
       body: JSON.stringify({
         from: "Sistema Nutricional <onboarding@resend.dev>",
         to: [email],
-        subject: "Bem-vindo ao Sistema Nutricional - Sua senha provisória",
+        subject: "Bem-vindo ao Sistema Nutricional - Acesse com seu link mágico",
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h2 style="color: #007bff;">Olá, ${sanitizedName}!</h2>
             <p>Sua nutricionista cadastrou você no Sistema Nutricional.</p>
             <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #007bff;">
-              <h3 style="margin-top: 0; color: #007bff;">Acesse com a senha provisória e altere no primeiro acesso:</h3>
-              <ul>
-                <li><strong>Email:</strong> ${email}</li>
-                <li><strong>Senha provisória:</strong> ${tempPassword}</li>
-              </ul>
+              <h3 style="margin-top: 0; color: #007bff;">Clique no botão abaixo para acessar com seu Link Mágico:</h3>
+              <p style="margin: 16px 0;">
+                <a href="${magicLink}" style="display:inline-block;background-color:#007bff;color:#ffffff;text-decoration:none;padding:12px 20px;border-radius:6px;">Acessar minha conta</a>
+              </p>
+              <p style="color:#555; font-size: 14px;">Se o botão não funcionar, copie e cole este link no navegador:<br/>
+                <span style="word-break: break-all;">${magicLink}</span>
+              </p>
             </div>
-            <p>Por segurança, recomendamos alterar a senha imediatamente após entrar no sistema.</p>
+            <p>Por segurança, o link expira após alguns minutos. Se precisar, solicite um novo link na tela de login.</p>
             <p style="color: #666; font-size: 12px;">
               Se você não solicitou esta conta, pode ignorar este email com segurança.<br>
               Atenciosamente,<br>Equipe do Sistema Nutricional
@@ -147,11 +172,11 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const emailResult = await emailResponse.json();
-    console.log('Welcome email sent successfully:', emailResult);
+    console.log('Welcome magic link email sent successfully:', emailResult);
     return new Response(JSON.stringify({ 
       success: true,
       user_id: authData.user?.id,
-      message: 'User created and setup email sent successfully'
+      message: 'User created and magic link email sent successfully'
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
