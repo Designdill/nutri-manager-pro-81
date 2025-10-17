@@ -1,13 +1,57 @@
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 
+// CPF validation function
+const validateCPF = (cpf: string): boolean => {
+  if (!cpf) return true; // CPF is optional
+  
+  // Remove non-numeric characters
+  const cleanCPF = cpf.replace(/[^\d]/g, '');
+  
+  // Check if has 11 digits
+  if (cleanCPF.length !== 11) return false;
+  
+  // Check for known invalid CPFs (all same digits)
+  const invalidCPFs = [
+    '00000000000', '11111111111', '22222222222', '33333333333',
+    '44444444444', '55555555555', '66666666666', '77777777777',
+    '88888888888', '99999999999'
+  ];
+  if (invalidCPFs.includes(cleanCPF)) return false;
+  
+  // Validate check digits
+  let sum = 0;
+  for (let i = 0; i < 9; i++) {
+    sum += parseInt(cleanCPF.charAt(i)) * (10 - i);
+  }
+  let digit1 = 11 - (sum % 11);
+  if (digit1 >= 10) digit1 = 0;
+  
+  sum = 0;
+  for (let i = 0; i < 10; i++) {
+    sum += parseInt(cleanCPF.charAt(i)) * (11 - i);
+  }
+  let digit2 = 11 - (sum % 11);
+  if (digit2 >= 10) digit2 = 0;
+  
+  return (
+    parseInt(cleanCPF.charAt(9)) === digit1 &&
+    parseInt(cleanCPF.charAt(10)) === digit2
+  );
+};
+
 // Patient form schema
 export const patientFormSchema = z.object({
   full_name: z.string().min(2, {
     message: "Nome deve ter pelo menos 2 caracteres"
   }),
   email: z.string().email("Por favor, insira um email válido").min(1, "Email é obrigatório"),
-  cpf: z.string().optional().or(z.literal("")),
+  cpf: z.string().optional().or(z.literal("")).refine((val) => {
+    if (!val || val === "") return true;
+    return validateCPF(val);
+  }, {
+    message: "CPF inválido. Verifique os dígitos."
+  }),
   phone: z.string().min(1, "Telefone é obrigatório"),
   birth_date: z.string().optional(),
   gender: z.string().optional(),
