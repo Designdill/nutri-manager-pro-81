@@ -78,56 +78,102 @@ const Login = () => {
   // Show loading state while checking authentication
   if (isLoading || roleLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-primary-100">
-        <div className="animate-pulse text-primary-600 text-lg">Carregando...</div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-secondary-50">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-16 h-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+          <p className="text-foreground font-medium">Carregando...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row items-stretch bg-primary-100">
+    <div className="min-h-screen flex flex-col md:flex-row items-stretch bg-gradient-to-br from-primary-50 to-secondary-50">
       {/* Left side - Branding */}
-      <div className="hidden md:flex md:w-1/2 bg-primary-500 p-8 flex-col justify-center items-center text-white">
-        <h1 className="text-4xl font-bold mb-6">Sistema de Gestão Nutricional</h1>
-        <p className="text-xl text-center max-w-md">
-          Gerencie seus pacientes, planos alimentares e consultas em um só lugar.
-        </p>
+      <div className="hidden md:flex md:w-1/2 bg-gradient-to-br from-primary to-primary-600 p-12 flex-col justify-center items-center relative overflow-hidden">
+        {/* Decorative circles */}
+        <div className="absolute top-10 left-10 w-32 h-32 bg-primary-foreground/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 right-20 w-40 h-40 bg-primary-foreground/10 rounded-full blur-3xl" />
+        
+        <div className="relative z-10 text-center space-y-6 max-w-lg">
+          <div className="inline-block p-3 bg-primary-foreground/10 rounded-2xl backdrop-blur-sm mb-4">
+            <svg className="w-16 h-16 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h1 className="text-5xl font-bold text-primary-foreground tracking-tight">
+            Sistema de Gestão Nutricional
+          </h1>
+          <p className="text-xl text-primary-foreground/90 leading-relaxed">
+            Gerencie seus pacientes, planos alimentares e consultas em um só lugar com eficiência e simplicidade.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4 pt-4">
+            <div className="flex items-center gap-2 text-primary-foreground/90">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+              <span className="text-sm font-medium">Organizado</span>
+            </div>
+            <div className="flex items-center gap-2 text-primary-foreground/90">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+              <span className="text-sm font-medium">Seguro</span>
+            </div>
+            <div className="flex items-center gap-2 text-primary-foreground/90">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+              <span className="text-sm font-medium">Intuitivo</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Right side - Login Form */}
-      <div className="w-full md:w-1/2 flex items-center justify-center p-4 md:p-8">
-        <div className="w-full max-w-md space-y-6">
+      <div className="w-full md:w-1/2 flex items-center justify-center p-6 md:p-12">
+        <div className="w-full max-w-md space-y-8 animate-fade-in">
           {/* Mobile logo - only visible on mobile */}
-          <div className="md:hidden text-center mb-8">
-            <h1 className="text-2xl font-bold text-primary-600">
+          <div className="md:hidden text-center space-y-2 mb-8">
+            <div className="inline-block p-2 bg-primary/10 rounded-xl mb-3">
+              <svg className="w-12 h-12 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h1 className="text-3xl font-bold text-foreground">
               Sistema de Gestão Nutricional
             </h1>
+            <p className="text-sm text-muted-foreground">
+              Acesse sua conta para continuar
+            </p>
           </div>
 
           {/* Auth UI Container or Password Reset Form */}
-          <div className="bg-white p-6 md:p-8 rounded-xl shadow-lg">
+          <div className="bg-card p-8 rounded-2xl shadow-card border border-border/50 backdrop-blur-sm">
             {showPasswordReset ? (
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <Button
                   type="button"
                   variant="ghost"
                   onClick={() => setShowPasswordReset(false)}
-                  className="mb-4"
+                  className="mb-2 -ml-2"
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Voltar
                 </Button>
                 
-                <h2 className="text-2xl font-bold text-primary-600 mb-2">
-                  Recuperar Senha
-                </h2>
-                <p className="text-sm text-gray-600 mb-4">
-                  Insira seu email para receber instruções de recuperação de senha.
-                </p>
+                <div className="space-y-2">
+                  <h2 className="text-2xl font-bold text-foreground">
+                    Recuperar Senha
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    Insira seu email para receber instruções de recuperação de senha.
+                  </p>
+                </div>
                 
                 <form onSubmit={handlePasswordReset} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="reset-email">Email</Label>
+                    <Label htmlFor="reset-email" className="text-foreground">Email</Label>
                     <Input
                       id="reset-email"
                       type="email"
@@ -136,12 +182,13 @@ const Login = () => {
                       onChange={(e) => setResetEmail(e.target.value)}
                       required
                       disabled={isResetting}
+                      className="h-11"
                     />
                   </div>
                   
                   <Button
                     type="submit"
-                    className="w-full"
+                    className="w-full h-11"
                     disabled={isResetting}
                   >
                     {isResetting ? "Enviando..." : "Enviar Email de Recuperação"}
@@ -150,6 +197,11 @@ const Login = () => {
               </div>
             ) : (
               <>
+                <div className="mb-6 text-center md:text-left">
+                  <h2 className="text-2xl font-bold text-foreground mb-2">Bem-vindo de volta</h2>
+                  <p className="text-sm text-muted-foreground">Entre com suas credenciais para acessar o sistema</p>
+                </div>
+                
                 <Auth
                   supabaseClient={supabase}
                   appearance={{
@@ -158,9 +210,9 @@ const Login = () => {
                       default: {
                         colors: {
                           brand: '#4A6741',
-                          brandAccent: '#3d5434',
+                          brandAccent: '#3B522F',
                           inputBackground: 'white',
-                          inputBorder: '#E2E8F0',
+                          inputBorder: '#E5E7EB',
                           inputBorderHover: '#4A6741',
                           inputBorderFocus: '#4A6741',
                         },
@@ -177,9 +229,9 @@ const Login = () => {
                     },
                     className: {
                       container: 'space-y-4',
-                      button: 'w-full font-medium',
-                      input: 'w-full',
-                      label: 'text-sm font-medium text-gray-700',
+                      button: 'w-full font-medium h-11 transition-all',
+                      input: 'w-full h-11',
+                      label: 'text-sm font-medium text-foreground',
                     },
                   }}
                   providers={[]}
@@ -207,12 +259,12 @@ const Login = () => {
                   }}
                 />
                 
-                <div className="mt-4 text-center">
+                <div className="mt-6 text-center">
                   <Button
                     type="button"
                     variant="link"
                     onClick={() => setShowPasswordReset(true)}
-                    className="text-primary-600"
+                    className="text-primary hover:text-primary-600 font-medium"
                   >
                     Esqueceu sua senha?
                   </Button>
@@ -220,6 +272,10 @@ const Login = () => {
               </>
             )}
           </div>
+          
+          <p className="text-center text-xs text-muted-foreground">
+            Ao continuar, você concorda com nossos Termos de Serviço e Política de Privacidade
+          </p>
         </div>
       </div>
     </div>
