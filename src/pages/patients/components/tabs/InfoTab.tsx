@@ -12,6 +12,10 @@ interface InfoTabProps {
 export function InfoTab({ patient }: InfoTabProps) {
   const navigate = useNavigate();
 
+  if (!patient) {
+    return <div>Nenhum dado do paciente disponível.</div>;
+  }
+
   const handleNewQuestionnaire = () => {
     console.log("Creating new questionnaire for patient:", patient.id);
     navigate(`/questionnaires/new?patientId=${patient.id}`);

@@ -14,6 +14,8 @@ export default function PatientDetailsPage() {
   const { data: patient, isLoading: isLoadingPatient } = useQuery({
     queryKey: ["patient", patientId],
     queryFn: async () => {
+      if (!patientId) throw new Error("Patient ID is required");
+      
       const { data, error } = await supabase
         .from("patients")
         .select("*")
@@ -23,11 +25,14 @@ export default function PatientDetailsPage() {
       if (error) throw error;
       return data;
     },
+    enabled: !!patientId,
   });
 
   const { data: consultations, isLoading: isLoadingConsultations } = useQuery({
     queryKey: ["consultations", patientId],
     queryFn: async () => {
+      if (!patientId) throw new Error("Patient ID is required");
+      
       const { data, error } = await supabase
         .from("consultations")
         .select("*")
@@ -37,6 +42,7 @@ export default function PatientDetailsPage() {
       if (error) throw error;
       return data;
     },
+    enabled: !!patientId,
   });
 
   if (isLoadingPatient || isLoadingConsultations) {
