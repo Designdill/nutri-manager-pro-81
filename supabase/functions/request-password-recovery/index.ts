@@ -38,23 +38,6 @@ const handler = async (req: Request): Promise<Response> => {
     
     const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
 
-    // Check rate limit for security
-    const { data: rateLimitCheck } = await supabase.rpc('check_rate_limit', {
-      endpoint_name: 'request-password-recovery',
-      max_requests: 5,
-      window_minutes: 60
-    });
-
-    if (!rateLimitCheck) {
-      return new Response(
-        JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }),
-        {
-          status: 429,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
-    }
-
     console.log("request-password-recovery: Processing request");
     
     const { email, redirectTo } = await req.json();
