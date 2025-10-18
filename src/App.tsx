@@ -10,6 +10,7 @@ import { useUserRole } from "@/hooks/useUserRole";
 
 import Index from "./pages/Index";
 import Login from "./pages/Login";
+import ResetPassword from "./pages/ResetPassword";
 import PatientsPage from "./pages/patients/PatientsPage";
 import NewPatient from "./pages/patients/NewPatient";
 import EditPatient from "./pages/patients/EditPatient";
@@ -177,6 +178,7 @@ function App() {
             <BrowserRouter>
               <Routes>
                 <Route path="/login" element={<Login />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
                 
                 {/* Nutritionist Routes */}
                 <Route

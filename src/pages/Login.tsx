@@ -33,11 +33,15 @@ const Login = () => {
 
     setIsResetting(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
-        redirectTo: `${window.location.origin}/reset-password`,
+      const { data, error } = await supabase.functions.invoke('request-password-recovery', {
+        body: {
+          email: resetEmail,
+          redirectTo: `${window.location.origin}/reset-password`
+        }
       });
 
       if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
 
       toast({
         title: "Email enviado!",

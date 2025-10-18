@@ -90,7 +90,8 @@ const handler = async (req: Request): Promise<Response> => {
     // Generate secure token for password reset instead of plaintext password
     const tempPassword = generateSecureToken().slice(0, 12);
 
-    // Create auth user with a temporary password
+    // Try to create auth user, but continue if user already exists
+    let userId: string | undefined;
     const { data: authData, error: createError } = await supabase.auth.admin.createUser({
       email,
       email_confirm: true,
@@ -102,8 +103,21 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     if (createError) {
-      console.error('Error creating user:', createError);
-      throw new Error(`Error creating auth user: ${createError.message}`);
+      // If user already exists, we'll still send the magic link
+      if (createError.message?.includes('already registered') || createError.message?.includes('User already exists')) {
+        console.log('User already exists, will send magic link anyway:', email);
+        // Get existing user ID
+        const { data: { users }, error: listError } = await supabase.auth.admin.listUsers();
+        if (!listError && users) {
+          const existingUser = users.find(u => u.email === email);
+          userId = existingUser?.id;
+        }
+      } else {
+        console.error('Error creating user:', createError);
+        throw new Error(`Error creating auth user: ${createError.message}`);
+      }
+    } else {
+      userId = authData.user?.id;
     }
 
     console.log("send-welcome-email: Generating magic link for:", email);
@@ -175,7 +189,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log('Welcome magic link email sent successfully:', emailResult);
     return new Response(JSON.stringify({ 
       success: true,
-      user_id: authData.user?.id,
+      user_id: userId,
       message: 'User created and magic link email sent successfully'
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

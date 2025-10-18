@@ -163,7 +163,7 @@ export default function NewPatient() {
               full_name: values.full_name,
               email: values.email.trim(),
             },
-            redirectTo: `${window.location.origin}/patient-portal`
+            redirectTo: `${window.location.origin}/patient`
           }
         });
 
