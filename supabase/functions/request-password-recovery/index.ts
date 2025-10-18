@@ -67,6 +67,17 @@ const handler = async (req: Request): Promise<Response> => {
     } as any);
 
     if (linkError) {
+      // Avoid user enumeration: if user doesn't exist, respond with success
+      const status = (linkError as any)?.status;
+      const code = (linkError as any)?.code;
+      if (status === 404 || code === 'user_not_found') {
+        console.warn('request-password-recovery: user not found, returning generic success');
+        return new Response(
+          JSON.stringify({ success: true, message: 'If an account exists, you will receive an email shortly.' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+        );
+      }
+
       console.error('Error generating recovery link:', linkError);
       throw new Error('Failed to generate recovery link');
     }
