@@ -128,7 +128,15 @@ const handler = async (req: Request): Promise<Response> => {
     if (!emailResponse.ok) {
       const errorText = await emailResponse.text();
       console.error('Resend API error:', errorText);
-      throw new Error("Failed to send recovery email");
+      // In preview/test mode, email providers may block sending to unverified domains.
+      // Do not fail the flow or reveal details; return a generic success response.
+      return new Response(JSON.stringify({
+        success: true,
+        message: 'If an account exists, you will receive an email shortly.'
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
     }
 
     const emailResult = await emailResponse.json();
