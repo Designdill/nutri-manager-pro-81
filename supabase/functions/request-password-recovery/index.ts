@@ -4,6 +4,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+const RESEND_FROM_EMAIL = Deno.env.get("RESEND_FROM_EMAIL") || "onboarding@resend.dev";
+const RESEND_FROM_NAME = Deno.env.get("RESEND_FROM_NAME") || "Sistema Nutricional";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -99,7 +101,7 @@ const handler = async (req: Request): Promise<Response> => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Sistema Nutricional <onboarding@resend.dev>",
+        from: `${RESEND_FROM_NAME} <${RESEND_FROM_EMAIL}>`,
         to: [email],
         subject: "Redefinir sua senha - Sistema Nutricional",
         html: `

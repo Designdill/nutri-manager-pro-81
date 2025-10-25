@@ -152,7 +152,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           new_values: Json | null
           old_values: Json | null
           operation: string
@@ -163,7 +163,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           new_values?: Json | null
           old_values?: Json | null
           operation: string
@@ -174,7 +174,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           new_values?: Json | null
           old_values?: Json | null
           operation?: string
@@ -1294,10 +1294,7 @@ export type Database = {
         }
         Returns: boolean
       }
-      cleanup_old_rate_limits: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      cleanup_old_rate_limits: { Args: never; Returns: undefined }
       decrypt_sensitive_data: {
         Args: { encrypted_data: string; encryption_key?: string }
         Returns: string
@@ -1306,14 +1303,8 @@ export type Database = {
         Args: { encryption_key?: string; input_data: string }
         Returns: string
       }
-      get_current_user_role: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      get_patient_id_from_auth: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      get_current_user_role: { Args: never; Returns: string }
+      get_patient_id_from_auth: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1321,34 +1312,13 @@ export type Database = {
         }
         Returns: boolean
       }
-      is_patient_owner: {
-        Args: { _patient_id: string }
-        Returns: boolean
-      }
-      sanitize_html: {
-        Args: { input_text: string }
-        Returns: string
-      }
-      update_overdue_payments: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      validate_cpf: {
-        Args: { cpf_input: string }
-        Returns: boolean
-      }
-      validate_email: {
-        Args: { email_input: string }
-        Returns: boolean
-      }
-      validate_email_format: {
-        Args: { email_input: string }
-        Returns: boolean
-      }
-      validate_phone: {
-        Args: { phone_input: string }
-        Returns: boolean
-      }
+      is_patient_owner: { Args: { _patient_id: string }; Returns: boolean }
+      sanitize_html: { Args: { input_text: string }; Returns: string }
+      update_overdue_payments: { Args: never; Returns: undefined }
+      validate_cpf: { Args: { cpf_input: string }; Returns: boolean }
+      validate_email: { Args: { email_input: string }; Returns: boolean }
+      validate_email_format: { Args: { email_input: string }; Returns: boolean }
+      validate_phone: { Args: { phone_input: string }; Returns: boolean }
     }
     Enums: {
       app_role: "nutritionist" | "patient"
