@@ -49,40 +49,31 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("RESEND_API_KEY not configured");
     }
     
-    const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
-
-    // Check rate limit for security
-    const { data: rateLimitCheck } = await supabase.rpc('check_rate_limit', {
-      endpoint_name: 'send-welcome-email',
-      max_requests: 10,
-      window_minutes: 60
-    });
-
-    if (!rateLimitCheck) {
-      return new Response(
-        JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }),
-        {
-          status: 429,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
+    if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+      console.error("send-welcome-email: Supabase credentials not configured");
+      throw new Error("Supabase credentials not configured");
     }
+    
+    console.log("send-welcome-email: Creating Supabase client");
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
     console.log("send-welcome-email: Processing request");
     
+    console.log("send-welcome-email: Parsing request body");
     const { patientData, redirectTo } = await req.json();
     const { full_name, email } = patientData;
 
+    console.log("send-welcome-email: Received request for email:", email);
+
     if (!email || !full_name) {
+      console.error("send-welcome-email: Missing required fields");
       throw new Error("Email and full name are required");
     }
 
-    // Validate email format using our security function
-    const { data: emailValid } = await supabase.rpc('validate_email_format', {
-      email_input: email
-    });
-
-    if (!emailValid) {
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      console.error("send-welcome-email: Invalid email format:", email);
       throw new Error("Invalid email format");
     }
 
