@@ -4,8 +4,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-const RESEND_FROM_EMAIL = Deno.env.get("RESEND_FROM_EMAIL") || "onboarding@resend.dev";
-const RESEND_FROM_NAME = Deno.env.get("RESEND_FROM_NAME") || "Sistema Nutricional";
+const RESEND_FROM_EMAIL = Deno.env.get("RESEND_FROM_EMAIL");
+const RESEND_FROM_NAME = Deno.env.get("RESEND_FROM_NAME");
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -172,6 +172,13 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     console.log("send-welcome-email: Sending magic link via Resend to:", email);
+    
+    // Check if custom sender is configured
+    const fromEmail = RESEND_FROM_EMAIL || "onboarding@resend.dev";
+    const fromName = RESEND_FROM_NAME || "Sistema Nutricional";
+    const fromField = `${fromName} <${fromEmail}>`;
+    
+    console.log("send-welcome-email: Using from field:", fromField);
 
     // Send welcome email with Magic Link using Resend
     const emailResponse = await fetch("https://api.resend.com/emails", {
@@ -181,7 +188,7 @@ const handler = async (req: Request): Promise<Response> => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: `${RESEND_FROM_NAME} <${RESEND_FROM_EMAIL}>`,
+        from: fromField,
         to: [email],
         subject: "Bem-vindo ao Sistema Nutricional - Acesse com seu link mágico",
         html: `
