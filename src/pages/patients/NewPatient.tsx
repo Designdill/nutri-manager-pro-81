@@ -179,9 +179,15 @@ export default function NewPatient() {
       }
 
       navigate("/patients");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error:", error);
-      toast.error("Erro ao cadastrar paciente");
+      
+      // Check for duplicate CPF error
+      if (error?.code === '23505' && error?.message?.includes('patients_cpf_unique_idx')) {
+        toast.error("Este CPF já está cadastrado no sistema");
+      } else {
+        toast.error("Erro ao cadastrar paciente");
+      }
     } finally {
       setIsSubmitting(false);
     }

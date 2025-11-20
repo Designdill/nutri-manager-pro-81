@@ -6,6 +6,8 @@ import { PatientFormValues } from "./types";
 import { cn } from "@/lib/utils";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 
 interface PersonalInfoFormProps {
   form: UseFormReturn<PatientFormValues>;
@@ -13,6 +15,31 @@ interface PersonalInfoFormProps {
 
 export function PersonalInfoForm({ form }: PersonalInfoFormProps) {
   const { formState: { errors } } = form;
+  const [cpfCheckLoading, setCpfCheckLoading] = useState(false);
+
+  const checkCpfExists = async (cpf: string) => {
+    if (!cpf || cpf.length < 11) return;
+    
+    setCpfCheckLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('patients')
+        .select('id')
+        .eq('cpf', cpf.replace(/\D/g, ''))
+        .maybeSingle();
+      
+      if (data) {
+        form.setError('cpf', {
+          type: 'manual',
+          message: 'Este CPF já está cadastrado no sistema'
+        });
+      }
+    } catch (error) {
+      console.error('Error checking CPF:', error);
+    } finally {
+      setCpfCheckLoading(false);
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -85,12 +112,16 @@ export function PersonalInfoForm({ form }: PersonalInfoFormProps) {
                 <Input 
                   placeholder="000.000.000-00" 
                   {...field}
+                  onBlur={(e) => {
+                    field.onBlur();
+                    checkCpfExists(e.target.value);
+                  }}
                   aria-invalid={!!errors.cpf}
                   aria-describedby={errors.cpf ? "cpf-error" : "cpf-description"}
                 />
               </FormControl>
               <FormDescription id="cpf-description">
-                Digite apenas números (opcional)
+                {cpfCheckLoading ? "Verificando CPF..." : "Digite apenas números (opcional)"}
               </FormDescription>
               <FormMessage id="cpf-error" />
             </FormItem>
