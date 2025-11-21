@@ -92,6 +92,13 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     console.log("request-password-recovery: Sending recovery link via Resend to:", email);
+    
+    // Construct proper from field - must be in format "Name <email@domain.com>"
+    const fromField = RESEND_FROM_NAME && RESEND_FROM_EMAIL 
+      ? `${RESEND_FROM_NAME} <${RESEND_FROM_EMAIL}>`
+      : RESEND_FROM_EMAIL;
+    
+    console.log("request-password-recovery: Using from field:", fromField);
 
     // Send recovery email using Resend
     const emailResponse = await fetch("https://api.resend.com/emails", {
@@ -101,7 +108,7 @@ const handler = async (req: Request): Promise<Response> => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: `${RESEND_FROM_NAME} <${RESEND_FROM_EMAIL}>`,
+        from: fromField,
         to: [email],
         subject: "Redefinir sua senha - Sistema Nutricional",
         html: `
