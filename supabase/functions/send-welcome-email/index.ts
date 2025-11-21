@@ -96,12 +96,20 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     if (createError) {
-      // Check if user already exists by error code or message
+      // Log the full error for debugging
+      console.log('Auth user creation error:', JSON.stringify(createError, null, 2));
+      
+      // Check if user already exists - be very permissive with the check
+      const errorMessage = (createError.message || '').toLowerCase();
+      const errorCode = (createError.code || '').toLowerCase();
+      
       const isExistingUser = 
-        createError.code === 'email_exists' ||
-        createError.code === 'user_already_exists' ||
-        createError.message?.toLowerCase().includes('already registered') || 
-        createError.message?.toLowerCase().includes('already exists');
+        errorCode.includes('email') ||
+        errorCode.includes('exists') ||
+        errorCode.includes('registered') ||
+        errorMessage.includes('already') ||
+        errorMessage.includes('exists') ||
+        errorMessage.includes('registered');
       
       if (isExistingUser) {
         console.log('User already exists, will send magic link anyway:', email);
@@ -113,7 +121,7 @@ const handler = async (req: Request): Promise<Response> => {
           console.log('Found existing user ID:', userId);
         }
       } else {
-        console.error('Error creating user:', createError);
+        console.error('Unexpected error creating user:', createError);
         throw new Error(`Error creating auth user: ${createError.message}`);
       }
     } else {
