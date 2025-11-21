@@ -96,14 +96,21 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     if (createError) {
-      // If user already exists, we'll still send the magic link
-      if (createError.message?.includes('already registered') || createError.message?.includes('User already exists')) {
+      // Check if user already exists by error code or message
+      const isExistingUser = 
+        createError.code === 'email_exists' ||
+        createError.code === 'user_already_exists' ||
+        createError.message?.toLowerCase().includes('already registered') || 
+        createError.message?.toLowerCase().includes('already exists');
+      
+      if (isExistingUser) {
         console.log('User already exists, will send magic link anyway:', email);
         // Get existing user ID
         const { data: { users }, error: listError } = await supabase.auth.admin.listUsers();
         if (!listError && users) {
           const existingUser = users.find(u => u.email === email);
           userId = existingUser?.id;
+          console.log('Found existing user ID:', userId);
         }
       } else {
         console.error('Error creating user:', createError);
