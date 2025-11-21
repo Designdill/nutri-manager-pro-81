@@ -176,9 +176,15 @@ const handler = async (req: Request): Promise<Response> => {
     // Check if custom sender is configured
     const fromEmail = RESEND_FROM_EMAIL || "onboarding@resend.dev";
     const fromName = RESEND_FROM_NAME || "Sistema Nutricional";
-    const fromField = `${fromName} <${fromEmail}>`;
+    
+    // Construct proper from field - must be in format "Name <email@domain.com>"
+    const fromField = fromName && fromEmail 
+      ? `${fromName} <${fromEmail}>`
+      : fromEmail;
     
     console.log("send-welcome-email: Using from field:", fromField);
+    console.log("send-welcome-email: Email from name:", fromName);
+    console.log("send-welcome-email: Email from address:", fromEmail);
 
     // Send welcome email with Magic Link using Resend
     const emailResponse = await fetch("https://api.resend.com/emails", {
