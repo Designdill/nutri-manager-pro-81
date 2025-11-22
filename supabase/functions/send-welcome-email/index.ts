@@ -188,18 +188,24 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("send-welcome-email: Sending magic link via Resend to:", email);
     
-    // Check if custom sender is configured
-    const fromEmail = RESEND_FROM_EMAIL || "onboarding@resend.dev";
+    // Check if custom sender is configured and validate email format
+    const rawFromEmail = RESEND_FROM_EMAIL || "onboarding@resend.dev";
     const fromName = RESEND_FROM_NAME || "Sistema Nutricional";
-    
+
+    // Basic validation to avoid Resend 422 when the email is misconfigured (e.g. API key instead of email)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const isValidEmail = emailRegex.test(rawFromEmail);
+    const safeFromEmail = isValidEmail ? rawFromEmail : "onboarding@resend.dev";
+
     // Construct proper from field - must be in format "Name <email@domain.com>"
-    const fromField = fromName && fromEmail 
-      ? `${fromName} <${fromEmail}>`
-      : fromEmail;
-    
+    const fromField = fromName
+      ? `${fromName} <${safeFromEmail}>`
+      : safeFromEmail;
+
     console.log("send-welcome-email: Using from field:", fromField);
     console.log("send-welcome-email: Email from name:", fromName);
-    console.log("send-welcome-email: Email from address:", fromEmail);
+    console.log("send-welcome-email: Raw from address:", rawFromEmail);
+    console.log("send-welcome-email: Safe from address used:", safeFromEmail);
 
     // Send welcome email with Magic Link using Resend
     const emailResponse = await fetch("https://api.resend.com/emails", {
