@@ -11,7 +11,8 @@ import {
   ClipboardList,
   Settings,
   FileQuestion,
-  Menu
+  Menu,
+  FileText
 } from "lucide-react";
 import {
   Sidebar,
@@ -64,6 +65,11 @@ const nutritionistMenuItems = [
     title: "Questionários",
     url: "/questionnaires",
     icon: FileQuestion,
+  },
+  {
+    title: "Relatórios",
+    url: "/reports",
+    icon: FileText,
   },
   {
     title: "Mensagens",
