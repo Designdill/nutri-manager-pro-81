@@ -78,7 +78,7 @@ export default function PatientDetailsPage() {
           </TabsContent>
 
           <TabsContent value="progress">
-            <ProgressTab consultations={consultations || []} />
+            <ProgressTab patient={patient} consultations={consultations || []} />
           </TabsContent>
 
           <TabsContent value="exams">
