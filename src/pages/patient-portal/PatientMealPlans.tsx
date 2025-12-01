@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { ArrowLeft, Utensils } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { ArrowLeft, Utensils, Download } from 'lucide-react';
 import { useAuth } from '@/App';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 export default function PatientMealPlans() {
   const { session } = useAuth();
@@ -40,6 +42,114 @@ export default function PatientMealPlans() {
     fetchMealPlans();
   }, [session]);
 
+  const calculateMealNutrition = (mealData: string | null) => {
+    if (!mealData) return null;
+    try {
+      const foods = JSON.parse(mealData);
+      if (!Array.isArray(foods) || foods.length === 0) return null;
+
+      const totals = foods.reduce(
+        (acc, food) => ({
+          calories: acc.calories + (food.calories || 0),
+          proteins: acc.proteins + (food.proteins || 0),
+          carbs: acc.carbs + (food.carbohydrates || 0),
+          fats: acc.fats + (food.fats || 0),
+        }),
+        { calories: 0, proteins: 0, carbs: 0, fats: 0 }
+      );
+
+      return totals;
+    } catch {
+      return null;
+    }
+  };
+
+  const calculateDailyTotals = (plan: any) => {
+    const meals = [
+      plan.breakfast,
+      plan.morning_snack,
+      plan.lunch,
+      plan.afternoon_snack,
+      plan.dinner,
+      plan.evening_snack,
+    ];
+
+    const totals = meals.reduce(
+      (acc, meal) => {
+        const nutrition = calculateMealNutrition(meal);
+        if (nutrition) {
+          return {
+            calories: acc.calories + nutrition.calories,
+            proteins: acc.proteins + nutrition.proteins,
+            carbs: acc.carbs + nutrition.carbs,
+            fats: acc.fats + nutrition.fats,
+          };
+        }
+        return acc;
+      },
+      { calories: 0, proteins: 0, carbs: 0, fats: 0 }
+    );
+
+    return totals;
+  };
+
+  const handleDownload = (plan: any) => {
+    const meals = [
+      { name: "Café da Manhã", data: plan.breakfast },
+      { name: "Lanche da Manhã", data: plan.morning_snack },
+      { name: "Almoço", data: plan.lunch },
+      { name: "Lanche da Tarde", data: plan.afternoon_snack },
+      { name: "Jantar", data: plan.dinner },
+      { name: "Ceia", data: plan.evening_snack },
+    ];
+
+    let content = `PLANO ALIMENTAR\n\n`;
+    content += `${plan.title}\n`;
+    if (plan.description) content += `${plan.description}\n`;
+    content += `\n${"=".repeat(50)}\n\n`;
+
+    meals.forEach((meal) => {
+      if (meal.data) {
+        content += `${meal.name.toUpperCase()}\n`;
+        try {
+          const foods = JSON.parse(meal.data);
+          if (Array.isArray(foods)) {
+            foods.forEach((food: any) => {
+              content += `- ${food.name} (${food.quantity}${food.serving_unit || "g"})\n`;
+            });
+            const nutrition = calculateMealNutrition(meal.data);
+            if (nutrition) {
+              content += `  Calorias: ${nutrition.calories.toFixed(0)} kcal | `;
+              content += `Proteínas: ${nutrition.proteins.toFixed(1)}g | `;
+              content += `Carbos: ${nutrition.carbs.toFixed(1)}g | `;
+              content += `Gorduras: ${nutrition.fats.toFixed(1)}g\n`;
+            }
+          }
+        } catch {
+          content += meal.data + "\n";
+        }
+        content += "\n";
+      }
+    });
+
+    const totals = calculateDailyTotals(plan);
+    content += `\n${"=".repeat(50)}\n`;
+    content += `TOTAIS DIÁRIOS\n`;
+    content += `Calorias: ${totals.calories.toFixed(0)} kcal\n`;
+    content += `Proteínas: ${totals.proteins.toFixed(1)}g\n`;
+    content += `Carboidratos: ${totals.carbs.toFixed(1)}g\n`;
+    content += `Gorduras: ${totals.fats.toFixed(1)}g\n`;
+
+    const blob = new Blob([content], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `plano-alimentar-${plan.title.replace(/\s+/g, "-")}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Plano alimentar baixado com sucesso!");
+  };
+
   if (isLoading) {
     return <div className="p-8">Carregando...</div>;
   }
@@ -65,69 +175,124 @@ export default function PatientMealPlans() {
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-4">
-            {mealPlans.map((plan) => (
-              <Card key={plan.id}>
-                <CardHeader>
-                  <CardTitle>{plan.title}</CardTitle>
-                  {plan.description && (
-                    <CardDescription>{plan.description}</CardDescription>
-                  )}
-                </CardHeader>
-                <CardContent>
-                  <Accordion type="single" collapsible className="w-full">
-                    {plan.breakfast && (
-                      <AccordionItem value="breakfast">
-                        <AccordionTrigger>Café da Manhã</AccordionTrigger>
-                        <AccordionContent className="whitespace-pre-wrap">
-                          {plan.breakfast}
-                        </AccordionContent>
-                      </AccordionItem>
-                    )}
-                    {plan.morning_snack && (
-                      <AccordionItem value="morning_snack">
-                        <AccordionTrigger>Lanche da Manhã</AccordionTrigger>
-                        <AccordionContent className="whitespace-pre-wrap">
-                          {plan.morning_snack}
-                        </AccordionContent>
-                      </AccordionItem>
-                    )}
-                    {plan.lunch && (
-                      <AccordionItem value="lunch">
-                        <AccordionTrigger>Almoço</AccordionTrigger>
-                        <AccordionContent className="whitespace-pre-wrap">
-                          {plan.lunch}
-                        </AccordionContent>
-                      </AccordionItem>
-                    )}
-                    {plan.afternoon_snack && (
-                      <AccordionItem value="afternoon_snack">
-                        <AccordionTrigger>Lanche da Tarde</AccordionTrigger>
-                        <AccordionContent className="whitespace-pre-wrap">
-                          {plan.afternoon_snack}
-                        </AccordionContent>
-                      </AccordionItem>
-                    )}
-                    {plan.dinner && (
-                      <AccordionItem value="dinner">
-                        <AccordionTrigger>Jantar</AccordionTrigger>
-                        <AccordionContent className="whitespace-pre-wrap">
-                          {plan.dinner}
-                        </AccordionContent>
-                      </AccordionItem>
-                    )}
-                    {plan.evening_snack && (
-                      <AccordionItem value="evening_snack">
-                        <AccordionTrigger>Ceia</AccordionTrigger>
-                        <AccordionContent className="whitespace-pre-wrap">
-                          {plan.evening_snack}
-                        </AccordionContent>
-                      </AccordionItem>
-                    )}
-                  </Accordion>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="space-y-6">
+            {mealPlans.map((plan) => {
+              const dailyTotals = calculateDailyTotals(plan);
+              return (
+                <Card key={plan.id}>
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <CardTitle>{plan.title}</CardTitle>
+                        {plan.description && (
+                          <CardDescription className="mt-2">
+                            {plan.description}
+                          </CardDescription>
+                        )}
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDownload(plan)}
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        Baixar
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-6">
+                      {/* Nutritional Summary */}
+                      <div className="bg-muted/50 p-4 rounded-lg">
+                        <h4 className="font-medium mb-3">Resumo Nutricional Diário</h4>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                          <div>
+                            <p className="text-sm text-muted-foreground">Calorias</p>
+                            <p className="text-xl font-bold">
+                              {dailyTotals.calories.toFixed(0)}
+                            </p>
+                            <p className="text-xs text-muted-foreground">kcal</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-muted-foreground">Proteínas</p>
+                            <p className="text-xl font-bold">
+                              {dailyTotals.proteins.toFixed(1)}
+                            </p>
+                            <p className="text-xs text-muted-foreground">g</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-muted-foreground">Carboidratos</p>
+                            <p className="text-xl font-bold">
+                              {dailyTotals.carbs.toFixed(1)}
+                            </p>
+                            <p className="text-xs text-muted-foreground">g</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-muted-foreground">Gorduras</p>
+                            <p className="text-xl font-bold">
+                              {dailyTotals.fats.toFixed(1)}
+                            </p>
+                            <p className="text-xs text-muted-foreground">g</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <Separator />
+
+                      {/* Meals */}
+                      <div className="space-y-4">
+                        {[
+                          { name: "Café da Manhã", data: plan.breakfast },
+                          { name: "Lanche da Manhã", data: plan.morning_snack },
+                          { name: "Almoço", data: plan.lunch },
+                          { name: "Lanche da Tarde", data: plan.afternoon_snack },
+                          { name: "Jantar", data: plan.dinner },
+                          { name: "Ceia", data: plan.evening_snack },
+                        ].map(
+                          (meal) =>
+                            meal.data && (
+                              <div key={meal.name} className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <Badge variant="outline">{meal.name}</Badge>
+                                  {(() => {
+                                    const nutrition = calculateMealNutrition(meal.data);
+                                    return nutrition ? (
+                                      <span className="text-sm text-muted-foreground">
+                                        {nutrition.calories.toFixed(0)} kcal
+                                      </span>
+                                    ) : null;
+                                  })()}
+                                </div>
+                                <div className="pl-4 space-y-1">
+                                  {(() => {
+                                    try {
+                                      const foods = JSON.parse(meal.data);
+                                      if (Array.isArray(foods)) {
+                                        return foods.map((food: any, idx: number) => (
+                                          <p key={idx} className="text-sm">
+                                            • {food.name}{" "}
+                                            <span className="text-muted-foreground">
+                                              ({food.quantity}
+                                              {food.serving_unit || "g"})
+                                            </span>
+                                          </p>
+                                        ));
+                                      }
+                                      return <p className="text-sm">{meal.data}</p>;
+                                    } catch {
+                                      return <p className="text-sm">{meal.data}</p>;
+                                    }
+                                  })()}
+                                </div>
+                              </div>
+                            )
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
       </div>
