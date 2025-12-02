@@ -1,3 +1,4 @@
+export * from './anamneses';
 export * from './appointments';
 export * from './consultations';
 export * from './foods';

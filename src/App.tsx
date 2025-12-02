@@ -26,6 +26,7 @@ import NotificationsPage from "./pages/notifications/NotificationsPage";
 import QuestionnairesPage from "./pages/questionnaires/QuestionnairesPage";
 import NewQuestionnairePage from "./pages/questionnaires/NewQuestionnairePage";
 import ReportsPage from "./pages/reports/ReportsPage";
+import AnamnesisPage from "./pages/anamnesis/AnamnesisPage";
 import { QuestionnaireResponseViewer } from "./pages/questionnaires/components/QuestionnaireResponseViewer";
 import PatientDashboard from "./pages/patient-portal/PatientDashboard";
 import PatientAppointments from "./pages/patient-portal/PatientAppointments";
@@ -227,6 +228,14 @@ function App() {
                   element={
                     <PrivateRoute>
                       <AppointmentsPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/anamnesis"
+                  element={
+                    <PrivateRoute requireRole="nutritionist">
+                      <AnamnesisPage />
                     </PrivateRoute>
                   }
                 />

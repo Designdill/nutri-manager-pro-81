@@ -12,7 +12,8 @@ import {
   Settings,
   FileQuestion,
   Menu,
-  FileText
+  FileText,
+  FileCheck2
 } from "lucide-react";
 import {
   Sidebar,
@@ -45,6 +46,11 @@ const nutritionistMenuItems = [
     title: "Consultas",
     url: "/appointments",
     icon: Calendar,
+  },
+  {
+    title: "Anamneses",
+    url: "/anamnesis",
+    icon: FileCheck2,
   },
   {
     title: "Progresso",
