@@ -1,4 +1,5 @@
 import { 
+  AnamnesesTable,
   AppointmentsTable,
   ConsultationsTable,
   FoodsTable,
@@ -21,6 +22,7 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      anamneses: AnamnesesTable;
       appointments: AppointmentsTable;
       consultations: ConsultationsTable;
       foods: FoodsTable;

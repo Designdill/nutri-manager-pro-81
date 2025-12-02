@@ -14,6 +14,249 @@ export type Database = {
   }
   public: {
     Tables: {
+      anamneses: {
+        Row: {
+          alcohol_consumption: string | null
+          anamnesis_date: string
+          barriers_to_change: string | null
+          bloating: boolean | null
+          bmi: number | null
+          body_fat_percentage: number | null
+          caffeine_intake: string | null
+          chief_complaint: string | null
+          chronic_conditions: string | null
+          clinical_impression: string | null
+          complaint_duration: string | null
+          constipation: boolean | null
+          created_at: string
+          current_diseases: string | null
+          current_medications: string | null
+          current_weight: number | null
+          diarrhea: boolean | null
+          digestive_other: string | null
+          eating_pattern: string | null
+          expectations: string | null
+          family_diabetes: boolean | null
+          family_diseases: string | null
+          family_heart_disease: boolean | null
+          family_hypertension: boolean | null
+          family_obesity: boolean | null
+          fatigue: boolean | null
+          food_allergies: string | null
+          food_aversions: string | null
+          food_intolerances: string | null
+          food_preferences: string | null
+          hair_loss: boolean | null
+          headaches: boolean | null
+          heartburn: boolean | null
+          height: number | null
+          herbal_supplements: string | null
+          hip_circumference: number | null
+          hospitalizations: string | null
+          id: string
+          initial_recommendations: string | null
+          lab_date: string | null
+          lactation: boolean | null
+          menstrual_cycle: string | null
+          mood_changes: boolean | null
+          motivation_level: string | null
+          muscle_mass_percentage: number | null
+          nausea: boolean | null
+          nutritional_diagnosis: string | null
+          nutritionist_id: string
+          other_symptoms: string | null
+          patient_id: string
+          physical_activity_duration: string | null
+          physical_activity_frequency: string | null
+          physical_activity_type: string | null
+          pregnancy_history: string | null
+          previous_diseases: string | null
+          primary_goals: string | null
+          recent_lab_results: string | null
+          skin_problems: boolean | null
+          sleep_hours: number | null
+          sleep_quality: string | null
+          smoking: boolean | null
+          smoking_details: string | null
+          stress_level: string | null
+          surgeries: string | null
+          updated_at: string
+          usual_breakfast: string | null
+          usual_dinner: string | null
+          usual_lunch: string | null
+          usual_snacks: string | null
+          vitamin_supplements: string | null
+          waist_circumference: number | null
+          water_intake_ml: number | null
+          weight_goal: string | null
+        }
+        Insert: {
+          alcohol_consumption?: string | null
+          anamnesis_date?: string
+          barriers_to_change?: string | null
+          bloating?: boolean | null
+          bmi?: number | null
+          body_fat_percentage?: number | null
+          caffeine_intake?: string | null
+          chief_complaint?: string | null
+          chronic_conditions?: string | null
+          clinical_impression?: string | null
+          complaint_duration?: string | null
+          constipation?: boolean | null
+          created_at?: string
+          current_diseases?: string | null
+          current_medications?: string | null
+          current_weight?: number | null
+          diarrhea?: boolean | null
+          digestive_other?: string | null
+          eating_pattern?: string | null
+          expectations?: string | null
+          family_diabetes?: boolean | null
+          family_diseases?: string | null
+          family_heart_disease?: boolean | null
+          family_hypertension?: boolean | null
+          family_obesity?: boolean | null
+          fatigue?: boolean | null
+          food_allergies?: string | null
+          food_aversions?: string | null
+          food_intolerances?: string | null
+          food_preferences?: string | null
+          hair_loss?: boolean | null
+          headaches?: boolean | null
+          heartburn?: boolean | null
+          height?: number | null
+          herbal_supplements?: string | null
+          hip_circumference?: number | null
+          hospitalizations?: string | null
+          id?: string
+          initial_recommendations?: string | null
+          lab_date?: string | null
+          lactation?: boolean | null
+          menstrual_cycle?: string | null
+          mood_changes?: boolean | null
+          motivation_level?: string | null
+          muscle_mass_percentage?: number | null
+          nausea?: boolean | null
+          nutritional_diagnosis?: string | null
+          nutritionist_id: string
+          other_symptoms?: string | null
+          patient_id: string
+          physical_activity_duration?: string | null
+          physical_activity_frequency?: string | null
+          physical_activity_type?: string | null
+          pregnancy_history?: string | null
+          previous_diseases?: string | null
+          primary_goals?: string | null
+          recent_lab_results?: string | null
+          skin_problems?: boolean | null
+          sleep_hours?: number | null
+          sleep_quality?: string | null
+          smoking?: boolean | null
+          smoking_details?: string | null
+          stress_level?: string | null
+          surgeries?: string | null
+          updated_at?: string
+          usual_breakfast?: string | null
+          usual_dinner?: string | null
+          usual_lunch?: string | null
+          usual_snacks?: string | null
+          vitamin_supplements?: string | null
+          waist_circumference?: number | null
+          water_intake_ml?: number | null
+          weight_goal?: string | null
+        }
+        Update: {
+          alcohol_consumption?: string | null
+          anamnesis_date?: string
+          barriers_to_change?: string | null
+          bloating?: boolean | null
+          bmi?: number | null
+          body_fat_percentage?: number | null
+          caffeine_intake?: string | null
+          chief_complaint?: string | null
+          chronic_conditions?: string | null
+          clinical_impression?: string | null
+          complaint_duration?: string | null
+          constipation?: boolean | null
+          created_at?: string
+          current_diseases?: string | null
+          current_medications?: string | null
+          current_weight?: number | null
+          diarrhea?: boolean | null
+          digestive_other?: string | null
+          eating_pattern?: string | null
+          expectations?: string | null
+          family_diabetes?: boolean | null
+          family_diseases?: string | null
+          family_heart_disease?: boolean | null
+          family_hypertension?: boolean | null
+          family_obesity?: boolean | null
+          fatigue?: boolean | null
+          food_allergies?: string | null
+          food_aversions?: string | null
+          food_intolerances?: string | null
+          food_preferences?: string | null
+          hair_loss?: boolean | null
+          headaches?: boolean | null
+          heartburn?: boolean | null
+          height?: number | null
+          herbal_supplements?: string | null
+          hip_circumference?: number | null
+          hospitalizations?: string | null
+          id?: string
+          initial_recommendations?: string | null
+          lab_date?: string | null
+          lactation?: boolean | null
+          menstrual_cycle?: string | null
+          mood_changes?: boolean | null
+          motivation_level?: string | null
+          muscle_mass_percentage?: number | null
+          nausea?: boolean | null
+          nutritional_diagnosis?: string | null
+          nutritionist_id?: string
+          other_symptoms?: string | null
+          patient_id?: string
+          physical_activity_duration?: string | null
+          physical_activity_frequency?: string | null
+          physical_activity_type?: string | null
+          pregnancy_history?: string | null
+          previous_diseases?: string | null
+          primary_goals?: string | null
+          recent_lab_results?: string | null
+          skin_problems?: boolean | null
+          sleep_hours?: number | null
+          sleep_quality?: string | null
+          smoking?: boolean | null
+          smoking_details?: string | null
+          stress_level?: string | null
+          surgeries?: string | null
+          updated_at?: string
+          usual_breakfast?: string | null
+          usual_dinner?: string | null
+          usual_lunch?: string | null
+          usual_snacks?: string | null
+          vitamin_supplements?: string | null
+          waist_circumference?: number | null
+          water_intake_ml?: number | null
+          weight_goal?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "anamneses_nutritionist_id_fkey"
+            columns: ["nutritionist_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "anamneses_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       api_rate_limits: {
         Row: {
           created_at: string
