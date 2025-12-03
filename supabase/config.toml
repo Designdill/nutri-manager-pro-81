@@ -60,3 +60,6 @@ verify_jwt = false
 
 [functions.secure-password-reset]
 verify_jwt = false
+
+[functions.suggest-meal-plan]
+verify_jwt = true
