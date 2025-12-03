@@ -19,14 +19,16 @@ import { ProfessionalSection } from "./form-sections/ProfessionalSection";
 interface AnamnesisFormProps {
   onSuccess: () => void;
   nutritionistId?: string;
+  preselectedPatientId?: string;
 }
 
-export function AnamnesisForm({ onSuccess, nutritionistId }: AnamnesisFormProps) {
+export function AnamnesisForm({ onSuccess, nutritionistId, preselectedPatientId }: AnamnesisFormProps) {
   const queryClient = useQueryClient();
 
   const form = useForm<AnamnesisFormValues>({
     resolver: zodResolver(anamnesisFormSchema),
     defaultValues: {
+      patient_id: preselectedPatientId || "",
       anamnesis_date: new Date().toISOString().split('T')[0],
       family_obesity: false,
       family_diabetes: false,
@@ -70,6 +72,7 @@ export function AnamnesisForm({ onSuccess, nutritionistId }: AnamnesisFormProps)
     onSuccess: () => {
       toast.success("Anamnese criada com sucesso!");
       queryClient.invalidateQueries({ queryKey: ['anamneses'] });
+      queryClient.invalidateQueries({ queryKey: ['patient-anamneses'] });
       onSuccess();
     },
     onError: (error) => {

@@ -1,14 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AnamnesisForm } from "./components/AnamnesisForm";
 import { AnamnesisList } from "./components/AnamnesisList";
+import { AnamnesisViewer } from "./components/AnamnesisViewer";
 
 export default function AnamnesisPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  
+  const preselectedPatientId = searchParams.get("patient");
+  const viewAnamnesisId = searchParams.get("view");
 
   const { data: session } = useQuery({
     queryKey: ['session'],
@@ -17,6 +24,30 @@ export default function AnamnesisPage() {
       return data.session;
     },
   });
+
+  // Auto-open dialogs based on URL params
+  useEffect(() => {
+    if (preselectedPatientId) {
+      setIsCreateDialogOpen(true);
+    }
+    if (viewAnamnesisId) {
+      setIsViewDialogOpen(true);
+    }
+  }, [preselectedPatientId, viewAnamnesisId]);
+
+  const handleCloseCreateDialog = () => {
+    setIsCreateDialogOpen(false);
+    // Clear URL param
+    searchParams.delete("patient");
+    setSearchParams(searchParams);
+  };
+
+  const handleCloseViewDialog = () => {
+    setIsViewDialogOpen(false);
+    // Clear URL param
+    searchParams.delete("view");
+    setSearchParams(searchParams);
+  };
 
   return (
     <div className="container mx-auto py-8 space-y-6">
@@ -35,15 +66,25 @@ export default function AnamnesisPage() {
 
       <AnamnesisList />
 
-      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+      <Dialog open={isCreateDialogOpen} onOpenChange={(open) => !open && handleCloseCreateDialog()}>
         <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Nova Anamnese</DialogTitle>
           </DialogHeader>
           <AnamnesisForm
-            onSuccess={() => setIsCreateDialogOpen(false)}
+            onSuccess={handleCloseCreateDialog}
             nutritionistId={session?.user?.id}
+            preselectedPatientId={preselectedPatientId || undefined}
           />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isViewDialogOpen} onOpenChange={(open) => !open && handleCloseViewDialog()}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Visualizar Anamnese</DialogTitle>
+          </DialogHeader>
+          {viewAnamnesisId && <AnamnesisViewer anamnesisId={viewAnamnesisId} />}
         </DialogContent>
       </Dialog>
     </div>

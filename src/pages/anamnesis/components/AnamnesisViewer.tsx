@@ -1,15 +1,52 @@
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { CheckCircle2, XCircle } from "lucide-react";
+import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 interface AnamnesisViewerProps {
-  anamnesis: any;
+  anamnesis?: any;
+  anamnesisId?: string;
 }
 
-export function AnamnesisViewer({ anamnesis }: AnamnesisViewerProps) {
+export function AnamnesisViewer({ anamnesis: providedAnamnesis, anamnesisId }: AnamnesisViewerProps) {
+  const { data: fetchedAnamnesis, isLoading } = useQuery({
+    queryKey: ["anamnesis", anamnesisId],
+    queryFn: async () => {
+      if (!anamnesisId) return null;
+      const { data, error } = await supabase
+        .from("anamneses")
+        .select("*, patients(full_name)")
+        .eq("id", anamnesisId)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!anamnesisId && !providedAnamnesis,
+  });
+
+  const anamnesis = providedAnamnesis || fetchedAnamnesis;
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (!anamnesis) {
+    return (
+      <div className="text-center py-8 text-muted-foreground">
+        Anamnese não encontrada
+      </div>
+    );
+  }
+
   const BooleanBadge = ({ value, trueLabel = "Sim", falseLabel = "Não" }: { value: boolean; trueLabel?: string; falseLabel?: string }) => (
     <Badge variant={value ? "default" : "secondary"} className="gap-1">
       {value ? <CheckCircle2 className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
