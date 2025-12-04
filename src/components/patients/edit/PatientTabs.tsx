@@ -11,7 +11,8 @@ import { HealthHistoryForm } from "@/components/patients/HealthHistoryForm";
 import { LifestyleForm } from "@/components/patients/LifestyleForm";
 import { GoalsForm } from "@/components/patients/GoalsForm";
 import { AnamnesisTab } from "./AnamnesisTab";
-import { User, MapPin, Activity, Heart, Utensils, Target, CheckCircle, AlertCircle, FileCheck2 } from "lucide-react";
+import { EvolutionTab } from "./EvolutionTab";
+import { User, MapPin, Activity, Heart, Utensils, Target, CheckCircle, AlertCircle, FileCheck2, TrendingUp } from "lucide-react";
 
 interface PatientTabsProps {
   form: UseFormReturn<PatientFormValues>;
@@ -49,6 +50,12 @@ export function PatientTabs({ form }: PatientTabsProps) {
       value: "anamnesis", 
       label: "Anamnese", 
       icon: FileCheck2,
+      fields: []
+    },
+    { 
+      value: "evolution", 
+      label: "Evolução", 
+      icon: TrendingUp,
       fields: []
     }
   ];
@@ -174,6 +181,10 @@ export function PatientTabs({ form }: PatientTabsProps) {
 
       <TabsContent value="anamnesis" className="animate-fade-in">
         <AnamnesisTab />
+      </TabsContent>
+
+      <TabsContent value="evolution" className="animate-fade-in">
+        <EvolutionTab />
       </TabsContent>
     </Tabs>
   );
