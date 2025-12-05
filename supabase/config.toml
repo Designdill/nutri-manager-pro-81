@@ -63,3 +63,6 @@ verify_jwt = false
 
 [functions.suggest-meal-plan]
 verify_jwt = true
+
+[functions.generate-patient-alerts]
+verify_jwt = true

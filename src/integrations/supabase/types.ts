@@ -872,6 +872,66 @@ export type Database = {
         }
         Relationships: []
       }
+      patient_alerts: {
+        Row: {
+          alert_type: Database["public"]["Enums"]["alert_type"]
+          created_at: string
+          id: string
+          is_dismissed: boolean
+          is_read: boolean
+          message: string
+          metadata: Json | null
+          nutritionist_id: string
+          patient_id: string
+          severity: Database["public"]["Enums"]["alert_severity"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          alert_type: Database["public"]["Enums"]["alert_type"]
+          created_at?: string
+          id?: string
+          is_dismissed?: boolean
+          is_read?: boolean
+          message: string
+          metadata?: Json | null
+          nutritionist_id: string
+          patient_id: string
+          severity?: Database["public"]["Enums"]["alert_severity"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          alert_type?: Database["public"]["Enums"]["alert_type"]
+          created_at?: string
+          id?: string
+          is_dismissed?: boolean
+          is_read?: boolean
+          message?: string
+          metadata?: Json | null
+          nutritionist_id?: string
+          patient_id?: string
+          severity?: Database["public"]["Enums"]["alert_severity"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_alerts_nutritionist_id_fkey"
+            columns: ["nutritionist_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_alerts_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       patient_exams: {
         Row: {
           created_at: string
@@ -1564,6 +1624,14 @@ export type Database = {
       validate_phone: { Args: { phone_input: string }; Returns: boolean }
     }
     Enums: {
+      alert_severity: "low" | "medium" | "high" | "critical"
+      alert_type:
+        | "inactive_patient"
+        | "weight_gain"
+        | "weight_loss"
+        | "low_adherence"
+        | "missed_appointment"
+        | "no_recent_consultation"
       app_role: "nutritionist" | "patient"
       appointment_status: "confirmed" | "pending" | "cancelled"
       backup_status: "success" | "failed" | "in_progress"
@@ -1710,6 +1778,15 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      alert_severity: ["low", "medium", "high", "critical"],
+      alert_type: [
+        "inactive_patient",
+        "weight_gain",
+        "weight_loss",
+        "low_adherence",
+        "missed_appointment",
+        "no_recent_consultation",
+      ],
       app_role: ["nutritionist", "patient"],
       appointment_status: ["confirmed", "pending", "cancelled"],
       backup_status: ["success", "failed", "in_progress"],
