@@ -11,6 +11,7 @@ import { DashboardCharts } from "@/components/dashboard/DashboardCharts";
 import { DashboardActions } from "@/components/dashboard/DashboardActions";
 import { UpcomingAppointments } from "@/components/dashboard/UpcomingAppointments";
 import { RecentNotifications } from "@/components/dashboard/RecentNotifications";
+import { PatientAlerts } from "@/components/dashboard/PatientAlerts";
 
 export default function Index() {
   const navigate = useNavigate();
@@ -154,6 +155,8 @@ export default function Index() {
           />
 
           <DashboardActions />
+
+          <PatientAlerts />
 
           <DashboardCharts
             progressData={progressData}
