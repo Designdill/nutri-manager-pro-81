@@ -58,67 +58,56 @@ export function useRealtimeAppointments(date?: Date) {
 
   // WebSocket connection management
   useEffect(() => {
-    const setupRealtimeSubscription = () => {
-      console.log("Setting up realtime subscription for date:", formattedDate);
-      
-      channelRef.current = supabase
-        .channel(`appointments-${formattedDate}`)
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "appointments",
-            filter: `scheduled_at=gte.${formattedDate}T00:00:00,scheduled_at=lte.${formattedDate}T23:59:59`,
-          },
-          (payload) => {
-            console.log("Realtime update received:", payload);
-            
-            // Show toast notification for updates
-            const eventMessages = {
-              INSERT: "Nova consulta agendada",
-              UPDATE: "Consulta atualizada",
-              DELETE: "Consulta removida",
-            };
-            
-            toast({
-              title: eventMessages[payload.eventType as keyof typeof eventMessages],
-              description: "A lista de consultas foi atualizada.",
-            });
+    // Clean up any existing channel first
+    if (channelRef.current) {
+      supabase.removeChannel(channelRef.current);
+      channelRef.current = null;
+    }
 
-            // Invalidate query to trigger refresh
-            queryClient.invalidateQueries({
-              queryKey: ["appointments", formattedDate],
-            });
-          }
-        )
-        .subscribe((status) => {
-          console.log("Realtime subscription status:", status);
+    const channel = supabase
+      .channel(`appointments-${formattedDate}-${Date.now()}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "appointments",
+        },
+        (payload) => {
+          console.log("Realtime update received:", payload);
           
-          if (status === "SUBSCRIBED") {
-            console.log("Successfully subscribed to realtime updates");
-          } else if (status === "CLOSED") {
-            console.log("Realtime connection closed, attempting to reconnect...");
-            // Attempt to reconnect after a delay
-            setTimeout(setupRealtimeSubscription, 5000);
-          } else if (status === "CHANNEL_ERROR") {
-            console.error("Error in realtime channel");
-            toast({
-              title: "Erro na conexão em tempo real",
-              description: "Tentando reconectar...",
-              variant: "destructive",
-            });
-          }
-        });
-    };
+          // Show toast notification for updates
+          const eventMessages = {
+            INSERT: "Nova consulta agendada",
+            UPDATE: "Consulta atualizada",
+            DELETE: "Consulta removida",
+          };
+          
+          toast({
+            title: eventMessages[payload.eventType as keyof typeof eventMessages],
+            description: "A lista de consultas foi atualizada.",
+          });
 
-    setupRealtimeSubscription();
+          // Invalidate query to trigger refresh
+          queryClient.invalidateQueries({
+            queryKey: ["appointments", formattedDate],
+          });
+        }
+      )
+      .subscribe((status) => {
+        console.log("Realtime subscription status:", status);
+        if (status === "SUBSCRIBED") {
+          console.log("Successfully subscribed to realtime updates");
+        }
+      });
+
+    channelRef.current = channel;
 
     // Cleanup function
     return () => {
-      console.log("Cleaning up realtime subscription");
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
       }
     };
   }, [formattedDate, queryClient]);
