@@ -157,23 +157,32 @@ export default function NewPatient() {
 
       // Send welcome email since email is now required
       try {
+        console.log("Invoking send-welcome-email function...");
         const { data: welcomeData, error: welcomeError } = await supabase.functions.invoke('send-welcome-email', {
           body: {
             patientData: {
-              full_name: values.full_name,
+              full_name: values.full_name.trim(),
               email: values.email.trim(),
             },
             redirectTo: `${window.location.origin}/patient`
           }
         });
 
-        if (welcomeError || (welcomeData as any)?.error) {
-          console.error("Error sending welcome email:", welcomeError || (welcomeData as any)?.error);
+        console.log("Welcome email response:", welcomeData, welcomeError);
+
+        if (welcomeError) {
+          console.error("Edge function error:", welcomeError);
           toast.error("Paciente cadastrado, mas houve um erro ao enviar o email de boas-vindas");
+        } else if (welcomeData?.error) {
+          console.error("Email service error:", welcomeData.error);
+          toast.error(`Paciente cadastrado. ${welcomeData.message || 'Erro no envio do email.'}`);
+        } else if (welcomeData?.email_sent === false) {
+          console.warn("Email not sent:", welcomeData.email_error);
+          toast.warning("Paciente cadastrado. Email não enviado - verifique configuração do Resend.");
         } else {
           toast.success("Paciente cadastrado e email de boas-vindas enviado com sucesso!");
         }
-      } catch (emailError) {
+      } catch (emailError: any) {
         console.error("Error invoking send-email function:", emailError);
         toast.error("Paciente cadastrado, mas houve um erro ao enviar o email de boas-vindas");
       }
