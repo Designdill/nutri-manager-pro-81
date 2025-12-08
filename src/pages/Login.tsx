@@ -247,6 +247,8 @@ const Login = () => {
                       sign_in: {
                         email_label: "Email",
                         password_label: "Senha",
+                        email_input_placeholder: "Seu endereço de e-mail",
+                        password_input_placeholder: "Sua senha",
                         button_label: "Entrar",
                         loading_button_label: "Entrando...",
                         social_provider_text: "Entrar com {{provider}}",
@@ -255,6 +257,8 @@ const Login = () => {
                       sign_up: {
                         email_label: "Email",
                         password_label: "Senha",
+                        email_input_placeholder: "Seu endereço de e-mail",
+                        password_input_placeholder: "Sua senha",
                         button_label: "Cadastrar",
                         loading_button_label: "Cadastrando...",
                         social_provider_text: "Cadastrar com {{provider}}",
