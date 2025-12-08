@@ -15,7 +15,7 @@ const corsHeaders = {
   "Access-Control-Max-Age": "86400",
 };
 
-// Security enhancement: Generate secure token instead of password
+// Security enhancement: Generate secure token
 function generateSecureToken() {
   const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
   let result = '';
@@ -37,53 +37,93 @@ function sanitizeHtml(input: string): string {
 }
 
 const handler = async (req: Request): Promise<Response> => {
+  console.log("=== send-welcome-email: Request received ===");
+  console.log("Method:", req.method);
+  
   if (req.method === "OPTIONS") {
+    console.log("Handling CORS preflight");
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    console.log("send-welcome-email: Starting function execution");
+    console.log("Checking environment variables...");
+    console.log("RESEND_API_KEY configured:", !!RESEND_API_KEY);
+    console.log("SUPABASE_URL configured:", !!SUPABASE_URL);
+    console.log("SUPABASE_SERVICE_ROLE_KEY configured:", !!SUPABASE_SERVICE_ROLE_KEY);
+    console.log("RESEND_FROM_EMAIL:", RESEND_FROM_EMAIL || "not set");
+    console.log("RESEND_FROM_NAME:", RESEND_FROM_NAME || "not set");
     
     if (!RESEND_API_KEY) {
-      console.error("send-welcome-email: RESEND_API_KEY not configured");
-      throw new Error("RESEND_API_KEY not configured");
+      console.error("RESEND_API_KEY not configured");
+      return new Response(JSON.stringify({ 
+        error: "Email service not configured",
+        details: "RESEND_API_KEY is missing"
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500,
+      });
     }
     
     if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-      console.error("send-welcome-email: Supabase credentials not configured");
-      throw new Error("Supabase credentials not configured");
+      console.error("Supabase credentials not configured");
+      return new Response(JSON.stringify({ 
+        error: "Database service not configured",
+        details: "Supabase credentials are missing"
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500,
+      });
     }
     
-    console.log("send-welcome-email: Creating Supabase client");
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    console.log("Creating Supabase admin client...");
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    });
 
-    console.log("send-welcome-email: Processing request");
+    console.log("Parsing request body...");
+    const requestBody = await req.json();
+    console.log("Request body:", JSON.stringify(requestBody, null, 2));
     
-    console.log("send-welcome-email: Parsing request body");
-    const { patientData, redirectTo } = await req.json();
+    const { patientData, redirectTo } = requestBody;
+    
+    if (!patientData) {
+      console.error("Missing patientData in request");
+      return new Response(JSON.stringify({ error: "patientData is required" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
+    }
+    
     const { full_name, email } = patientData;
-
-    console.log("send-welcome-email: Received request for email:", email);
+    console.log("Processing patient:", { full_name, email, redirectTo });
 
     if (!email || !full_name) {
-      console.error("send-welcome-email: Missing required fields");
-      throw new Error("Email and full name are required");
+      console.error("Missing required fields - email:", !!email, "full_name:", !!full_name);
+      return new Response(JSON.stringify({ error: "Email and full name are required" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
     }
 
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      console.error("send-welcome-email: Invalid email format:", email);
-      throw new Error("Invalid email format");
+      console.error("Invalid email format:", email);
+      return new Response(JSON.stringify({ error: "Invalid email format" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
     }
 
     // Sanitize inputs to prevent XSS
     const sanitizedName = sanitizeHtml(full_name);
-    
-    // Generate secure token for password reset instead of plaintext password
     const tempPassword = generateSecureToken().slice(0, 12);
 
-    // Try to create auth user, but continue if user already exists
+    console.log("Attempting to create auth user for:", email);
+    
     let userId: string | undefined;
     const { data: authData, error: createError } = await supabase.auth.admin.createUser({
       email,
@@ -96,10 +136,8 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     if (createError) {
-      // Log the full error for debugging
-      console.log('Auth user creation error:', JSON.stringify(createError, null, 2));
+      console.log("Auth user creation result:", JSON.stringify(createError, null, 2));
       
-      // Check if user already exists - be very permissive with the check
       const errorMessage = (createError.message || '').toLowerCase();
       const errorCode = (createError.code || '').toLowerCase();
       
@@ -107,30 +145,42 @@ const handler = async (req: Request): Promise<Response> => {
         errorCode.includes('email') ||
         errorCode.includes('exists') ||
         errorCode.includes('registered') ||
+        errorCode.includes('duplicate') ||
         errorMessage.includes('already') ||
         errorMessage.includes('exists') ||
-        errorMessage.includes('registered');
+        errorMessage.includes('registered') ||
+        errorMessage.includes('duplicate');
       
       if (isExistingUser) {
-        console.log('User already exists, will send magic link anyway:', email);
+        console.log("User already exists, will fetch and send magic link:", email);
+        
         // Get existing user ID
         const { data: { users }, error: listError } = await supabase.auth.admin.listUsers();
-        if (!listError && users) {
+        if (listError) {
+          console.error("Error listing users:", listError);
+        } else if (users) {
           const existingUser = users.find(u => u.email === email);
           userId = existingUser?.id;
-          console.log('Found existing user ID:', userId);
+          console.log("Found existing user ID:", userId);
         }
       } else {
-        console.error('Unexpected error creating user:', createError);
-        throw new Error(`Error creating auth user: ${createError.message}`);
+        console.error("Unexpected error creating user:", createError);
+        return new Response(JSON.stringify({ 
+          error: "Failed to create user account",
+          details: createError.message
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 500,
+        });
       }
     } else {
       userId = authData.user?.id;
+      console.log("Created new user with ID:", userId);
     }
 
     // Ensure patient role is assigned
     if (userId) {
-      console.log("send-welcome-email: Assigning patient role for user:", userId);
+      console.log("Assigning patient role for user:", userId);
       
       // Upsert profile with patient role
       const { error: profileError } = await supabase
@@ -144,7 +194,9 @@ const handler = async (req: Request): Promise<Response> => {
         });
       
       if (profileError) {
-        console.error('Error upserting profile:', profileError);
+        console.error("Error upserting profile:", profileError);
+      } else {
+        console.log("Profile upserted successfully");
       }
       
       // Upsert user_roles to ensure patient role exists
@@ -159,11 +211,13 @@ const handler = async (req: Request): Promise<Response> => {
         });
       
       if (roleError) {
-        console.error('Error upserting user role:', roleError);
+        console.error("Error upserting user role:", roleError);
+      } else {
+        console.log("User role upserted successfully");
       }
     }
 
-    console.log("send-welcome-email: Generating magic link for:", email);
+    console.log("Generating magic link for:", email);
 
     // Generate a Magic Link for first access
     const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
@@ -175,111 +229,157 @@ const handler = async (req: Request): Promise<Response> => {
     } as any);
 
     if (linkError) {
-      console.error('Error generating magic link:', linkError);
-      throw new Error('Failed to generate magic link');
+      console.error("Error generating magic link:", linkError);
+      return new Response(JSON.stringify({ 
+        error: "Failed to generate access link",
+        details: linkError.message
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500,
+      });
     }
 
     const magicLink = (linkData as any)?.properties?.action_link;
+    console.log("Magic link generated:", magicLink ? "Yes (length: " + magicLink.length + ")" : "No");
 
     if (!magicLink) {
-      console.error('Magic link not available:', linkData);
-      throw new Error('Magic link not available');
+      console.error("Magic link not available in response:", JSON.stringify(linkData, null, 2));
+      return new Response(JSON.stringify({ 
+        error: "Failed to generate access link",
+        details: "Magic link not available"
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500,
+      });
     }
 
-    console.log("send-welcome-email: Sending magic link via Resend to:", email);
-    
-    // Check if custom sender is configured and validate email format
+    // Configure sender email
     const rawFromEmail = RESEND_FROM_EMAIL || "onboarding@resend.dev";
     const fromName = RESEND_FROM_NAME || "Sistema Nutricional";
-
-    // Basic validation to avoid Resend 422 when the email is misconfigured (e.g. API key instead of email)
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const isValidEmail = emailRegex.test(rawFromEmail);
     const safeFromEmail = isValidEmail ? rawFromEmail : "onboarding@resend.dev";
+    const fromField = `${fromName} <${safeFromEmail}>`;
 
-    // Construct proper from field - must be in format "Name <email@domain.com>"
-    const fromField = fromName
-      ? `${fromName} <${safeFromEmail}>`
-      : safeFromEmail;
-
-    console.log("send-welcome-email: Using from field:", fromField);
-    console.log("send-welcome-email: Email from name:", fromName);
-    console.log("send-welcome-email: Raw from address:", rawFromEmail);
-    console.log("send-welcome-email: Safe from address used:", safeFromEmail);
+    console.log("Sending email via Resend...");
+    console.log("From:", fromField);
+    console.log("To:", email);
 
     // Send welcome email with Magic Link using Resend
+    const emailPayload = {
+      from: fromField,
+      to: [email],
+      subject: "Bem-vindo ao Sistema Nutricional - Acesse sua conta",
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f8fafc; padding: 20px;">
+          <div style="background-color: #ffffff; border-radius: 12px; padding: 40px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <h1 style="color: #10b981; margin: 0; font-size: 28px;">🥗 Sistema Nutricional</h1>
+            </div>
+            
+            <h2 style="color: #1f2937; margin-bottom: 16px;">Olá, ${sanitizedName}!</h2>
+            
+            <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">
+              Sua nutricionista cadastrou você no Sistema Nutricional. Agora você pode acessar seu painel de paciente para acompanhar seu progresso, consultas e planos alimentares.
+            </p>
+            
+            <div style="background-color: #f0fdf4; padding: 24px; border-radius: 8px; margin: 24px 0; border-left: 4px solid #10b981;">
+              <p style="margin: 0 0 16px 0; color: #166534; font-weight: 600;">Clique no botão abaixo para acessar sua conta:</p>
+              <a href="${magicLink}" 
+                 style="display: inline-block; background-color: #10b981; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                 ✨ Acessar Minha Conta
+              </a>
+            </div>
+            
+            <p style="color: #6b7280; font-size: 14px; line-height: 1.5;">
+              Se o botão não funcionar, copie e cole este link no navegador:<br>
+              <span style="word-break: break-all; color: #10b981;">${magicLink}</span>
+            </p>
+            
+            <div style="border-top: 1px solid #e5e7eb; margin-top: 30px; padding-top: 20px;">
+              <p style="color: #9ca3af; font-size: 12px; margin: 0;">
+                ⚠️ Por segurança, este link expira em 24 horas. Se precisar de um novo link, acesse a tela de login e solicite recuperação de senha.<br><br>
+                Se você não solicitou esta conta, pode ignorar este email com segurança.
+              </p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `,
+    };
+
+    console.log("Email payload prepared, sending to Resend API...");
+
     const emailResponse = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
-      body: JSON.stringify({
-        from: fromField,
-        to: [email],
-        subject: "Bem-vindo ao Sistema Nutricional - Acesse com seu link mágico",
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #007bff;">Olá, ${sanitizedName}!</h2>
-            <p>Sua nutricionista cadastrou você no Sistema Nutricional.</p>
-            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #007bff;">
-              <h3 style="margin-top: 0; color: #007bff;">Clique no botão abaixo para acessar com seu Link Mágico:</h3>
-              <p style="margin: 16px 0;">
-                <a href="${magicLink}" style="display:inline-block;background-color:#007bff;color:#ffffff;text-decoration:none;padding:12px 20px;border-radius:6px;">Acessar minha conta</a>
-              </p>
-              <p style="color:#555; font-size: 14px;">Se o botão não funcionar, copie e cole este link no navegador:<br/>
-                <span style="word-break: break-all;">${magicLink}</span>
-              </p>
-            </div>
-            <p>Por segurança, o link expira após alguns minutos. Se precisar, solicite um novo link na tela de login.</p>
-            <p style="color: #666; font-size: 12px;">
-              Se você não solicitou esta conta, pode ignorar este email com segurança.<br>
-              Atenciosamente,<br>Equipe do Sistema Nutricional
-            </p>
-          </div>
-        `,
-      }),
+      body: JSON.stringify(emailPayload),
     });
 
+    const responseStatus = emailResponse.status;
+    const responseText = await emailResponse.text();
+    console.log("Resend API response status:", responseStatus);
+    console.log("Resend API response:", responseText);
+
     if (!emailResponse.ok) {
-      const errorText = await emailResponse.text();
-      console.error('Resend API error:', errorText);
-      // In preview/test mode with unverified domains, don't fail the user creation
-      // Return success so patient can still access the system
-      console.warn('Email sending failed but continuing with user creation');
+      console.error("Resend API error:", responseText);
+      
+      // Parse error details
+      let errorDetails = responseText;
+      try {
+        const errorJson = JSON.parse(responseText);
+        errorDetails = errorJson.message || errorJson.error || responseText;
+      } catch (e) {
+        // Keep original text
+      }
+      
+      // Still return success for user creation, but indicate email issue
       return new Response(JSON.stringify({ 
         success: true,
         user_id: userId,
-        message: 'User created successfully. Email delivery may be delayed.'
+        email_sent: false,
+        email_error: errorDetails,
+        message: "Usuário criado com sucesso, mas houve problema no envio do email. Verifique a configuração do domínio no Resend."
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
       });
     }
 
-    const emailResult = await emailResponse.json();
-    console.log('Welcome magic link email sent successfully:', emailResult);
+    const emailResult = JSON.parse(responseText);
+    console.log("Email sent successfully! ID:", emailResult.id);
+    
     return new Response(JSON.stringify({ 
       success: true,
       user_id: userId,
-      message: 'User created and magic link email sent successfully'
+      email_sent: true,
+      email_id: emailResult.id,
+      message: "Usuário criado e email de boas-vindas enviado com sucesso!"
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
+    
   } catch (error: any) {
-    console.error("Error in send-welcome-email function:", error);
+    console.error("=== CRITICAL ERROR in send-welcome-email ===");
+    console.error("Error type:", error.constructor.name);
+    console.error("Error message:", error.message);
+    console.error("Error stack:", error.stack);
     
-    // Sanitize error message to prevent information disclosure
-    const safeErrorMessage = error.message.includes('Invalid email format') || 
-                           error.message.includes('Email and full name are required') ||
-                           error.message.includes('Rate limit exceeded')
-                           ? error.message 
-                           : 'An error occurred while processing your request';
-    
-    return new Response(JSON.stringify({ error: safeErrorMessage }), {
+    return new Response(JSON.stringify({ 
+      error: "Erro interno ao processar solicitação",
+      details: error.message
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: error.message.includes('Rate limit exceeded') ? 429 : 500,
+      status: 500,
     });
   }
 };
