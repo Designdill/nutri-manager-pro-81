@@ -1536,6 +1536,128 @@ export type Database = {
         }
         Relationships: []
       }
+      recipe_ingredients: {
+        Row: {
+          calories: number | null
+          carbohydrates: number | null
+          created_at: string
+          fats: number | null
+          fiber: number | null
+          food_id: string | null
+          food_name: string
+          id: string
+          proteins: number | null
+          quantity: number
+          recipe_id: string
+          unit: string
+        }
+        Insert: {
+          calories?: number | null
+          carbohydrates?: number | null
+          created_at?: string
+          fats?: number | null
+          fiber?: number | null
+          food_id?: string | null
+          food_name: string
+          id?: string
+          proteins?: number | null
+          quantity: number
+          recipe_id: string
+          unit?: string
+        }
+        Update: {
+          calories?: number | null
+          carbohydrates?: number | null
+          created_at?: string
+          fats?: number | null
+          fiber?: number | null
+          food_id?: string | null
+          food_name?: string
+          id?: string
+          proteins?: number | null
+          quantity?: number
+          recipe_id?: string
+          unit?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recipe_ingredients_food_id_fkey"
+            columns: ["food_id"]
+            isOneToOne: false
+            referencedRelation: "foods"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recipe_ingredients_recipe_id_fkey"
+            columns: ["recipe_id"]
+            isOneToOne: false
+            referencedRelation: "recipes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recipes: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          instructions: string | null
+          nutritionist_id: string
+          preparation_time: number | null
+          servings: number | null
+          title: string
+          total_calories: number | null
+          total_carbohydrates: number | null
+          total_fats: number | null
+          total_fiber: number | null
+          total_proteins: number | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          instructions?: string | null
+          nutritionist_id: string
+          preparation_time?: number | null
+          servings?: number | null
+          title: string
+          total_calories?: number | null
+          total_carbohydrates?: number | null
+          total_fats?: number | null
+          total_fiber?: number | null
+          total_proteins?: number | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          instructions?: string | null
+          nutritionist_id?: string
+          preparation_time?: number | null
+          servings?: number | null
+          title?: string
+          total_calories?: number | null
+          total_carbohydrates?: number | null
+          total_fats?: number | null
+          total_fiber?: number | null
+          total_proteins?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recipes_nutritionist_id_fkey"
+            columns: ["nutritionist_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       settings_history: {
         Row: {
           changed_at: string

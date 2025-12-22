@@ -14,7 +14,8 @@ import {
   Menu,
   FileText,
   FileCheck2,
-  ShoppingCart
+  ShoppingCart,
+  ChefHat
 } from "lucide-react";
 import {
   Sidebar,
@@ -67,6 +68,11 @@ const nutritionistMenuItems = [
     title: "Lista de Compras",
     url: "/shopping-lists",
     icon: ShoppingCart,
+  },
+  {
+    title: "Receitas",
+    url: "/recipes",
+    icon: ChefHat,
   },
   {
     title: "Banco de Alimentos",
