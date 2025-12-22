@@ -33,6 +33,7 @@ import PatientAppointments from "./pages/patient-portal/PatientAppointments";
 import PatientMealPlans from "./pages/patient-portal/PatientMealPlans";
 import PatientQuestionnaires from "./pages/patient-portal/PatientQuestionnaires";
 import ShoppingListsPage from "./pages/shopping-lists/ShoppingListsPage";
+import RecipesPage from "./pages/recipes/RecipesPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -269,6 +270,14 @@ function App() {
                   element={
                     <PrivateRoute requireRole="nutritionist">
                       <ShoppingListsPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/recipes"
+                  element={
+                    <PrivateRoute requireRole="nutritionist">
+                      <RecipesPage />
                     </PrivateRoute>
                   }
                 />
