@@ -13,7 +13,8 @@ import {
   FileQuestion,
   Menu,
   FileText,
-  FileCheck2
+  FileCheck2,
+  ShoppingCart
 } from "lucide-react";
 import {
   Sidebar,
@@ -61,6 +62,11 @@ const nutritionistMenuItems = [
     title: "Planos Alimentares",
     url: "/meal-plans",
     icon: BookOpen,
+  },
+  {
+    title: "Lista de Compras",
+    url: "/shopping-lists",
+    icon: ShoppingCart,
   },
   {
     title: "Banco de Alimentos",

@@ -1563,6 +1563,117 @@ export type Database = {
         }
         Relationships: []
       }
+      shopping_list_items: {
+        Row: {
+          category: string
+          created_at: string
+          food_id: string | null
+          food_name: string
+          id: string
+          is_checked: boolean
+          notes: string | null
+          quantity: number
+          raw_quantity: number | null
+          shopping_list_id: string
+          unit: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          food_id?: string | null
+          food_name: string
+          id?: string
+          is_checked?: boolean
+          notes?: string | null
+          quantity: number
+          raw_quantity?: number | null
+          shopping_list_id: string
+          unit: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          food_id?: string | null
+          food_name?: string
+          id?: string
+          is_checked?: boolean
+          notes?: string | null
+          quantity?: number
+          raw_quantity?: number | null
+          shopping_list_id?: string
+          unit?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shopping_list_items_food_id_fkey"
+            columns: ["food_id"]
+            isOneToOne: false
+            referencedRelation: "foods"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shopping_list_items_shopping_list_id_fkey"
+            columns: ["shopping_list_id"]
+            isOneToOne: false
+            referencedRelation: "shopping_lists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shopping_lists: {
+        Row: {
+          created_at: string
+          id: string
+          meal_plan_id: string | null
+          nutritionist_id: string
+          patient_id: string
+          status: string
+          title: string
+          updated_at: string
+          week_end: string | null
+          week_start: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          meal_plan_id?: string | null
+          nutritionist_id: string
+          patient_id: string
+          status?: string
+          title: string
+          updated_at?: string
+          week_end?: string | null
+          week_start?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          meal_plan_id?: string | null
+          nutritionist_id?: string
+          patient_id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          week_end?: string | null
+          week_start?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shopping_lists_meal_plan_id_fkey"
+            columns: ["meal_plan_id"]
+            isOneToOne: false
+            referencedRelation: "meal_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shopping_lists_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string

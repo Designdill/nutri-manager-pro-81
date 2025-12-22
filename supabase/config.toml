@@ -66,3 +66,6 @@ verify_jwt = true
 
 [functions.generate-patient-alerts]
 verify_jwt = true
+
+[functions.generate-shopping-list]
+verify_jwt = true
