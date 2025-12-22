@@ -146,22 +146,41 @@ export function CreateMealPlanForm({
           patientsLoading={patientsLoading} 
         />
         
-        <div className="flex justify-end">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleGenerateWithAI}
-            disabled={isGenerating || !selectedPatientId}
-            className="gap-2"
-          >
-            {isGenerating ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Sparkles className="h-4 w-4" />
-            )}
-            {isGenerating ? "Gerando..." : "Gerar com IA"}
-          </Button>
-        </div>
+        {selectedPatientId && (
+          <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-4 rounded-lg border border-primary/20">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-full bg-primary/10">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium text-sm">Sugestão com IA</p>
+                  <p className="text-xs text-muted-foreground">
+                    Gere um plano alimentar personalizado baseado nos dados do paciente
+                  </p>
+                </div>
+              </div>
+              <Button
+                type="button"
+                onClick={handleGenerateWithAI}
+                disabled={isGenerating}
+                className="gap-2"
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Gerando...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4" />
+                    Gerar com IA
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        )}
         
         <MealPlanBasicInfo form={form} />
         
