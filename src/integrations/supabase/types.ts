@@ -325,13 +325,42 @@ export type Database = {
           },
         ]
       }
+      appointment_private_notes: {
+        Row: {
+          appointment_id: string
+          created_at: string | null
+          note: string | null
+        }
+        Insert: {
+          appointment_id: string
+          created_at?: string | null
+          note?: string | null
+        }
+        Update: {
+          appointment_id?: string
+          created_at?: string | null
+          note?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointment_private_notes_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: true
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       appointments: {
         Row: {
           cancellation_policy_accepted: boolean | null
           cancellation_reason: string | null
           cancellation_time: string | null
+          category: string | null
           created_at: string
+          end_time: string | null
           feedback: string | null
+          google_event_id: string | null
           id: string
           last_reminder_sent: string | null
           notes: string | null
@@ -340,14 +369,19 @@ export type Database = {
           previous_scheduled_at: string | null
           scheduled_at: string
           status: Database["public"]["Enums"]["appointment_status"]
+          title: string | null
+          type: string | null
           updated_at: string
         }
         Insert: {
           cancellation_policy_accepted?: boolean | null
           cancellation_reason?: string | null
           cancellation_time?: string | null
+          category?: string | null
           created_at?: string
+          end_time?: string | null
           feedback?: string | null
+          google_event_id?: string | null
           id?: string
           last_reminder_sent?: string | null
           notes?: string | null
@@ -356,14 +390,19 @@ export type Database = {
           previous_scheduled_at?: string | null
           scheduled_at: string
           status?: Database["public"]["Enums"]["appointment_status"]
+          title?: string | null
+          type?: string | null
           updated_at?: string
         }
         Update: {
           cancellation_policy_accepted?: boolean | null
           cancellation_reason?: string | null
           cancellation_time?: string | null
+          category?: string | null
           created_at?: string
+          end_time?: string | null
           feedback?: string | null
+          google_event_id?: string | null
           id?: string
           last_reminder_sent?: string | null
           notes?: string | null
@@ -372,6 +411,8 @@ export type Database = {
           previous_scheduled_at?: string | null
           scheduled_at?: string
           status?: Database["public"]["Enums"]["appointment_status"]
+          title?: string | null
+          type?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -459,6 +500,38 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      checkins: {
+        Row: {
+          created_at: string | null
+          date: string
+          id: string
+          notes: string | null
+          patient_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          id?: string
+          notes?: string | null
+          patient_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          id?: string
+          notes?: string | null
+          patient_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checkins_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       compound_formulas: {
         Row: {
@@ -618,6 +691,66 @@ export type Database = {
           },
         ]
       }
+      email_logs: {
+        Row: {
+          created_at: string | null
+          email_type: string
+          error_message: string | null
+          id: string
+          metadata: Json | null
+          nutritionist_id: string | null
+          patient_id: string | null
+          recipient_email: string
+          recipient_name: string | null
+          resend_id: string | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email_type?: string
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          nutritionist_id?: string | null
+          patient_id?: string | null
+          recipient_email: string
+          recipient_name?: string | null
+          resend_id?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email_type?: string
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          nutritionist_id?: string | null
+          patient_id?: string | null
+          recipient_email?: string
+          recipient_name?: string | null
+          resend_id?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_logs_nutritionist_id_fkey"
+            columns: ["nutritionist_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_logs_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       exam_types: {
         Row: {
           created_at: string
@@ -767,6 +900,7 @@ export type Database = {
           id: string
           lunch: string | null
           morning_snack: string | null
+          nutritionist_id: string | null
           patient_id: string
           title: string
           updated_at: string
@@ -781,6 +915,7 @@ export type Database = {
           id?: string
           lunch?: string | null
           morning_snack?: string | null
+          nutritionist_id?: string | null
           patient_id: string
           title: string
           updated_at?: string
@@ -795,6 +930,7 @@ export type Database = {
           id?: string
           lunch?: string | null
           morning_snack?: string | null
+          nutritionist_id?: string | null
           patient_id?: string
           title?: string
           updated_at?: string
@@ -932,6 +1068,47 @@ export type Database = {
           },
         ]
       }
+      patient_documents: {
+        Row: {
+          created_at: string
+          file_path: string
+          file_type: string
+          id: string
+          name: string
+          patient_id: string | null
+          size: number | null
+          uploaded_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          file_path: string
+          file_type: string
+          id?: string
+          name: string
+          patient_id?: string | null
+          size?: number | null
+          uploaded_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          file_path?: string
+          file_type?: string
+          id?: string
+          name?: string
+          patient_id?: string | null
+          size?: number | null
+          uploaded_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_documents_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       patient_exams: {
         Row: {
           created_at: string
@@ -1020,6 +1197,7 @@ export type Database = {
           activation_sent_at: string | null
           additional_notes: string | null
           allergies: string | null
+          auth_user_id: string | null
           birth_date: string | null
           blood_type: string | null
           city: string | null
@@ -1065,6 +1243,7 @@ export type Database = {
           activation_sent_at?: string | null
           additional_notes?: string | null
           allergies?: string | null
+          auth_user_id?: string | null
           birth_date?: string | null
           blood_type?: string | null
           city?: string | null
@@ -1110,6 +1289,7 @@ export type Database = {
           activation_sent_at?: string | null
           additional_notes?: string | null
           allergies?: string | null
+          auth_user_id?: string | null
           birth_date?: string | null
           blood_type?: string | null
           city?: string | null
@@ -1597,6 +1777,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      claim_patient_profile: { Args: never; Returns: undefined }
       cleanup_old_rate_limits: { Args: never; Returns: undefined }
       decrypt_sensitive_data: {
         Args: { encrypted_data: string; encryption_key?: string }

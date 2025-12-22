@@ -7,9 +7,13 @@ import { useParams } from "react-router-dom";
 import { InfoTab } from "./components/tabs/InfoTab";
 import { HistoryTab } from "./components/tabs/HistoryTab";
 import { ProgressTab } from "./components/tabs/ProgressTab";
+import { ResendWelcomeEmailButton } from "@/components/patients/ResendWelcomeEmailButton";
+import { EmailLogsViewer } from "@/components/patients/EmailLogsViewer";
+import { useAuth } from "@/App";
 
 export default function PatientDetailsPage() {
   const { patientId } = useParams();
+  const { session } = useAuth();
 
   const { data: patient, isLoading: isLoadingPatient } = useQuery({
     queryKey: ["patient", patientId],
@@ -53,8 +57,16 @@ export default function PatientDetailsPage() {
     <div className="flex min-h-screen">
       <AppSidebar />
       <div className="flex-1 p-8">
-        <div className="mb-8">
+        <div className="mb-8 flex items-center justify-between">
           <h1 className="text-2xl font-bold">{patient?.full_name}</h1>
+          {patient?.email && (
+            <ResendWelcomeEmailButton
+              patientId={patientId!}
+              patientName={patient.full_name}
+              patientEmail={patient.email}
+              nutritionistId={session?.user?.id}
+            />
+          )}
         </div>
 
         <Tabs defaultValue="info" className="space-y-4">
@@ -63,6 +75,7 @@ export default function PatientDetailsPage() {
             <TabsTrigger value="history">Histórico</TabsTrigger>
             <TabsTrigger value="progress">Progresso</TabsTrigger>
             <TabsTrigger value="exams">Exames</TabsTrigger>
+            <TabsTrigger value="emails">E-mails</TabsTrigger>
           </TabsList>
 
           <TabsContent value="info">
@@ -83,6 +96,10 @@ export default function PatientDetailsPage() {
 
           <TabsContent value="exams">
             <ExamsTab patientId={patientId!} />
+          </TabsContent>
+
+          <TabsContent value="emails">
+            <EmailLogsViewer patientId={patientId} limit={20} />
           </TabsContent>
         </Tabs>
       </div>
