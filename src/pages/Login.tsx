@@ -6,10 +6,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/App";
 import { useToast } from "@/hooks/use-toast";
 import { useUserRole } from "@/hooks/useUserRole";
+import { useTheme } from "@/hooks/useTheme";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -19,6 +21,7 @@ const Login = () => {
   const [showPasswordReset, setShowPasswordReset] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [isResetting, setIsResetting] = useState(false);
+  const { resolvedTheme } = useTheme();
 
   const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,7 +85,7 @@ const Login = () => {
   // Show loading state while checking authentication
   if (isLoading || roleLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-secondary-50">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
           <div className="w-16 h-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
           <p className="text-foreground font-medium">Carregando...</p>
@@ -92,7 +95,11 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row items-stretch bg-gradient-to-br from-primary-50 to-secondary-50">
+    <div className="min-h-screen flex flex-col md:flex-row items-stretch bg-background relative">
+      {/* Theme Toggle - fixed position */}
+      <div className="absolute top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
       {/* Left side - Branding */}
       <div className="hidden md:flex md:w-1/2 bg-gradient-to-br from-primary to-primary-600 p-12 flex-col justify-center items-center relative overflow-hidden">
         {/* Decorative circles */}
@@ -215,10 +222,13 @@ const Login = () => {
                         colors: {
                           brand: '#4A6741',
                           brandAccent: '#3B522F',
-                          inputBackground: 'white',
-                          inputBorder: '#E5E7EB',
+                          inputBackground: resolvedTheme === 'dark' ? 'hsl(222 47% 15%)' : 'white',
+                          inputBorder: resolvedTheme === 'dark' ? 'hsl(222 47% 20%)' : '#E5E7EB',
                           inputBorderHover: '#4A6741',
                           inputBorderFocus: '#4A6741',
+                          inputText: resolvedTheme === 'dark' ? 'hsl(210 20% 98%)' : 'hsl(222 47% 11%)',
+                          inputLabelText: resolvedTheme === 'dark' ? 'hsl(210 20% 98%)' : 'hsl(222 47% 11%)',
+                          inputPlaceholder: resolvedTheme === 'dark' ? 'hsl(220 9% 65%)' : 'hsl(220 9% 46%)',
                         },
                         space: {
                           inputPadding: '0.75rem',
@@ -236,11 +246,11 @@ const Login = () => {
                       button: 'w-full font-medium h-11 transition-all',
                       input: 'w-full h-11',
                       label: 'text-sm font-medium text-foreground',
-                      anchor: 'hidden', // Hide the built-in forgot password link
+                      anchor: 'hidden',
                     },
                   }}
                   providers={[]}
-                  theme="light"
+                  theme={resolvedTheme}
                   redirectTo={window.location.origin}
                   localization={{
                     variables: {
