@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { AppSidebar } from "@/components/AppSidebar";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,6 +11,7 @@ import { DashboardActions } from "@/components/dashboard/DashboardActions";
 import { UpcomingAppointments } from "@/components/dashboard/UpcomingAppointments";
 import { RecentNotifications } from "@/components/dashboard/RecentNotifications";
 import { PatientAlerts } from "@/components/dashboard/PatientAlerts";
+import { OnboardingTour } from "@/components/onboarding/OnboardingTour";
 import { CalendarDays } from "lucide-react";
 
 export default function Index() {
@@ -134,6 +134,7 @@ export default function Index() {
   return (
     <div className="flex min-h-screen w-full bg-background">
       <AppSidebar />
+      <OnboardingTour />
       <main className="page-container overflow-auto">
         <div className="max-w-7xl mx-auto space-y-8">
           {/* Header */}
@@ -150,11 +151,13 @@ export default function Index() {
           </div>
 
           {/* Stats */}
-          <DashboardStats
-            totalPatients={patients.length}
-            todayAppointments={todayAppointments.length}
-            unreadMessages={unreadMessages.length}
-          />
+          <div data-tour="dashboard-stats">
+            <DashboardStats
+              totalPatients={patients.length}
+              todayAppointments={todayAppointments.length}
+              unreadMessages={unreadMessages.length}
+            />
+          </div>
 
           {/* Quick Actions */}
           <DashboardActions />

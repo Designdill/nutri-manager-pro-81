@@ -141,6 +141,7 @@ export function AppSidebar() {
                       key={item.title}
                       style={{ animationDelay: `${(groupIndex * 5 + itemIndex) * 30}ms` }}
                       className="animate-slide-in-left"
+                      data-tour={item.url === "/patients" ? "sidebar-patients" : item.url === "/appointments" ? "sidebar-appointments" : item.url === "/meal-plans" ? "sidebar-meal-plans" : undefined}
                     >
                       <SidebarMenuButton asChild>
                         <Link

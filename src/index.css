@@ -3,7 +3,24 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
+
+/* Toast Styles */
+.toast-success {
+  border-left: 4px solid hsl(var(--success)) !important;
+}
+
+.toast-error {
+  border-left: 4px solid hsl(var(--destructive)) !important;
+}
+
+.toast-warning {
+  border-left: 4px solid hsl(var(--warning)) !important;
+}
+
+.toast-info {
+  border-left: 4px solid hsl(217 91% 60%) !important;
+}
+
 @layer base {
   :root {
     --background: 210 20% 98%;
