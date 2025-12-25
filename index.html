@@ -1,12 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR" class="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>nutri-manager-pro</title>
-    <meta name="description" content="Lovable Generated Project" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Nutri Manager Pro</title>
+    <meta name="description" content="Sistema de Gestão Nutricional para profissionais de nutrição" />
     <meta name="author" content="Lovable" />
     <meta property="og:image" content="/og-image.png" />
+    <script>
+      // Prevent flash of wrong theme
+      (function() {
+        const theme = localStorage.getItem('theme') || 'system';
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const isDark = theme === 'dark' || (theme === 'system' && prefersDark);
+        document.documentElement.classList.add(isDark ? 'dark' : 'light');
+      })();
+    </script>
   </head>
 
   <body>

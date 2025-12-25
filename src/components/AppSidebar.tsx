@@ -37,6 +37,7 @@ import { Button } from "./ui/button";
 import { useUserRole } from "@/hooks/useUserRole";
 import { supabase } from "@/integrations/supabase/client";
 import { Separator } from "./ui/separator";
+import { ThemeToggleSimple } from "./ThemeToggle";
 
 const nutritionistMenuGroups = [
   {
@@ -170,7 +171,7 @@ export function AppSidebar() {
 
       <Separator className="mx-4 w-auto" />
 
-      <SidebarFooter className="p-4 space-y-3">
+      <SidebarFooter className="p-4 space-y-2">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
@@ -187,6 +188,8 @@ export function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
+
+        <ThemeToggleSimple />
 
         <Button 
           variant="ghost" 
