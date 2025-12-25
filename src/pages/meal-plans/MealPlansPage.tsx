@@ -6,6 +6,7 @@ import { MealPlansList } from "@/components/meal-plans/MealPlansList";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { BookOpen } from "lucide-react";
 
 export default function MealPlansPage() {
   const { session } = useAuth();
@@ -79,33 +80,42 @@ export default function MealPlansPage() {
   });
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen w-full bg-background">
       <AppSidebar />
-      <div className="flex-1 space-y-8 p-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">Planos Alimentares</h1>
-            <p className="text-muted-foreground">
-              Gerencie os planos alimentares dos seus pacientes
-            </p>
+      <main className="page-container overflow-auto">
+        <div className="max-w-7xl mx-auto space-y-6">
+          {/* Header */}
+          <div className="page-header">
+            <div className="flex items-start gap-3">
+              <div className="icon-box-primary hidden sm:flex">
+                <BookOpen className="h-5 w-5" />
+              </div>
+              <div className="space-y-1">
+                <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Planos Alimentares</h1>
+                <p className="text-muted-foreground">
+                  Crie e gerencie planos alimentares personalizados para seus pacientes
+                </p>
+              </div>
+            </div>
           </div>
-        </div>
 
-        {isCreating ? (
-          <CreateMealPlanForm
-            patients={patients || []}
-            patientsLoading={patientsLoading}
-            onSuccess={() => setIsCreating(false)}
-            onCancel={() => setIsCreating(false)}
-          />
-        ) : (
-          <MealPlansList
-            mealPlans={mealPlans || []}
-            isLoading={mealPlansLoading}
-            onCreateNew={() => setIsCreating(true)}
-          />
-        )}
-      </div>
+          {/* Content */}
+          {isCreating ? (
+            <CreateMealPlanForm
+              patients={patients || []}
+              patientsLoading={patientsLoading}
+              onSuccess={() => setIsCreating(false)}
+              onCancel={() => setIsCreating(false)}
+            />
+          ) : (
+            <MealPlansList
+              mealPlans={mealPlans || []}
+              isLoading={mealPlansLoading}
+              onCreateNew={() => setIsCreating(true)}
+            />
+          )}
+        </div>
+      </main>
     </div>
   );
 }

@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { UserPlus, Download } from "lucide-react";
+import { UserPlus, Download, Users } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/App";
@@ -18,6 +18,7 @@ import { PatientTableRow } from "./components/PatientTableRow";
 import { AdvancedSearch, SearchFilters } from "./components/AdvancedSearch";
 import { exportPatientsToCSV } from "./utils/exportPatients";
 import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function PatientsPage() {
   const { session } = useAuth();
@@ -83,14 +84,12 @@ export default function PatientsPage() {
   const filteredPatients = patients?.filter((patient) => {
     let matches = true;
 
-    // Name search
     if (filters.searchTerm) {
       matches = matches && patient.full_name
         .toLowerCase()
         .includes(filters.searchTerm.toLowerCase());
     }
 
-    // Age filter
     if (filters.ageRange !== "all" && patient.birth_date) {
       const age = calculateAge(patient.birth_date);
       const [min, max] = filters.ageRange === "51+" 
@@ -100,7 +99,6 @@ export default function PatientsPage() {
       matches = matches && age >= min && age <= max;
     }
 
-    // BMI filter
     if (filters.bmiRange !== "all" && patient.current_weight && patient.height) {
       const bmi = calculateBMI(patient.current_weight, patient.height);
       
@@ -120,75 +118,104 @@ export default function PatientsPage() {
       }
     }
 
-    // Next appointment filter will be implemented when we add appointment tracking
-
     return matches;
   });
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen w-full bg-background">
       <AppSidebar />
-      <div className="flex-1 p-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold">Pacientes</h1>
-          <div className="flex gap-4">
-            <Button variant="outline" onClick={handleExportCSV}>
-              <Download className="mr-2 h-4 w-4" />
-              Exportar CSV
-            </Button>
-            <Button asChild>
-              <Link to="/patients/new">
-                <UserPlus className="mr-2" />
-                Adicionar Novo Paciente
-              </Link>
-            </Button>
+      <main className="page-container overflow-auto">
+        <div className="max-w-7xl mx-auto space-y-6">
+          {/* Header */}
+          <div className="page-header">
+            <div className="space-y-1">
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Pacientes</h1>
+              <p className="text-muted-foreground">
+                Gerencie seus pacientes e acompanhe seu progresso
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Button variant="outline" onClick={handleExportCSV} className="gap-2">
+                <Download className="h-4 w-4" />
+                Exportar CSV
+              </Button>
+              <Button asChild className="gap-2 shadow-sm">
+                <Link to="/patients/new">
+                  <UserPlus className="h-4 w-4" />
+                  Novo Paciente
+                </Link>
+              </Button>
+            </div>
           </div>
-        </div>
 
-        <AdvancedSearch
-          searchTerm={searchTerm}
-          onSearchTermChange={setSearchTerm}
-          onSearch={setFilters}
-        />
+          {/* Search */}
+          <AdvancedSearch
+            searchTerm={searchTerm}
+            onSearchTermChange={setSearchTerm}
+            onSearch={setFilters}
+          />
 
-        <div className="bg-white rounded-lg shadow">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>Idade</TableHead>
-                <TableHead>Peso Atual</TableHead>
-                <TableHead>IMC</TableHead>
-                <TableHead>Próxima Consulta</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center py-4">
-                    Carregando...
-                  </TableCell>
-                </TableRow>
-              ) : filteredPatients?.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center py-4">
-                    Nenhum paciente encontrado
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredPatients?.map((patient) => (
-                  <PatientTableRow 
-                    key={patient.id} 
-                    patient={patient} 
-                    onDelete={refetch}
-                  />
-                ))
-              )}
-            </TableBody>
-          </Table>
+          {/* Table */}
+          <Card className="shadow-md">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-2">
+                <div className="icon-box-primary">
+                  <Users className="h-4 w-4" />
+                </div>
+                <CardTitle className="text-base font-semibold">Lista de Pacientes</CardTitle>
+                <span className="ml-auto text-sm text-muted-foreground">
+                  {filteredPatients?.length || 0} paciente(s)
+                </span>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="hover:bg-transparent">
+                      <TableHead className="font-semibold">Nome</TableHead>
+                      <TableHead className="font-semibold">Idade</TableHead>
+                      <TableHead className="font-semibold">Peso Atual</TableHead>
+                      <TableHead className="font-semibold">IMC</TableHead>
+                      <TableHead className="font-semibold">Próxima Consulta</TableHead>
+                      <TableHead className="text-right font-semibold">Ações</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {isLoading ? (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center py-12">
+                          <div className="flex flex-col items-center gap-2">
+                            <div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                            <span className="text-muted-foreground">Carregando...</span>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ) : filteredPatients?.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center py-12">
+                          <div className="flex flex-col items-center gap-2">
+                            <Users className="h-12 w-12 text-muted-foreground/50" />
+                            <span className="text-muted-foreground">Nenhum paciente encontrado</span>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      filteredPatients?.map((patient) => (
+                        <PatientTableRow 
+                          key={patient.id} 
+                          patient={patient} 
+                          onDelete={refetch}
+                        />
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

@@ -12,6 +12,7 @@ import { DashboardActions } from "@/components/dashboard/DashboardActions";
 import { UpcomingAppointments } from "@/components/dashboard/UpcomingAppointments";
 import { RecentNotifications } from "@/components/dashboard/RecentNotifications";
 import { PatientAlerts } from "@/components/dashboard/PatientAlerts";
+import { CalendarDays } from "lucide-react";
 
 export default function Index() {
   const navigate = useNavigate();
@@ -69,9 +70,10 @@ export default function Index() {
     enabled: !!session?.user?.id,
   });
 
-  const currentDateTime = format(new Date(), "dd/MM/yyyy HH:mm", { locale: ptBR });
+  const currentDate = format(new Date(), "EEEE, dd 'de' MMMM", { locale: ptBR });
+  const currentTime = format(new Date(), "HH:mm", { locale: ptBR });
 
-  // Sample data for charts (you can replace with real data later)
+  // Sample data for charts
   const progressData = [
     { month: "Jan", patients: patients.length },
     { month: "Fev", patients: patients.length + 2 },
@@ -129,46 +131,50 @@ export default function Index() {
     enabled: !!session?.user?.id,
   });
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-  };
-
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen w-full bg-background">
       <AppSidebar />
-      <div className="flex-1 p-8">
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold">Bem-vindo ao Nutri Manager Pro</h1>
-              <p className="text-muted-foreground mt-1">Data e Hora Atual: {currentDateTime}</p>
+      <main className="page-container overflow-auto">
+        <div className="max-w-7xl mx-auto space-y-8">
+          {/* Header */}
+          <div className="page-header">
+            <div className="space-y-1">
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+                Bem-vindo de volta!
+              </h1>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <CalendarDays className="h-4 w-4" />
+                <p className="text-sm capitalize">{currentDate} • {currentTime}</p>
+              </div>
             </div>
-            <Button onClick={handleSignOut} variant="outline">
-              Sair
-            </Button>
           </div>
 
+          {/* Stats */}
           <DashboardStats
             totalPatients={patients.length}
             todayAppointments={todayAppointments.length}
             unreadMessages={unreadMessages.length}
           />
 
+          {/* Quick Actions */}
           <DashboardActions />
 
+          {/* Patient Alerts */}
           <PatientAlerts />
 
+          {/* Charts */}
           <DashboardCharts
             progressData={progressData}
             consultationData={consultationData}
           />
 
-          <div className="grid gap-4 md:grid-cols-2">
+          {/* Bottom Grid */}
+          <div className="grid gap-6 lg:grid-cols-2">
             <UpcomingAppointments appointments={upcomingAppointments} />
             <RecentNotifications notifications={recentNotifications} />
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
