@@ -30,15 +30,19 @@ function QuickAction({ icon: Icon, label, description, onClick, variant = "muted
     <button
       onClick={onClick}
       className={cn(
-        "flex items-center gap-4 p-4 rounded-xl border bg-card text-left transition-all duration-200 group hover:shadow-md",
+        "flex items-center gap-4 p-4 rounded-xl border bg-card text-left transition-all duration-200 group ripple",
+        "hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]",
         variants[variant]
       )}
     >
-      <div className={cn("icon-box transition-transform group-hover:scale-110", iconVariants[variant])}>
-        <Icon className="h-5 w-5" />
+      <div className={cn(
+        "icon-box transition-all duration-300 group-hover:scale-110 group-hover:rotate-3", 
+        iconVariants[variant]
+      )}>
+        <Icon className="h-5 w-5 icon-bounce" />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="font-medium text-foreground truncate">{label}</p>
+        <p className="font-medium text-foreground truncate group-hover:text-primary transition-colors">{label}</p>
         <p className="text-xs text-muted-foreground truncate">{description}</p>
       </div>
     </button>
@@ -49,7 +53,7 @@ export function DashboardActions() {
   const navigate = useNavigate();
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 stagger-children">
       <QuickAction
         icon={UserPlus}
         label="Novo Paciente"
