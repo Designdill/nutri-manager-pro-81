@@ -19,6 +19,7 @@ import { AdvancedSearch, SearchFilters } from "./components/AdvancedSearch";
 import { exportPatientsToCSV } from "./utils/exportPatients";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PatientTableSkeleton } from "@/components/ui/skeletons";
 
 export default function PatientsPage() {
   const { session } = useAuth();
@@ -183,14 +184,7 @@ export default function PatientsPage() {
                   </TableHeader>
                   <TableBody>
                     {isLoading ? (
-                      <TableRow>
-                        <TableCell colSpan={6} className="text-center py-12">
-                          <div className="flex flex-col items-center gap-2">
-                            <div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                            <span className="text-muted-foreground">Carregando...</span>
-                          </div>
-                        </TableCell>
-                      </TableRow>
+                      <PatientTableSkeleton rows={5} />
                     ) : filteredPatients?.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={6} className="text-center py-12">

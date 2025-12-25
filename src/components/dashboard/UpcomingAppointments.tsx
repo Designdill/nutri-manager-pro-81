@@ -5,6 +5,7 @@ import { ptBR } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
 import { Calendar, Clock, ChevronRight, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AppointmentListSkeleton } from "@/components/ui/skeletons";
 
 interface Appointment {
   id: string;
@@ -16,9 +17,10 @@ interface Appointment {
 
 interface UpcomingAppointmentsProps {
   appointments: Appointment[];
+  isLoading?: boolean;
 }
 
-export function UpcomingAppointments({ appointments }: UpcomingAppointmentsProps) {
+export function UpcomingAppointments({ appointments, isLoading = false }: UpcomingAppointmentsProps) {
   const navigate = useNavigate();
 
   return (
@@ -31,49 +33,55 @@ export function UpcomingAppointments({ appointments }: UpcomingAppointmentsProps
             </div>
             <CardTitle className="text-base font-semibold">Próximas Consultas</CardTitle>
           </div>
-          <Button variant="ghost" size="sm" onClick={() => navigate("/appointments")} className="text-xs gap-1">
+          <Button variant="ghost" size="sm" onClick={() => navigate("/appointments")} className="text-xs gap-1 group">
             Ver todas
-            <ChevronRight className="h-3 w-3" />
+            <ChevronRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
           </Button>
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
-        {appointments.map((appointment, index) => (
-          <div 
-            key={appointment.id} 
-            className={cn(
-              "flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer group",
-              index === 0 && "bg-primary/5 border border-primary/10"
-            )}
-            onClick={() => navigate(`/appointments/${appointment.id}`)}
-          >
-            <div className="flex items-center gap-3">
-              <div className={cn(
-                "w-10 h-10 rounded-full flex items-center justify-center text-xs font-semibold",
-                index === 0 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-              )}>
-                {appointment.patients?.full_name?.split(' ').map(n => n[0]).slice(0, 2).join('')}
-              </div>
-              <div>
-                <p className="font-medium text-sm">{appointment.patients?.full_name}</p>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <CalendarDays className="h-3 w-3" />
-                  <span>{format(new Date(appointment.scheduled_at), "dd/MM/yyyy", { locale: ptBR })}</span>
-                  <Clock className="h-3 w-3 ml-1" />
-                  <span>{format(new Date(appointment.scheduled_at), "HH:mm", { locale: ptBR })}</span>
-                </div>
-              </div>
-            </div>
-            <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-          </div>
-        ))}
-        {appointments.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-8 text-center">
+        {isLoading ? (
+          <AppointmentListSkeleton count={3} />
+        ) : appointments.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-8 text-center animate-fade-in">
             <Calendar className="h-10 w-10 text-muted-foreground/50 mb-2" />
             <p className="text-muted-foreground text-sm">Nenhuma consulta agendada</p>
             <Button variant="link" size="sm" onClick={() => navigate("/appointments")} className="mt-1">
               Agendar consulta
             </Button>
+          </div>
+        ) : (
+          <div className="stagger-children">
+            {appointments.map((appointment, index) => (
+              <div 
+                key={appointment.id} 
+                className={cn(
+                  "flex items-center justify-between p-3 rounded-lg bg-muted/30 transition-all duration-200 cursor-pointer group hover-lift",
+                  "hover:bg-muted/50 hover:shadow-sm",
+                  index === 0 && "bg-primary/5 border border-primary/10"
+                )}
+                onClick={() => navigate(`/appointments/${appointment.id}`)}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={cn(
+                    "w-10 h-10 rounded-full flex items-center justify-center text-xs font-semibold transition-transform duration-200 group-hover:scale-105",
+                    index === 0 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                  )}>
+                    {appointment.patients?.full_name?.split(' ').map(n => n[0]).slice(0, 2).join('')}
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm group-hover:text-primary transition-colors">{appointment.patients?.full_name}</p>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <CalendarDays className="h-3 w-3" />
+                      <span>{format(new Date(appointment.scheduled_at), "dd/MM/yyyy", { locale: ptBR })}</span>
+                      <Clock className="h-3 w-3 ml-1" />
+                      <span>{format(new Date(appointment.scheduled_at), "HH:mm", { locale: ptBR })}</span>
+                    </div>
+                  </div>
+                </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground transition-all duration-200 group-hover:text-foreground group-hover:translate-x-0.5" />
+              </div>
+            ))}
           </div>
         )}
       </CardContent>
