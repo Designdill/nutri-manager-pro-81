@@ -92,23 +92,48 @@ export default function EditPatient() {
   });
 
   const updatePatient = useCallback(async (data: PatientFormValues) => {
+    // Map only fields that exist in the patients table
     const patientData = {
-      ...data,
-      // Handle nullable email and phone conversion
+      full_name: data.full_name,
       email: data.email?.trim() || null,
       phone: data.phone?.trim() || null,
       cpf: data.cpf?.trim() || null,
       birth_date: data.birth_date?.trim() || null,
+      gender: data.gender?.trim() || null,
+      occupation: data.occupation?.trim() || null,
+      postal_code: data.postal_code?.trim() || null,
+      street: data.street?.trim() || null,
+      number: data.number?.trim() || null,
+      complement: data.complement?.trim() || null,
+      neighborhood: data.neighborhood?.trim() || null,
+      city: data.city?.trim() || null,
+      state: data.state?.trim() || null,
+      blood_type: data.blood_type?.trim() || null,
+      family_history: data.family_history?.trim() || null,
+      medical_conditions: data.medical_conditions?.trim() || null,
+      surgery_history: data.surgery_history?.trim() || null,
+      allergies: data.allergies?.trim() || null,
+      medications: data.medications?.trim() || null,
+      dietary_restrictions: data.dietary_restrictions?.trim() || null,
+      dietary_type: data.dietary_type?.trim() || null,
+      food_preferences: data.food_preferences?.trim() || null,
+      exercise_frequency: data.exercise_frequency?.trim() || null,
+      exercise_type: data.exercise_type?.trim() || null,
+      exercise_duration: data.exercise_duration?.trim() || null,
+      sleep_quality: data.sleep_quality?.trim() || null,
+      nutritional_goals: data.nutritional_goals?.trim() || null,
+      treatment_expectations: data.treatment_expectations?.trim() || null,
+      additional_notes: data.additional_notes?.trim() || null,
+      // Numeric fields
       current_weight: data.current_weight ? parseFloat(data.current_weight) : null,
       target_weight: data.target_weight ? parseFloat(data.target_weight) : null,
       height: data.height ? parseFloat(data.height) : null,
+      water_intake: data.water_intake ? parseFloat(data.water_intake) : null,
       meals_per_day: data.meals_per_day ? parseInt(data.meals_per_day) : null,
       sleep_hours: data.sleep_hours ? parseInt(data.sleep_hours) : null,
-      water_intake: data.water_intake ? parseFloat(data.water_intake) : null,
+      // Status and timestamp
+      status: statusOptions.includes(data.status as StatusType) ? data.status : "created",
       updated_at: new Date().toISOString(),
-      status: statusOptions.includes(data.status as StatusType) 
-        ? data.status 
-        : "created",
     };
 
     const { error } = await supabase
@@ -116,7 +141,10 @@ export default function EditPatient() {
       .update(patientData)
       .eq("id", patientId);
 
-    if (error) throw error;
+    if (error) {
+      console.error("Supabase update error:", error);
+      throw error;
+    }
   }, [patientId]);
 
   const { saveStatus, lastSaved, saveNow } = useAutoSave(form, {
